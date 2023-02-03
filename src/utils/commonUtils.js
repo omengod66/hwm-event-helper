@@ -11,7 +11,7 @@ export function $(id, where = document) {
 }
 
 export function get(key, def) {
-    let result = JSON.parse(localStorage[key] === undefined ? null : localStorage[key]);
+    let result = JSON.parse(typeof localStorage[key] === "undefined" || localStorage[key] === "undefined" ? null : localStorage[key]);
     return result == null ? def : result;
 }
 

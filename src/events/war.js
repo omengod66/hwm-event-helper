@@ -1,4 +1,4 @@
-import {get, pl_id, set} from "../utils/commonUtils";
+import {$, get, pl_id, set} from "../utils/commonUtils";
 import {doHWMGet} from "../utils/networkUtils";
 import {sendBattle} from "../battles";
 

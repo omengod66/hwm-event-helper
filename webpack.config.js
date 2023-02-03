@@ -7,7 +7,7 @@ module.exports = {
   entry: path.resolve(__dirname, 'src', 'index.js'),
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: 'hwm-event-helper.user.js',
+    filename: 'EventHelper.user.js',
     publicPath: '/',
   },
   devServer: {
@@ -28,7 +28,11 @@ module.exports = {
         downloadURL: 'https://hwm.events/scripts/code/EventHelper.user.js',
         updateURL: 'https://hwm.events/scripts/code/EventHelper.user.js',
         connect: ["hwm.events", "localhost"],
-        include: '/^https:\\/\\/((www|qrator|my)(\\.heroeswm\\.ru|\\.lordswm\\.com))\\/(leader_rogues|pirate_event|tj_single|hunting_event|leader_winter|pl_warlog|leader_guild|ambush_single_event|map_hero_event|naym_event|naym_event_set|war|faction_event|tj_event2|pirate_self_event|pirate_self_event_set|adventure_event|pirate_hunt|pirate_land|pl_info|tournaments|village_def)\\.php.*/',
+        match: [
+            "https://www.heroeswm.ru/*",
+            "https://my.lordswm.com/*",
+            "https://www.lordswm.com/*",
+        ],
         grant: ['unsafeWindow', 'GM.xmlHttpRequest', 'GM.xmlhttpRequest', 'GM_xmlHttpRequest', 'GM_xmlhttpRequest'],
         license: 'GNU GPLv3',
         "run-at": 'document-end',

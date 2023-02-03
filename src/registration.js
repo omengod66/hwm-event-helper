@@ -1,4 +1,4 @@
-import {doGet, doHWMPost} from "./utils/networkUtils";
+import {doGet, doHWMGet, doHWMPost} from "./utils/networkUtils";
 import {$, my_sign, pl_id, set} from "./utils/commonUtils";
 
 export function startRegistration(event) {
@@ -25,6 +25,16 @@ export function startRegistration(event) {
                     } else {
                         $(`reg_progress`).innerHTML = "Что-то пошло не так :("
                     }
+                    doHWMGet('/sms.php?box=out', smsOutDoc => {
+                        let smsId = smsOutDoc.querySelector('input[type="checkbox"]').value
+                        let smsDeleteFormData = new FormData()
+                        smsDeleteFormData.append("id1", smsId)
+                        smsDeleteFormData.append("box", "out")
+                        smsDeleteFormData.append("filter", "")
+                        smsDeleteFormData.append("page", "0")
+                        smsDeleteFormData.append("action", "mass_delete")
+                        doHWMPost("/sms.php", smsDeleteFormData, ()=>{})
+                    })
                 })
             }
         )

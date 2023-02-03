@@ -1,4 +1,4 @@
-import {setSettings} from "../settings";
+import {eventHelperSettings, setSettings} from "../settings";
 import {getCurrentLevel} from "../utils/eventUtils";
 import {$, allClasses, cdnHost, findAll, get, my_sign, pl_id, pl_lvl} from "../utils/commonUtils";
 import {doGet, doHWMGet} from "../utils/networkUtils";
@@ -11,14 +11,15 @@ export default function huntEvent() {
     let isForStat = true;
 
     if (location.href.includes("hunting_event")) {
-        setSettings(
-            "auto_send_hunt_event_battles",
-            "Отправлять бои из сезона охоты в сервис автоматически",
-            Array.from(document.querySelectorAll(`td[valign="top"][align="center"]`)).slice(-1)[0])
+        eventHelperSettings(document.querySelector('.Global'), (container) => {
+            setSettings("auto_send_hunt_event_battles", "Отправлять бои из сезона охоты в сервис автоматически", container)
+        }, "afterend")
+
         Array.from(document.querySelectorAll(`td[width="300"]`)).slice(-1)[0].insertAdjacentHTML("beforeend",
             `<div style="max-width: 240px">Автор скрипта <a href="/pl_info.php?id=7197821"><b>Гроза_ГВД</b></a> будет рад подарку в виде артефакта леса 😊</div>`)
         mainHuntEvent();
         getCurrentFaction();
+
         let huntlvlinfo = localStorage.getItem('huntlvl' + getCurrentLevel());
         if (huntlvlinfo) {
             result = huntlvlinfo;
@@ -30,7 +31,7 @@ export default function huntEvent() {
                     .getElementsByTagName("img")[0]
                     .addEventListener("click", () => {
                         isForStat = false
-                        changeFactionAndClass(clazz[4]);
+                        changeFactionAndClass(clazz[4], () => {location.reload()});
                     });
             })
         }
@@ -57,7 +58,6 @@ export default function huntEvent() {
                     battles = doc
                     processFactionEventBattles(enemy)
                 }, false)
-
             })
         })
     }
@@ -98,50 +98,71 @@ export default function huntEvent() {
     }
 
     function getCurrentFaction() {
-        doHWMGet(`/pl_info.php?id=${pl_id}`, processPlInfoResponse)
+        doHWMGet(`/pl_info.php?id=${pl_id}`, (doc) => {
+            let temp = currentHeroFaction;
+            let factionImg = null
+            Array.from(doc.getElementsByTagName("img")).forEach(img => {
+                if (img.src.includes("i/f/")) {
+                    factionImg = img.src
+                }
+            })
+            for (let i = 0; i < allClasses.length; i++) {
+                if (factionImg.indexOf(allClasses[i][3]) > 0) {
+                    currentHeroFaction = allClasses[i][4];
+                    break;
+                }
+            }
+            if (!!temp){
+                if (temp !== currentHeroFaction) {
+                    currentHeroFaction = temp
+                    changeFactionAndClass(temp, () => {getCurrentFaction()})
+                } else {
+                    location.reload()
+                }
+            }
+        })
     }
 
     function mainHuntEvent() {
         Array.from(document.getElementsByClassName("Global")).slice(-1)[0]
-            .insertAdjacentHTML("afterend", createHuntTemplate());
-        $(`statbut`).addEventListener('click', () => {
-            processCollectHunts()
-        })
-    }
-
-    function createHuntTemplate() {
-        return `
+            .insertAdjacentHTML("afterend", `
                     <div class="wrapper">
                         <div style="width: 75%">
                             <div class="wrapperStat">
-                                <div><button id="statbut" class="home_button2 btn_hover2">Посмотреть охоты<br>других классов</button></div>
+                                <div id="show_current_class_examples" class="home_button2 btn_hover2" style="width: 200px;">Загрузить примеры<br>текущего класса</div>
+                                <div id="current_class_examples"></div>
+                                <div id="statbut" class="home_button2 btn_hover2" style="width: 200px;">Посмотреть охоты<br>других классов</div>
                                 <div id="progress" class="progress"></div>
                             </div>
                             <div id="statbody">
                             </div>
                         </div>
                     </div>
-                `
-    }
-
-    function processPlInfoResponse(doc) {
-        let factionImg = null
-        Array.from(doc.getElementsByTagName("img")).forEach(img => {
-            if (img.src.includes("i/f/")) {
-                factionImg = img.src
-            }
+                `);
+        $(`statbut`).addEventListener('click', () => {
+            processCollectHunts()
         })
-        setCurrentFactionAndClass(factionImg)
+        $(`show_current_class_examples`).addEventListener('click', (e) => {
+            let enemy = Array.from(document.querySelectorAll(`table[border="0"][cellspacing="0"][cellpadding="0"]`)).slice(-1)[0]
+
+            let portraits = findAll(/portraits\/([a-zA-Z0-9_-]+)p33/, enemy.innerHTML).map(item => item[1])
+            let amounts = Array.from(enemy.querySelectorAll("#add_now_count")).map(elem => parseInt(elem.innerText))
+            if (amounts.length < portraits.length) {
+                amounts.unshift(1)
+            }
+            portraits.sort((a, b) => a.localeCompare(b))
+            amounts.sort((a, b) => a - b)
+
+            e.target.remove()
+            let request = [portraits.join("|"), amounts.join("|")].join("~")
+            const dlgUrl = `getFactionEventBattles?enemy_id=${encodeURIComponent(request)}&token=${get("hwm_events_token", "")}`
+            doGet(dlgUrl, doc => {
+                battles = doc
+                processFactionEventBattles($(`current_class_examples`))
+            })
+        })
     }
 
-    function setCurrentFactionAndClass(imgLink) {
-        for (let i = 0; i < allClasses.length; i++) {
-            if (imgLink.indexOf(allClasses[i][3]) > 0) {
-                currentHeroFaction = allClasses[i][4];
-                break;
-            }
-        }
-    }
 
     function getFactionName(fr) {
         for (let i = 0; i < allClasses.length; i++) {
@@ -151,15 +172,9 @@ export default function huntEvent() {
         }
     }
 
-    function changeFactionAndClass(fr) {
+    function changeFactionAndClass(fr, callback) {
         doHWMGet(`/castle.php?change_clr_to=${fr}&sign=${my_sign}`, () => {
-            if (isForStat) {
-                doHWMGet(`/hunting_event.php?sel_level=${getCurrentLevel()}`, processHuntResponse)
-            } else {
-                setTimeout(() => {
-                    location.reload()
-                }, 300)
-            }
+            callback()
         });
     }
 
@@ -174,12 +189,12 @@ export default function huntEvent() {
             document.getElementById("statbut").innerHTML = "Done";
             isForStat = false;
             localStorage.setItem('huntlvl' + getCurrentLevel(), result);
-            changeFactionAndClass(currentHeroFaction);
+            changeFactionAndClass(currentHeroFaction, () => {getCurrentFaction()});
             return;
         }
         document.getElementById("statbut").innerHTML = "Processing...";
         document.getElementById("progress").innerHTML = "Текущая фракция - " + getFactionName(allClasses[classCounter][4]);
-        changeFactionAndClass(allClasses[classCounter][4]);
+        changeFactionAndClass(allClasses[classCounter][4], ()=>{doHWMGet(`/hunting_event.php?sel_level=${getCurrentLevel()}`, processHuntResponse)});
     }
 
     function processHuntResponse(doc) {

@@ -1,5 +1,5 @@
 import {startRegistration} from "./registration";
-import {$, get} from "./utils/commonUtils";
+import {$, get, set} from "./utils/commonUtils";
 
 export function setSettings(key, text, where = document.body, enabled = true) {
     where
@@ -17,8 +17,35 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
     where.insertAdjacentHTML(position, `
                 <div style="margin-top: 10px; display: flex; flex-direction: column;"  id="event_helper_settings_container">
                     <div id="event_helper_settings" class="home_button2 btn_hover2" style="width: fit-content;align-self: center">Настройки EventHelper</div>
+                    ${(() => {
+                       if (!get("eh_patreon_notification_shown", false)) {
+                           return `<div style="    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;"><div>Если тебе нравится этот скрипт, просьба рассмотреть возможность поддержать его работоспособность.</div>
+<div style="display: flex;"><div style="    align-items: center;
+    display: flex;">Поддержать существование сервисов </div>
+<div id="patreon_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
+    margin-top: 4px;
+    width: fit-content;"><a href="https://www.patreon.com/user?u=58444506" target="_blank" style="display: flex; align-items: center">Патреон<img src="https://cdn.icon-icons.com/icons2/2429/PNG/512/patreon_logo_icon_147253.png" style="height: 24px;"></a></div>
+<div id="boosty_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
+    margin-top: 4px;
+    width: fit-content;"><a href="https://boosty.to/thunder_hwm" target="_blank" style="display: flex; align-items: center">Бусти<img src="https://mikulski.rocks/wp-content/uploads/2022/04/Color.png" style="height: 24px;"></a></div>
+<div id="patreon_accept" class="home_button2 btn_hover2" style="padding: 2px 4px;
+    margin-top: 4px; margin-left: 10px;
+    width: fit-content;">Ок</div></div></div>`
+                       } else {
+                           return ``
+                       }
+                    })()}
                 </div>
             `)
+    if (!get("eh_patreon_notification_shown", false)) {
+        $(`patreon_accept`).addEventListener("click", () => {
+            set("eh_patreon_notification_shown", true)
+        })
+    }
+
     $(`event_helper_settings`).addEventListener("click", (e) => {
         e.target.remove()
         let container = $(`event_helper_settings_container`)
@@ -42,8 +69,15 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
 <!--                        <br>-->
 <!--                        <div style="width: 100%; text-align: center"><b>Реклама!</b></div>-->
 <!--                        <p>Крафт ювелирки с откатом 2 пары <a href="/pl_info.php?id=6722246">Kerrigan</a></p>-->
-        <!--                <p>Крафт оружия (мгновенный) с откатом 1 пара <a href="/pl_info.php?id=7197821">Гроза_ГВД</a></p>-->
-                    </div>
+<div style="display: flex;"><div style="    align-items: center;
+    display: flex;">Поддержать существование сервисов </div>
+<div id="patreon_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
+    margin-top: 4px;
+    width: fit-content;"><a href="https://www.patreon.com/user?u=58444506" target="_blank" style="display: flex; align-items: center">Патреон<img src="https://cdn.icon-icons.com/icons2/2429/PNG/512/patreon_logo_icon_147253.png" style="height: 24px;"></a></div>
+<div id="boosty_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
+    margin-top: 4px;
+    width: fit-content;"><a href="https://boosty.to/thunder_hwm" target="_blank" style="display: flex; align-items: center">Бусти<img src="https://mikulski.rocks/wp-content/uploads/2022/04/Color.png" style="height: 24px;"></a></div>
+</div>                    </div>
                 `)
 
         if (regHTML) {

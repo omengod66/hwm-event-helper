@@ -1,4 +1,4 @@
-import {get} from "../utils/commonUtils";
+import {$, get} from "../utils/commonUtils";
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 
@@ -21,6 +21,7 @@ export default function villageEvent() {
                     }
                 })
         }
+        document.querySelector('#global_table_div3').parentElement.firstElementChild.remove()
         setLeaderboard(document.querySelector('#global_table_div3'), "beforebegin")
         eventHelperSettings(document.querySelector('#global_table_div4'), (container) => {
             setSettings("village_custom_ins", `Возможность автоматической расстановки 
@@ -28,8 +29,8 @@ export default function villageEvent() {
                         (будет работать после "закрепления" крестьян башнями)
                     `, container, false)
             setSettings("village_remove_confirm", `Убрать подтверждение постройки/улучшений`, container)
-            setSettings("custom_ins_auto", `Автоматическая применять сохраненную расстановку`, container, false)
-            setSettings("village_auto_repair", `Автоматическая ремонтировать постройки`, container, false)
+            setSettings("custom_ins_auto", `Автоматически применять сохраненную расстановку`, container, false)
+            setSettings("village_auto_repair", `Автоматически ремонтировать постройки`, container, false)
         }, "afterend")
     }
 }

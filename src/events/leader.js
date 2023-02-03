@@ -1,9 +1,10 @@
 import {$, allFactions, cdnHost, findAll, get, heroCreatures, set} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
-import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, setClickableLevels} from "../utils/eventUtils";
 import {setLeaderboard} from "../leaderboard";
 import {doGet, doHWMGet, doHWMPost} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
+import {addFilteringArea, processFilters} from "../mercenaryFilters";
 
 export default function leaderEvent() {
     let lg_lvl = parseInt(get('hero_leader_lvl', 10));
@@ -33,6 +34,7 @@ export default function leaderEvent() {
             setSettings("lg_hide_duplicates", "Скрывать дубликаты наборов", container, false)
         }, "afterend")
         collapseEventDesc()
+        setClickableLevels()
         setLeaderboard(document.querySelector('[style="min-width:220px;"]').getElementsByTagName("center")[1])
         setLoading(Array.from(document.querySelectorAll('[align="left"][valign="top"]')).slice(-1)[0])
         getResources(getWaveInfo, createLeaderTemplate, Array.from(document.querySelectorAll('[align="left"][valign="top"]')).slice(-1)[0])
@@ -222,8 +224,8 @@ export default function leaderEvent() {
                     Object
                         .entries(playerCreatures)
                         .forEach(([creaturePortrait, creatureAmount], cellId) => {
-                            processRecordHeroCreatures(rowData, creatureAmount, creaturePortrait)
-                            playerCreaturesHTML += `<div id="creature-${index}-${playerId}-${cellId}">${getNewCreatureIcon(creaturePortrait, creatureAmount)}</div>`
+                            let isGood = processRecordHeroCreatures(rowData, creatureAmount, creaturePortrait)
+                            playerCreaturesHTML += `<div id="creature-${index}-${playerId}-${cellId}">${getNewCreatureIcon(creaturePortrait, creatureAmount, isGood? "good-creature" : "bad-creature")}</div>`
                         })
                     return `
                         <div class="record-player-creatures" id="creatures-${index}-${playerId}">
@@ -260,15 +262,18 @@ export default function leaderEvent() {
     }
 
     function processRecordHeroCreatures(rowData, creatureAmount, creaturePortrait) {
+        let isGood = false;
         if (heroCreatures.hasOwnProperty(creaturePortrait)) {
             if (creatureAmount - 0 <= heroCreatures[creaturePortrait]['count'] - 0) {
                 rowData.push([creaturePortrait, creatureAmount, true])
+                isGood = true
             } else {
                 rowData.push([creaturePortrait, creatureAmount, false])
             }
         } else {
             rowData.push([creaturePortrait, creatureAmount, false])
         }
+        return isGood
     }
 
     function getSpecialCreatureTemplate(creatureData, index) {

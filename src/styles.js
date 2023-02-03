@@ -289,7 +289,9 @@ export function setGlobalStyles() {
                         justify-content: center;
                         text-align: center;
                         align-items: center;
-                        padding: 5px;
+                    }
+                    .wrapperStat > div {
+                       margin-bottom: 5px;
                     }
                     
                     /* custom scrollbar */

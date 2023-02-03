@@ -30,6 +30,10 @@ if (!my_sign) {
         location.reload()
     })
 }
+if (location.href.includes("inventory")) {
+    set("my_sign", unsafeWindow.sign)
+    set("hero_combat_lvl", unsafeWindow.pl_level)
+}
 
 setGlobalStyles()
 

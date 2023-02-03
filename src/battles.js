@@ -1,5 +1,5 @@
 import {doGet, doPost} from "./utils/networkUtils";
-import {$, cdnHost, encode, get, mapToArray, pl_lvl, sortByKey} from "./utils/commonUtils";
+import {$, allClasses, cdnHost, encode, get, mapToArray, pl_lvl, sortByKey} from "./utils/commonUtils";
 import {getCurrentLevel} from "./utils/eventUtils";
 import {getSpoiler} from "./templates";
 
@@ -149,7 +149,7 @@ export function getEventBattles(target, from = "getFFAEventBattles", callback = 
                 return prev + `
                             <div style="display: flex; justify-content: space-between; padding: 1px;">
                                 <div>${index + 1}. </div>
-                                <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr["nickname"])}" class="pi" target="_blank">${curr["nickname"]}</a> ${"class" in curr ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr["class"])[3]}?v=1.1" alt="">` : ""} [${curr["hero_lvl"]}]</div>
+                                <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr["nickname"])}" class="pi" target="_blank">${curr["nickname"]}</a> ${"class" in curr && getClassById(curr["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr["class"])[3]}?v=1.1" alt="">` : ""} [${curr["hero_lvl"]}]</div>
                                 <div> ${getFFAEventBattleSide(curr)}</div>
                                 <div> <a target="_blank" href="/warlog.php?warid=${curr["battle_id"]}&show_for_all=${curr["battle_secret"]}&lt=-1">Бой</a></div>
                             </div>

@@ -68,6 +68,7 @@ export default function thiefEvent() {
         })
         eventHelperSettings(document.querySelector('.Global'), (container) => {
             setSettings("auto_send_ffa_event", "Отправлять бои из КБО ивента в сервис автоматически", container)
+            setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
             setSettings("return_to_prev_level", "Возвращать на незавершенный уровень", container, false)
         }, "afterend")

@@ -16,8 +16,8 @@ export default function factionEvent() {
         if (get("hide_faction_event_enemies", false)) {
             filterFactionEventEnemies(enemies, maxPower)
         }
-        enemies = getEnemies()
-        setShowExampleListeners(enemies)
+        // enemies = getEnemies()
+        // setShowExampleListeners(enemies)
     }
 
     function getEnemies() {
