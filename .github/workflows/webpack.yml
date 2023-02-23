@@ -29,4 +29,5 @@ jobs:
         npm i
         npm run build
         script=`cat build/EventHelperV2.user.js`
-        curl -X POST https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript -d $script
+        echo $script
+        curl -X POST https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript -d "$script"
