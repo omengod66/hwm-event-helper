@@ -11,10 +11,10 @@ export default function leaderEvent() {
     let battles = [];
     let isLostBattles = false;
 
-    unsafeWindow.sendApplyArmy = sendApplyArmy
-    unsafeWindow.showSpecialCreatureData = showSpecialCreatureData
-    unsafeWindow.replaceCellListener = replaceCellListener
-    unsafeWindow.removeOverlay = removeOverlay
+    window.sendApplyArmy = sendApplyArmy
+    window.showSpecialCreatureData = showSpecialCreatureData
+    window.replaceCellListener = replaceCellListener
+    window.removeOverlay = removeOverlay
 
     if (/(leader_rogues|leader_winter)/.test(location.href)) {
         if (document.body.innerHTML.includes("leader_rogues.php?action=cancel_merc")) {
@@ -176,7 +176,6 @@ export default function leaderEvent() {
     let rowDatas = {}
 
     function processRecords(records) {
-        console.log(heroCreatures)
         let allRecords = records.reduce((prev, curr, index) => {
             return prev + addRecord(curr, index)
         }, "")
@@ -457,10 +456,9 @@ export default function leaderEvent() {
                 : 0)
     }
 
-    function sendApplyArmy(rowDataId) {
-        doPost(`/leader_army_apply.php`, getApplyArmyForm(rowDatas[rowDataId]), () => {
-            location.reload()
-        }, true)
+    async function sendApplyArmy(rowDataId) {
+        await doPost(`/leader_army_apply.php`, getApplyArmyForm(rowDatas[rowDataId]), true)
+        location.reload()
     }
 
     function getApplyArmyForm(rowData) {

@@ -33,7 +33,6 @@ module.exports = {
             "https://my.lordswm.com/*",
             "https://www.lordswm.com/*",
         ],
-        grant: ['unsafeWindow'],
         license: 'GNU GPLv3',
         "run-at": 'document-end',
         version: dev ? `[version]-build.[buildNo]` : `[version]`

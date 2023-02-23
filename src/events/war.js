@@ -10,7 +10,7 @@ export default async function processBattlePage() {
             || get("auto_send_faction_event_battles", true)
             || get("auto_send_rogues_event", true)
             || get("auto_send_hunt_event_battles", true))) {
-        let battleData = unsafeWindow.run_all.toString()
+        let battleData = window.run_all.toString()
         let battleType = battleData.match(/btype\|(\d{1,10})/)[1]
         if (["133", "135", "138", "139", "140", "142", "143", "144", "148"].includes(battleType)) {
             let battle_id = new URLSearchParams(window.location.search).get("warid")

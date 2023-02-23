@@ -30,8 +30,8 @@ async function setup() {
         location.reload()
     }
     if (location.href.includes("inventory")) {
-        set("my_sign", unsafeWindow.sign)
-        set("hero_combat_lvl", unsafeWindow.pl_level)
+        set("my_sign", window.sign)
+        set("hero_combat_lvl", window.pl_level)
     }
 }
 setup()
