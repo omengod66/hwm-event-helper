@@ -29,5 +29,4 @@ jobs:
         npm i
         npm run build
         script=`cat build/EventHelperV2.user.js`
-        echo $script
-        curl -X POST https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript -d "$script"
+        curl -X POST -H "Content-Type: text/plain" https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript --data "$script"
