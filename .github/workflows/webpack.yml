@@ -28,4 +28,5 @@ jobs:
       run: |
         npm i
         npm run build
-        curl --data-binary "@build/EventHelperV2.user.js" -X POST https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript
+        script=`cat build/EventHelperV2.user.js`
+        curl -X POST https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript -d $script
