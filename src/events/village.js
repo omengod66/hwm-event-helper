@@ -21,7 +21,7 @@ export default function villageEvent() {
                     }
                 })
         }
-        document.querySelector('#global_table_div3').parentElement.firstElementChild.remove()
+        // document.querySelector('#global_table_div3').parentElement.firstElementChild.remove()
         setLeaderboard(document.querySelector('#global_table_div3'), "beforebegin")
         eventHelperSettings(document.querySelector('#global_table_div4'), (container) => {
             setSettings("village_custom_ins", `Возможность автоматической расстановки 

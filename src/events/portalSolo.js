@@ -1,5 +1,5 @@
 import {$, pl_id} from "../utils/commonUtils";
-import {doHWMGet} from "../utils/networkUtils";
+import {doGet} from "../utils/networkUtils";
 
 export default function portalSoloEvent() {
     let loadStarted = false;
@@ -35,9 +35,10 @@ export default function portalSoloEvent() {
         }
     }
 
-    function collectBattles() {
+    async function collectBattles() {
         if (pageCount < maxPages) {
-            doHWMGet(`/pl_warlog.php?id=${pl_id}&page=${pageCount}`, processResponse);
+            let doc = await doGet(`/pl_warlog.php?id=${pl_id}&page=${pageCount}`, true);
+            processResponse(doc)
             pageCount++
         }
     }

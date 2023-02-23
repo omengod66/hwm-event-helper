@@ -3,66 +3,30 @@ import {$, allClasses, cdnHost, encode, get, mapToArray, pl_lvl, sortByKey} from
 import {getCurrentLevel} from "./utils/eventUtils";
 import {getSpoiler} from "./templates";
 
-export function sendBattle(warid, secret, type, index = null, battle_side = -1) {
-    switch (type) {
-        case "0": {
-            doPost(`uploadDbBattle`, getSendBattleForm(warid, secret, battle_side), () => {
-                if (index) {
-                    $(`send_battle_${index}`).outerHTML = "Отправлено"
-                }
-            })
-            break
-        }
-        case "1": {
-            doPost(`uploadEventLeaderBattle`, getSendBattleForm(warid, secret, battle_side), () => {
-                if (index) {
-                    $(`send_battle_${index}`).outerHTML = "Отправлено"
-                }
-            })
-            break
-        }
-        case "2": {
-            doPost(`uploadFFAEventBattle`, getSendBattleForm(warid, secret, battle_side), () => {
-                if (index) {
-                    $(`send_battle_${index}`).outerHTML = "Отправлено"
-                }
-            })
-            break
-        }
-        case "3": {
-            doPost(`uploadFactionEventBattle`, getSendBattleForm(warid, secret, battle_side), () => {
-                if (index) {
-                    $(`send_battle_${index}`).outerHTML = "Отправлено"
-                }
-            })
-            break
-        }
-        case "4": {
-            doPost(`uploadRoguesEventBattle`, getSendBattleForm(warid, secret, battle_side), () => {
-                if (index) {
-                    $(`send_battle_${index}`).outerHTML = "Отправлено"
-                }
-            })
-            break
-        }
+export async function sendBattle(warid, secret, type, index = null, battle_side = -1) {
+    let formData = new FormData()
+    formData.append('battle_id', warid)
+    formData.append('battle_secret', secret)
+    formData.append('battle_side', battle_side)
+    formData.append('is_clan', get("only_clan_visibility", false))
+
+    let types = {
+        "0": "uploadDbBattle",
+        "1": "uploadEventLeaderBattle",
+        "2": "uploadFFAEventBattle",
+        "3": "uploadFactionEventBattle",
+        "4": "uploadRoguesEventBattle",
     }
 
-    function getSendBattleForm(warid, secret, battle_side) {
-        let formData = new FormData()
-        formData.append('battle_id', warid)
-        formData.append('battle_secret', secret)
-        formData.append('battle_side', battle_side)
-        formData.append('is_clan', get("only_clan_visibility", false))
-        return formData
+    await doPost(types[type], formData)
+    if (index) {
+        $(`send_battle_${index}`).outerHTML = "Отправлено"
     }
 }
 
-export function getEventBattles(target, from = "getFFAEventBattles", callback = 2, lost = false) {
-    let battles;
-    doGet(`${from}?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`, doc => {
-        battles = doc
-        processEventBattles(target)
-    }, false)
+export async function getEventBattles(target, from = "getFFAEventBattles", callback = 2, lost = false) {
+    let battles = await doGet(`${from}?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
+    processEventBattles(target)
 
     function processEventBattles(where = document.body) {
         switch (callback) {

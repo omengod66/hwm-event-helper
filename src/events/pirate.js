@@ -1,4 +1,4 @@
-import {$, get, set, sortByKey} from "../utils/commonUtils";
+import {get, set, sortByKey} from "../utils/commonUtils";
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {doGet} from "../utils/networkUtils";
@@ -99,22 +99,22 @@ export default function pirateEvent() {
             newScript.setAttribute('src', 'https://cdn.jsdelivr.net/npm/chart.js');
             document.head.appendChild(newScript);
 
-            newScript.onload = () => {
+            newScript.onload = async () => {
                 document.querySelector("#global_table_div2").style.overflow = "auto"
                 document.querySelector("#global_table_div2").style.overflowX = "hidden"
                 document.querySelector("#global_table_div2").style.maxHeight = "60vh"
 
-                doGet(`getSoloPirateCreaturesPrices`, doc => {
-                    document.querySelector("#global_table_div2").setAttribute("style", "")
-                    document.querySelector("#global_table_div2 > .global_table_bg_color").style.height = ""
-                    document.querySelector("#global_table_div2 > .global_table_bg_color > table").style.position = ""
+                let doc = await doGet(`getSoloPirateCreaturesPrices`)
+                document.querySelector("#global_table_div2").setAttribute("style", "")
+                document.querySelector("#global_table_div2 > .global_table_bg_color").style.height = ""
+                document.querySelector("#global_table_div2 > .global_table_bg_color > table").style.position = ""
 
-                    Array.from(document.getElementsByClassName("pirate_self_table_padding")[1].getElementsByTagName("tr"))
-                        .filter(elem => elem.innerHTML.includes("cre_creature"))
-                        .forEach((elem, index) => {
-                            let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
-                            let prices = doc[creatureName]
-                            elem.insertAdjacentHTML("afterend", `
+                Array.from(document.getElementsByClassName("pirate_self_table_padding")[1].getElementsByTagName("tr"))
+                    .filter(elem => elem.innerHTML.includes("cre_creature"))
+                    .forEach((elem, index) => {
+                        let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
+                        let prices = doc[creatureName]
+                        elem.insertAdjacentHTML("afterend", `
                                     <tr>
                                         <td colspan="3">
                                             <div style="height: 130px; overflow: hidden">
@@ -122,48 +122,46 @@ export default function pirateEvent() {
                                             </div>
                                         </td>
                                     </tr>`)
-                            const labels = Array.from(' '.repeat(prices.length));
-                            const data = {
-                                labels: labels,
-                                datasets: [
-                                    {
-                                        label: 'Price',
-                                        data: prices.map(price=>parseInt(price)),
-                                        borderColor: "blue",
-                                        backgroundColor: "rgb(44,73,107)",
+                        const labels = Array.from(' '.repeat(prices.length));
+                        const data = {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Price',
+                                    data: prices.map(price => parseInt(price)),
+                                    borderColor: "blue",
+                                    backgroundColor: "rgb(44,73,107)",
+                                },
+                            ]
+                        };
+                        const config = {
+                            type: 'line',
+                            data: data,
+                            options: {
+                                animation: false,
+                                responsive: false,
+                                plugins: {
+                                    legend: {
+                                        display: false,
                                     },
-                                ]
-                            };
-                            const config = {
-                                type: 'line',
-                                data: data,
-                                options: {
-                                    animation: false,
-                                    responsive: false,
-                                    plugins: {
-                                        legend: {
-                                            display: false,
-                                        },
-                                        title: {
-                                            display: false,
-                                            text: 'Chart.js Line Chart'
-                                        }
-                                    },
-                                    elements: {
-                                        line: {
-                                            borderWidth: 1
-                                        },
-                                        point: {
-                                            radius: 1
-                                        }
+                                    title: {
+                                        display: false,
+                                        text: 'Chart.js Line Chart'
                                     }
                                 },
-                            };
-                            const ctx = document.getElementById(`chart${index}`).getContext('2d');
-                            const myChart = new Chart(ctx, config)
-                        })
-
-                }, false)
+                                elements: {
+                                    line: {
+                                        borderWidth: 1
+                                    },
+                                    point: {
+                                        radius: 1
+                                    }
+                                }
+                            },
+                        };
+                        const ctx = document.getElementById(`chart${index}`).getContext('2d');
+                        const myChart = new Chart(ctx, config)
+                    })
             }
         }
 
@@ -220,7 +218,7 @@ export default function pirateEvent() {
             })
         if (buy_history.length > 0) {
             let rows = sortByKey(buy_history, "time").reverse().reduce((prev, curr) => {
-                return prev +  `
+                return prev + `
                     <div style="display: flex; justify-content: space-evenly;
     align-items: center;
     border: 1px solid #000000;">

@@ -1,6 +1,6 @@
 {
   "name": "hwm-event-helper",
-  "version": "15.4.5",
+  "version": "16.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {

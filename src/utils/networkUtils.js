@@ -1,66 +1,36 @@
-let OUTER_REQUESTS
-if (typeof GM_xmlHttpRequest !== "undefined") {
-    OUTER_REQUESTS = GM_xmlHttpRequest
-} else if (typeof GM_xmlhttpRequest !== "undefined") {
-    OUTER_REQUESTS = GM_xmlhttpRequest
-} else if (typeof GM !== "undefined" && typeof GM.xmlHttpRequest !== "undefined") {
-    OUTER_REQUESTS = GM.xmlHttpRequest
-} else if (typeof GM !== "undefined" && typeof GM.xmlhttpRequest !== "undefined") {
-    OUTER_REQUESTS = GM.xmlhttpRequest
-}
+const HWM_EVENTS_SERVER = "https://hwm.events"
 
-const HWM_EVENTS_SERVER = "http://hwm.events"
+function doRequest(url, method, body, html) {
+    return new Promise((resolve => {
+        let http = new XMLHttpRequest;
 
-export function doGet(url, callback, html = false) {
-    OUTER_REQUESTS({
-        method: "GET",
-        url: `${HWM_EVENTS_SERVER}/${url}`,
-        onload: function (res) {
-            if (html) {
-                callback(new DOMParser().parseFromString(res.responseText, "text/html"))
-            } else {
-                callback(JSON.parse(res.responseText))
+        if (html) {
+            http.overrideMimeType("text/html; charset=windows-1251");
+            http.open(method, url, true)
+        } else {
+            http.open(method, `${HWM_EVENTS_SERVER}/${url}`, true)
+        }
+        http.send(body);
+        http.onreadystatechange = function () {//Call a function when the state changes
+            if (http.readyState === 4 && http.status === 200) {
+                let response = null
+                if (html) {
+                    response = new DOMParser().parseFromString(http.responseText, "text/html")
+                } else {
+                    try {
+                        response = JSON.parse(http.responseText)
+                    } catch (e) {}
+                }
+                resolve(response)
             }
-        }
-    });
+        };
+    }))
 }
 
-export function doPost(url, params, callback, html = false) {
-    OUTER_REQUESTS({
-        method: "POST",
-        url: `${HWM_EVENTS_SERVER}/${url}`,
-        data: params,
-        onload: function (res) {
-            if (html) {
-                callback(new DOMParser().parseFromString(res.responseText, "text/html"))
-            } else {
-                callback()
-            }
-        }
-    });
+export async function doGet(url, html = false) {
+    return doRequest(url, "GET", null, html)
 }
 
-export function doHWMGet(url, callback) {
-    let http = new XMLHttpRequest;
-    http.open('GET', url, true)
-    http.overrideMimeType("text/html; charset=windows-1251");
-    http.send(null);
-    http.onreadystatechange = function () {//Call a function when the state changes
-        if (http.readyState === 4 && http.status === 200) {
-            callback(new DOMParser().parseFromString(http.responseText, "text/html"))
-        }
-    };
+export async function doPost(url, params, html = false) {
+    return doRequest(url, "POST", params, html)
 }
-
-export function doHWMPost(url, params, callback) {
-    let http = new XMLHttpRequest;
-    http.open('POST', url, true)
-    http.overrideMimeType("text/html; charset=windows-1251");
-    http.send(params);
-    http.onreadystatechange = function () {//Call a function when the state changes
-        if (http.readyState === 4 && http.status === 200) {
-            callback(new DOMParser().parseFromString(http.responseText, "text/html"))
-        }
-    };
-}
-

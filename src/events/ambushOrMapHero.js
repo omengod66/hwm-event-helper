@@ -2,18 +2,19 @@ import {$, pl_id, set} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {setLeaderboard} from "../leaderboard";
-import {doHWMGet} from "../utils/networkUtils";
+import {doGet} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
 import {eventHelperSettings, setSettings} from "../settings";
 
-export default function thiefEvent() {
+export default async function thiefEvent() {
     if (/(ambush_single_event|map_hero_event)/.test(location.href)) {
         set("eh_current_level", null)
         collapseEventDesc()
         interceptButtons()
         getEventBattles(document.querySelectorAll('[align="left"][valign="top"]')[1])
         setLeaderboard(Array.from(document.querySelectorAll('[align="left"][valign="top"]')[0].getElementsByTagName("center")).slice(-1)[0])
-        doHWMGet(`/pl_info.php?id=${pl_id}`, processPlInfoTroopsResponse)
+        let doc = await doGet(`/pl_info.php?id=${pl_id}`, true)
+        processPlInfoTroopsResponse(doc)
     }
 
     function interceptButtons() {

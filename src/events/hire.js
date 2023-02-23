@@ -1,6 +1,6 @@
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
-import {$, get, set, sortByKey} from "../utils/commonUtils";
+import {get, set, sortByKey} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
@@ -78,7 +78,7 @@ export default function hireEvent() {
             })
 
 
-                function drawChart(prices, index, elem) {
+        function drawChart(prices, index, elem) {
             elem.insertAdjacentHTML("afterend", `
                     <tr>
                         <td colspan="3">
@@ -93,7 +93,7 @@ export default function hireEvent() {
                 datasets: [
                     {
                         label: 'Price',
-                        data: prices.map(price=>parseInt(price)),
+                        data: prices.map(price => parseInt(price)),
                         borderColor: "blue",
                         backgroundColor: "rgb(44,73,107)",
                     },
@@ -128,31 +128,28 @@ export default function hireEvent() {
             const myChart = new Chart(ctx, config)
         }
 
-        function showPriceChange() {
-            doGet(`getRoguesCreaturesPrices`, doc => {
-
-                Array.from(Array.from(document.querySelectorAll('td[class="wbwhite"][valign="top"]')).slice(-1)[0].getElementsByTagName("tr"))
-                    .filter(elem => elem.innerHTML.includes("cre_creature"))
-                    .forEach((elem, index) => {
-                        let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
-                        let prices = doc[creatureName].map(price => price - 0)
-                        let priceElem = elem.querySelector(".txt_with_icons")
-                        if (prices[prices.length - 1] > prices[prices.length - 2]) {
-                            elem.style.background = "#ff9e9e"
-                        } else if (prices[prices.length - 1] < prices[prices.length - 2]) {
-                            elem.style.background = "#9eff98"
-                        }
-                        priceElem.insertAdjacentHTML("beforeend", ` (${(prices[prices.length - 1] / Math.max(...prices) * 100).toFixed()}%)`)
-                        Array.from(elem.querySelectorAll('input[type="submit"]'))
-                            .forEach(input => {
-                                input.classList.add("btn_hover2", "home_button2")
-                            })
-                        if (get("hide_rogues_event_enemies", true)) {
-                            drawChart(prices, index, elem)
-                        }
-                    })
-
-            }, false)
+        async function showPriceChange() {
+            let doc = await doGet(`getRoguesCreaturesPrices`, false)
+            Array.from(Array.from(document.querySelectorAll('td[class="wbwhite"][valign="top"]')).slice(-1)[0].getElementsByTagName("tr"))
+                .filter(elem => elem.innerHTML.includes("cre_creature"))
+                .forEach((elem, index) => {
+                    let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
+                    let prices = doc[creatureName].map(price => price - 0)
+                    let priceElem = elem.querySelector(".txt_with_icons")
+                    if (prices[prices.length - 1] > prices[prices.length - 2]) {
+                        elem.style.background = "#ff9e9e"
+                    } else if (prices[prices.length - 1] < prices[prices.length - 2]) {
+                        elem.style.background = "#9eff98"
+                    }
+                    priceElem.insertAdjacentHTML("beforeend", ` (${(prices[prices.length - 1] / Math.max(...prices) * 100).toFixed()}%)`)
+                    Array.from(elem.querySelectorAll('input[type="submit"]'))
+                        .forEach(input => {
+                            input.classList.add("btn_hover2", "home_button2")
+                        })
+                    if (get("hide_rogues_event_enemies", true)) {
+                        drawChart(prices, index, elem)
+                    }
+                })
         }
 
         if (get("hide_rogues_event_enemies", true)) {
@@ -169,7 +166,7 @@ export default function hireEvent() {
 
         if (buy_history.length > 0) {
             let rows = sortByKey(buy_history, "time").reverse().reduce((prev, curr) => {
-                return prev +  `
+                return prev + `
                     <div style="display: flex; justify-content: space-evenly;
     align-items: center;
     border: 1px solid #000000;">

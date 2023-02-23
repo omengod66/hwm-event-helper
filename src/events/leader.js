@@ -2,7 +2,7 @@ import {$, allFactions, cdnHost, findAll, get, heroCreatures, set} from "../util
 import {eventHelperSettings, setSettings} from "../settings";
 import {collapseEventDesc, getCurrentLevel, setClickableLevels} from "../utils/eventUtils";
 import {setLeaderboard} from "../leaderboard";
-import {doGet, doHWMGet, doHWMPost} from "../utils/networkUtils";
+import {doGet, doPost} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
 import {addFilteringArea, processFilters} from "../mercenaryFilters";
 
@@ -85,13 +85,9 @@ export default function leaderEvent() {
                     </div>`)
     }
 
-    function getHeroCreatures() {
-        return new Promise(((resolve) => {
-            doHWMGet('/leader_army.php', doc => {
-                processLeaderArmyResponse(doc)
-                resolve()
-            })
-        }))
+    async function getHeroCreatures() {
+        let doc = await doGet('/leader_army.php', true)
+        processLeaderArmyResponse(doc)
     }
 
     function processLeaderArmyResponse(doc) {
@@ -122,45 +118,32 @@ export default function leaderEvent() {
         })
     }
 
-    function getWaveInfo() {
-        return new Promise(((resolve) => {
-            doGet(`getEventLeaderBattles?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`, doc => {
-                battles = doc
-                if (battles.length > 0) {
-                    battles.sort((a, b) => {
-                        a = parseFloat(a.cost)
-                        b = parseFloat(b.cost)
-                        if (a < 0 || b < 0) {
-                            return b - a
-                        } else {
-                            return a - b
-                        }
-                    })
-                    resolve()
+    async function getWaveInfo() {
+        battles = await doGet(`getEventLeaderBattles?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
+        if (battles.length > 0) {
+            battles.sort((a, b) => {
+                a = parseFloat(a.cost)
+                b = parseFloat(b.cost)
+                if (a < 0 || b < 0) {
+                    return b - a
                 } else {
-                    doGet(`getEventLeaderFailedBattles?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`, doc => {
-                        battles = doc
-                        isLostBattles = true
-                        resolve()
-                    }, false)
+                    return a - b
                 }
-            }, false)
-        }))
+            })
+        } else {
+            battles = await doGet(`getEventLeaderFailedBattles?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
+            isLostBattles = true
+        }
     }
 
-    function getTodayBandits() {
-        return new Promise(((resolve) => {
-            doGet(`getDbBattles?lg_lvl=${lg_lvl}&token=${get("hwm_events_token", "")}`, doc => {
-                battles = doc
-                battles.sort((a, b) => parseFloat(b.survived) - parseFloat(a.survived))
-                resolve()
-            }, false)
-        }))
+    async function getTodayBandits() {
+        battles = await doGet(`getDbBattles?lg_lvl=${lg_lvl}&token=${get("hwm_events_token", "")}`)
+        battles.sort((a, b) => parseFloat(b.survived) - parseFloat(a.survived))
     }
 
     function setExampleBattles(template, where = document.body) {
         $('loading').remove()
-        where.insertAdjacentHTML("beforeend",  template);
+        where.insertAdjacentHTML("beforeend", template);
         if (!isLostBattles) {
             processRecords(battles)
         } else {
@@ -171,11 +154,11 @@ export default function leaderEvent() {
     function processFailedRecords(failedEventBattles) {
         let allRecords = failedEventBattles.reduce((prev, curr, index) => {
             return prev + `
-                                <div style="display: flex; justify-content: space-between; padding: 1px;">
-                                    <div>${index + 1}. </div>
-                                    <div style="text-align: center">${getRecordPlayersTemplate(curr.nicknames)}</div>
-                                    <div> <a target="_blank" href="/warlog.php?warid=${curr["battle_id"]}&show_for_all=${curr["battle_secret"]}&lt=-1">Бой</a></div>
-                                </div>`
+                <div style="display: flex; justify-content: space-between; padding: 1px;">
+                    <div>${index + 1}. </div>
+                    <div style="text-align: center">${getRecordPlayersTemplate(curr.nicknames)}</div>
+                    <div> <a target="_blank" href="/warlog.php?warid=${curr["battle_id"]}&show_for_all=${curr["battle_secret"]}&lt=-1">Бой</a></div>
+                </div>`
         }, "")
 
         let result = `<div class="failed-records-wrapper">
@@ -225,7 +208,7 @@ export default function leaderEvent() {
                         .entries(playerCreatures)
                         .forEach(([creaturePortrait, creatureAmount], cellId) => {
                             let isGood = processRecordHeroCreatures(rowData, creatureAmount, creaturePortrait)
-                            playerCreaturesHTML += `<div id="creature-${index}-${playerId}-${cellId}">${getNewCreatureIcon(creaturePortrait, creatureAmount, isGood? "good-creature" : "bad-creature")}</div>`
+                            playerCreaturesHTML += `<div id="creature-${index}-${playerId}-${cellId}">${getNewCreatureIcon(creaturePortrait, creatureAmount, isGood ? "good-creature" : "bad-creature")}</div>`
                         })
                     return `
                         <div class="record-player-creatures" id="creatures-${index}-${playerId}">
@@ -331,11 +314,11 @@ export default function leaderEvent() {
         return `
                 <b>Навыки</b>: ${creatureData.skills.map(skill => skill.replace(". ", "").replace(".", "")).join(", ")}.<br>
                 <b>Заклинания</b>: ${creatureData.casts.map((cast, index) => {
-                    if (creatureData.casts_effects) {
-                        return `${cast} (${creatureData.casts_effects[index]})`
-                    }
-                    return cast
-                }).join(", ")}.
+            if (creatureData.casts_effects) {
+                return `${cast} (${creatureData.casts_effects[index]})`
+            }
+            return cast
+        }).join(", ")}.
                         `
     }
 
@@ -475,9 +458,9 @@ export default function leaderEvent() {
     }
 
     function sendApplyArmy(rowDataId) {
-        doHWMPost(`/leader_army_apply.php`, getApplyArmyForm(rowDatas[rowDataId]), () => {
+        doPost(`/leader_army_apply.php`, getApplyArmyForm(rowDatas[rowDataId]), () => {
             location.reload()
-        })
+        }, true)
     }
 
     function getApplyArmyForm(rowData) {

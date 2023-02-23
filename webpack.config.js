@@ -7,7 +7,7 @@ module.exports = {
   entry: path.resolve(__dirname, 'src', 'index.js'),
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: 'EventHelper.user.js',
+    filename: 'EventHelperV2.user.js',
     publicPath: '/',
   },
   devServer: {
@@ -21,8 +21,8 @@ module.exports = {
   plugins: [
     new WebpackUserscript({
       headers: {
-        name: 'EventHelper',
-        description: 'try to take over the world!',
+        name: 'EventHelperV2',
+        description: 'sources: https://github.com/achepta/hwm-event-helper',
         author: 'achepta',
         namespace: 'https://greasyfork.org/ru/scripts/399402-eventhelper',
         downloadURL: 'https://hwm.events/scripts/code/EventHelper.user.js',
@@ -33,7 +33,7 @@ module.exports = {
             "https://my.lordswm.com/*",
             "https://www.lordswm.com/*",
         ],
-        grant: ['unsafeWindow', 'GM.xmlHttpRequest', 'GM.xmlhttpRequest', 'GM_xmlHttpRequest', 'GM_xmlhttpRequest'],
+        grant: ['unsafeWindow'],
         license: 'GNU GPLv3',
         "run-at": 'document-end',
         version: dev ? `[version]-build.[buildNo]` : `[version]`
@@ -55,6 +55,6 @@ module.exports = {
   ]
 },
   optimization: {
-    minimize: false
+    minimize: true
   }
 }

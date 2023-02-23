@@ -1,16 +1,12 @@
 import {doGet} from "./utils/networkUtils";
 import {$, cdnHost} from "./utils/commonUtils";
 
-export function setLeaderboard(where, position = "afterbegin") {
+export async function setLeaderboard(where, position = "afterbegin") {
     let isLeaderboardExpanded = false
-    let topHeroes = []
-    doGet(`getTopScores`, doc => {
-        topHeroes = doc
-
-        where.insertAdjacentHTML(position,
-            `<div style="display: flex; flex-direction: column" id="top_heroes_container"></div><br>`)
-        resetLeaderboard()
-    }, false)
+    let topHeroes = await doGet(`getTopScores`)
+    where.insertAdjacentHTML(position,
+        `<div style="display: flex; flex-direction: column" id="top_heroes_container"></div><br>`)
+    resetLeaderboard()
 
     function resetLeaderboard() {
         let result = topHeroes.slice(0, 15).reduce((prev, curr, index) => {

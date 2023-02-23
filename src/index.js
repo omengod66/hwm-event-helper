@@ -1,4 +1,4 @@
-import {doHWMGet} from "./utils/networkUtils";
+import {doGet} from "./utils/networkUtils";
 import {my_sign, pl_id, pl_lvl, set} from "./utils/commonUtils";
 import {setGlobalStyles} from "./styles";
 import leaderEvent from "./events/leader";
@@ -18,22 +18,23 @@ import processBattleLogPage from "./events/warLog";
 import villageEvent from "./events/village";
 
 
-if (!pl_lvl) {
-    doHWMGet(`/pl_info.php?id=${pl_id}`, doc => {
+async function setup() {
+    if (!pl_lvl) {
+        let doc = await doGet(`/pl_info.php?id=${pl_id}`, true);
         set("hero_combat_lvl", doc.body.innerText.match(/(Боевой уровень|Combat level): (\d{1,2})/)[2] - 0)
         location.reload()
-    });
-}
-if (!my_sign) {
-    doHWMGet(`/shop.php`, (doc) => {
+    }
+    if (!my_sign) {
+        let doc = await doGet(`/shop.php`, true)
         set("my_sign", doc.body.innerHTML.match(/sign=([a-z0-9]+)/)[1])
         location.reload()
-    })
+    }
+    if (location.href.includes("inventory")) {
+        set("my_sign", unsafeWindow.sign)
+        set("hero_combat_lvl", unsafeWindow.pl_level)
+    }
 }
-if (location.href.includes("inventory")) {
-    set("my_sign", unsafeWindow.sign)
-    set("hero_combat_lvl", unsafeWindow.pl_level)
-}
+setup()
 
 setGlobalStyles()
 

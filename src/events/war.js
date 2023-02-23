@@ -1,8 +1,8 @@
 import {$, get, pl_id, set} from "../utils/commonUtils";
-import {doHWMGet} from "../utils/networkUtils";
+import {doGet} from "../utils/networkUtils";
 import {sendBattle} from "../battles";
 
-export default function processBattlePage() {
+export default async function processBattlePage() {
     if (location.href.includes("war.php") &&
         (get("auto_send_lg", true)
             || get("auto_send_event_lg", true)
@@ -16,12 +16,11 @@ export default function processBattlePage() {
             let battle_id = new URLSearchParams(window.location.search).get("warid")
             let battle_secret = new URLSearchParams(window.location.search).get("show_for_all")
             if (battle_secret == null) {
-                doHWMGet(`/pl_info.php?id=${pl_id}`, doc => {
-                    let match = doc.body.innerHTML.match(/show_for_all=(\w[0-9a-f]{10})/)
-                    if (match) {
-                        battle_secret = match[1]
-                    }
-                });
+                let doc = await doGet(`/pl_info.php?id=${pl_id}`, true);
+                let match = doc.body.innerHTML.match(/show_for_all=(\w[0-9a-f]{10})/)
+                if (match) {
+                    battle_secret = match[1]
+                }
             }
             let startId;
             startId = setInterval(main, 10)
