@@ -28,5 +28,4 @@ jobs:
       run: |
         npm i
         npm run build
-        mv build/EventHelperV2.user.js build/EventHelperV2.txt
-        curl -X POST -H "Content-Type: text/plain" https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript -d @build/EventHelperV2.txt
+        curl -X POST -H "Content-Type: text/plain" https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript --data-binary @build/EventHelperV2.user.js
