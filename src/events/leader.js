@@ -6,7 +6,8 @@ import {doGet, doPost} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
 import {addFilteringArea, processFilters} from "../mercenaryFilters";
 
-export default function leaderEvent() {
+export default async function leaderEvent() {
+    let isEvent = false
     let lg_lvl = parseInt(get('hero_leader_lvl', 10));
     let battles = [];
     let isLostBattles = false;
@@ -17,6 +18,7 @@ export default function leaderEvent() {
     window.removeOverlay = removeOverlay
 
     if (/(leader_rogues|leader_winter)/.test(location.href)) {
+        isEvent = true
         if (document.body.innerHTML.includes("leader_rogues.php?action=cancel_merc")) {
             addFilteringArea()
             processFilters()
@@ -25,8 +27,11 @@ export default function leaderEvent() {
         if (location.href.includes("?show_2x2_form=1") || location.href.includes("?show_merc_dialog=1")) {
             return
         }
-
-        eventHelperSettings(document.querySelector('.Global'), (container) => {
+        let settingsContainer = document.querySelector('.Global')
+        if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
+            settingsContainer =document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("table")[0]
+        }
+        eventHelperSettings(settingsContainer, (container) => {
             setSettings("auto_send_event_lg", "Отправлять бои из ГЛ ивента в сервис автоматически", container)
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
@@ -35,16 +40,30 @@ export default function leaderEvent() {
         }, "afterend")
         collapseEventDesc()
         setClickableLevels()
-        setLeaderboard(document.querySelector('[style="min-width:220px;"]').getElementsByTagName("center")[1])
-        setLoading(Array.from(document.querySelectorAll('[align="left"][valign="top"]')).slice(-1)[0])
-        getResources(getWaveInfo, createLeaderTemplate, Array.from(document.querySelectorAll('[align="left"][valign="top"]')).slice(-1)[0])
+        setLeaderboard(document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("center")[2], "beforebegin")
+
+        let examplesElem = document.querySelector('.new_event_map')
+        if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
+            examplesElem = document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div')
+        } else {
+            examplesElem.style.flexWrap = "wrap"
+            examplesElem.children[0].style.flex = "1 0 20%"
+            examplesElem.children[1].style.flex = "1 0 10%"
+        }
+
+        setLoading(examplesElem)
+        getResources(getWaveInfo, createLeaderTemplate, examplesElem)
+            .then(_ => {
+                if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
+                    $(`main-data`).style.width = "360px"
+                    $(`event_helper_settings_container`).style.width = "360px"
+                }
+            })
     }
 
     function createLeaderTemplate() {
         return `
-                    <div class="wrapper">
-                        <div class="records-container-body" id="main-data"></div>
-                    </div>
+                    <div class="records-container-body" id="main-data"></div>
                 `
     }
 
@@ -72,8 +91,8 @@ export default function leaderEvent() {
                 `
     }
 
-    async function getResources(getExamples, showExamples, target) {
-        await Promise.all([getHeroCreatures(), getExamples()]).then(() => {
+    function getResources(getExamples, showExamples, target) {
+        return Promise.all([getHeroCreatures(), getExamples()]).then(() => {
             setExampleBattles(showExamples(), target)
         })
     }
@@ -457,8 +476,8 @@ export default function leaderEvent() {
     }
 
     async function sendApplyArmy(rowDataId) {
-        await doPost(`/leader_army_apply.php`, getApplyArmyForm(rowDatas[rowDataId]), true)
-        location.reload()
+        await doPost(`/leader_army_apply.php${isEvent ? "?from_event=1" : ""}`, getApplyArmyForm(rowDatas[rowDataId]), true)
+        // location.reload()
     }
 
     function getApplyArmyForm(rowData) {
