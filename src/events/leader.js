@@ -477,7 +477,7 @@ export default async function leaderEvent() {
 
     async function sendApplyArmy(rowDataId) {
         await doPost(`/leader_army_apply.php${isEvent ? "?from_event=1" : ""}`, getApplyArmyForm(rowDatas[rowDataId]), true)
-        // location.reload()
+        location.reload()
     }
 
     function getApplyArmyForm(rowData) {
