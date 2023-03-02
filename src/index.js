@@ -19,9 +19,6 @@ import villageEvent from "./events/village";
 
 
 async function setup() {
-    if (!get("EventHelperVersion", null)) {
-        window.open("https://hwm.events/scripts/code/EventHelper.user.js", '_blank').focus();
-    }
     if (!pl_lvl) {
         let doc = await doGet(`/pl_info.php?id=${pl_id}`, true);
         set("hero_combat_lvl", doc.body.innerText.match(/(Боевой уровень|Combat level): (\d{1,2})/)[2] - 0)
