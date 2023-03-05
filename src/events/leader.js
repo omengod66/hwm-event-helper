@@ -40,7 +40,8 @@ export default async function leaderEvent() {
         }, "afterend")
         collapseEventDesc()
         setClickableLevels()
-        setLeaderboard(document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("center")[2], "beforebegin")
+        let leaderBoardTarget = Array.from(document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("center")).slice(-1)[0]
+        setLeaderboard(leaderBoardTarget, "beforebegin")
 
         let examplesElem = document.querySelector('.new_event_map')
         if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
