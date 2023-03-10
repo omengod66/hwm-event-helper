@@ -7,9 +7,9 @@ export default async function dungeonEvent() {
         let firstTr = heroesTable.querySelector("tr")
         let highestPlace = parseInt(firstTr.querySelector("td").innerText)
 
-        let heroesToRenderCount = Math.min(20, highestPlace)
+        let heroesToRenderCount = Math.min(20, highestPlace-1)
 
-        let heroesToRender = topHeroes.slice(0, heroesToRenderCount)
+        let heroesToRender = topHeroes.slice(0, heroesToRenderCount+1)
         firstTr.insertAdjacentHTML("beforebegin", heroesToRender.join(""))
 
     }
