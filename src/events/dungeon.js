@@ -3,6 +3,18 @@ import {$} from "../utils/commonUtils";
 
 export default async function dungeonEvent() {
     if (/recruit_event/.test(location.href)) {
+        let enemies = Array.from(document.querySelectorAll(".recruit_event_enemy_block"))
+        enemies.forEach(enemy => {
+            if (enemy.innerText.includes("обороняющихся")) {
+                let powerElem = enemy.querySelector("div:nth-child(3)>div:nth-child(3)")
+                let powerRaw = powerElem.innerText
+                let powerParsedTransformed = (parseInt(powerRaw.replaceAll(",", ""))*0.8)
+                    .toFixed(0)
+                    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                powerElem.innerHTML = `${powerRaw} (<i style="cursor: pointer" title="При потере в бою">${powerParsedTransformed}</i>)`
+            }
+        })
+
         let topHeroes = await doGet(`heroes/dun_scores.json`)
         let heroesTable = document.querySelector(".recruit_event_loot_rating_inside").querySelector("table")
         let heroesTableInfo = document.querySelector(".recruit_event_loot_rating_inside").querySelector("center")
@@ -45,7 +57,7 @@ export default async function dungeonEvent() {
                         `
                         $(`top_hero${index}`).addEventListener("click", async () => {
                             $(`chart_area`).innerHTML = `
-                                <div style="height: 150px; overflow: hidden">
+                                <div style="height: 165px; overflow: hidden">
                                 <div>Прогрессия очков <b>${hero_nick}</b></div>
                                     <canvas id="chart${index}" height="150" style="width: 100%"></canvas>
                                 </div>
@@ -53,7 +65,7 @@ export default async function dungeonEvent() {
                             let heroData = await doGet(`getDunHeroData?pl_id=${hero_id}`)
                             const cumulativeSum = (sum => value => sum += value)(0);
 
-                            const labels = heroData.map(entry => entry[0]);
+                            const labels = heroData.map(entry => entry[0] + ` ${entry[1] > 0 ? "+" : ""}${entry[1]}`);
                             const data = {
                                 labels: labels,
                                 datasets: [
@@ -87,7 +99,18 @@ export default async function dungeonEvent() {
                                         line: {
                                             borderWidth: 1
                                         }
-                                    }
+                                    },
+                                    scales: {
+                                        x: {
+                                            ticks: {
+                                                display: false
+                                            }
+                                        }
+                                    },
+                                    interaction: {
+                                        mode: 'index',
+                                        intersect: false
+                                    },
                                 },
                             };
                             const ctx = document.getElementById(`chart${index}`).getContext('2d');
