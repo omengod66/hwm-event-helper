@@ -9,7 +9,7 @@ export default async function dungeonEvent() {
 
         let heroesToRenderCount = Math.min(20, highestPlace-1)
 
-        let heroesToRender = topHeroes.slice(0, heroesToRenderCount+1)
+        let heroesToRender = topHeroes.slice(0, heroesToRenderCount)
         firstTr.insertAdjacentHTML("beforebegin", heroesToRender.join(""))
 
     }
