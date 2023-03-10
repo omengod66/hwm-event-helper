@@ -16,6 +16,7 @@ import processHeroPage from "./events/player";
 import processBattlePage from "./events/war";
 import processBattleLogPage from "./events/warLog";
 import villageEvent from "./events/village";
+import dungeonEvent from "./events/dungeon";
 
 
 async function setup() {
@@ -50,6 +51,7 @@ portalSoloEvent()
 thiefEvent()
 huntEvent()
 villageEvent()
+dungeonEvent()
 
 customInsertion()
 processHeroPage()
