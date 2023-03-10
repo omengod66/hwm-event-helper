@@ -34,6 +34,7 @@ export default async function dungeonEvent() {
                     let clanId = clanMatch[1]
                     if (CLANS.includes(clanId)) {
                         let hero_id = tr.innerHTML.match(/pl_info\.php\?id=(\d{1,10})/)[1]
+                        let hero_nick = tr.querySelector("td:nth-child(2)").innerText
                         let scoreTd = tr.querySelector("td:nth-child(3)")
                         scoreTd.innerHTML = `
                          <b style="font-size: 10px; text-decoration: underline; cursor: pointer" id="top_hero${index}">
@@ -43,6 +44,7 @@ export default async function dungeonEvent() {
                         $(`top_hero${index}`).addEventListener("click", async () => {
                             $(`chart_area`).innerHTML = `
                                 <div style="height: 150px; overflow: hidden">
+                                <div>Прогрессия очков <b>${hero_nick}</b></div>
                                     <canvas id="chart${index}" height="150" style="width: 100%"></canvas>
                                 </div>
                             `
@@ -54,7 +56,7 @@ export default async function dungeonEvent() {
                                 labels: labels,
                                 datasets: [
                                     {
-                                        label: 'Price',
+                                        label: 'Очки',
                                         data: heroData.map(entry => entry[1]).map(cumulativeSum),
                                         borderColor: "blue",
                                         backgroundColor: "rgb(44,73,107)",
