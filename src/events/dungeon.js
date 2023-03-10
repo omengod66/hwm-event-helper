@@ -5,6 +5,8 @@ export default async function dungeonEvent() {
     if (/recruit_event/.test(location.href)) {
         let topHeroes = await doGet(`heroes/dun_scores.json`)
         let heroesTable = document.querySelector(".recruit_event_loot_rating_inside").querySelector("table")
+        let heroesTableInfo = document.querySelector(".recruit_event_loot_rating_inside").querySelector("center")
+        heroesTableInfo.innerHTML = `Кликни на жирные очки, чтобы увидеть график с прогрессией<br><br><br>Общий рейтинг`
         let firstTr = heroesTable.querySelector("tr")
         let highestPlace = parseInt(firstTr.querySelector("td").innerText)
 
