@@ -8,7 +8,7 @@ export default async function dungeonEvent() {
             if (enemy.innerText.includes("обороняющихся")) {
                 let powerElem = enemy.querySelector("div:nth-child(3)>div:nth-child(3)")
                 let powerRaw = powerElem.innerText
-                let powerParsedTransformed = (parseInt(powerRaw.replaceAll(",", ""))*0.8)
+                let powerParsedTransformed = Math.floor(parseInt(powerRaw.replaceAll(",", ""))*0.8)
                     .toLocaleString()
                 powerElem.innerHTML = `${powerRaw} (<i style="cursor: pointer" title="При потере в бою">${powerParsedTransformed}</i>)`
             }
