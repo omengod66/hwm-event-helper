@@ -14,6 +14,23 @@ function getAllTexts() {
 let allTexts = getAllTexts()
 
 export default function factionEvent() {
+    function showManaWarning(enemies) {
+        enemies.forEach(enemy => {
+            let enemyHTML = enemy.innerHTML
+            if (
+                enemyHTML.includes("name=imp\"")
+                || enemyHTML.includes("name=familiar\"")
+                || enemyHTML.includes("name=vermin\"")
+                || enemyHTML.includes("name=spegasus\"")
+            ) {
+                enemy.children[2].insertAdjacentHTML("afterend", `
+                        <div><b style="color: red">${allTexts.get("mana_warning")}</b></div>
+                    `)
+            }
+        })
+
+    }
+
     if (location.href.includes("faction_event")) {
         setLeaderboard(document.querySelector("#hwm_for_zoom > div > div:nth-child(1) > div > div:nth-child(2) > center"))
         eventHelperSettings(document.querySelector("#hwm_for_zoom > div > div.frac_event_right_block > div > div:nth-child(2)"), (container) => {
@@ -21,6 +38,7 @@ export default function factionEvent() {
         }, "beforeend")
         let enemies = getEnemies()
         let maxPower = getMaxPower(enemies)
+        showManaWarning(enemies)
         if (get("hide_faction_event_enemies", false)) {
             filterFactionEventEnemies(enemies, maxPower)
         }
@@ -42,18 +60,6 @@ export default function factionEvent() {
             let power = enemy.children[3].innerText.split(": ")[1] - 0
             if (power < maxPower) {
                 enemy.remove()
-            } else {
-                let enemyHTML = enemy.innerHTML
-                if (
-                    enemyHTML.includes("name=imp\"")
-                    || enemyHTML.includes("name=familiar\"")
-                    || enemyHTML.includes("name=vermin\"")
-                    || enemyHTML.includes("name=spegasus\"")
-                ) {
-                    enemy.children[2].insertAdjacentHTML("afterend", `
-                        <div><b style="color: red">${allTexts.get("mana_warning")}</b></div>
-                    `)
-                }
             }
         })
     }
