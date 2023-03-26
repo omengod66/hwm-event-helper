@@ -23,7 +23,7 @@ export default function factionEvent() {
                 || enemyHTML.includes("name=vermin\"")
                 || enemyHTML.includes("name=spegasus\"")
             ) {
-                enemy.children[2].insertAdjacentHTML("afterend", `
+                enemy.children[3].insertAdjacentHTML("afterend", `
                         <div><b style="color: red">${allTexts.get("mana_warning")}</b></div>
                     `)
             }
