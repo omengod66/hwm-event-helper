@@ -118,6 +118,5 @@ export default async function dungeonEvent() {
                     }
                 }
             })
-
     }
 }

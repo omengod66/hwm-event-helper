@@ -1,6 +1,16 @@
 import {doGet} from "./utils/networkUtils";
 import {$, cdnHost} from "./utils/commonUtils";
+import {LocalizedText, LocalizedTextMap} from "./utils/localizationUtils";
 
+function getAllTexts() {
+    let texts = new LocalizedTextMap()
+    texts.addText(new LocalizedText("top_heroes", "Top heroes", "Лучшие игроки", "Найкращі гравці"))
+    texts.addText(new LocalizedText("attempts_left", "Attempts left", "Оставшиеся попытки", "Залишилось спроб"))
+
+    return texts
+}
+
+let allTexts = getAllTexts()
 export async function setLeaderboard(where, position = "afterbegin") {
     let isLeaderboardExpanded = false
     let topHeroes = await doGet(`getTopScores`)
@@ -13,7 +23,7 @@ export async function setLeaderboard(where, position = "afterbegin") {
             return prev + getTopHeroTemplate(curr, index)
         }, "")
         $(`top_heroes_container`).innerHTML = `
-                <b style="user-select: none; text-align: center;">Лучшие игроки (<span id="expand_top_heroes" style="cursor: pointer; text-decoration: underline">+</span>)</b>${result}
+                <b style="user-select: none; text-align: center;">${allTexts.get("top_heroes")} (<span id="expand_top_heroes" style="cursor: pointer; text-decoration: underline">+</span>)</b>${result}
             `
         $(`expand_top_heroes`).addEventListener("click", (e) => {
             if (!isLeaderboardExpanded) {
@@ -40,7 +50,7 @@ export async function setLeaderboard(where, position = "afterbegin") {
                         <a href="/pl_info.php?id=${hero["member_id"]}" style="text-decoration: none; font-size: 9px">${hero["member_name"]}</a>
                          [${hero["member_cl"]}]
                     </div>
-                    <div>${hero["member_score"]}${hero["attempts_left"] ? `<span title="Оставшиеся попытки" style="cursor: help; font-size: 5pt">(${hero["attempts_left"]})</span>` : ""}</div>
+                    <div>${hero["member_score"]}${hero["attempts_left"] ? `<span title="${allTexts.get("attempts_left")}" style="cursor: help; font-size: 5pt">(${hero["attempts_left"]})</span>` : ""}</div>
                 </div>`
     }
 }
