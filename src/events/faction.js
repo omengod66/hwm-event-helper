@@ -45,10 +45,10 @@ export default function factionEvent() {
             } else {
                 let enemyHTML = enemy.innerHTML
                 if (
-                    enemyHTML.includes("name=imp")
-                    || enemyHTML.includes("name=familiar")
-                    || enemyHTML.includes("name=vermin")
-                    || enemyHTML.includes("name=spegasus")
+                    enemyHTML.includes("name=imp\"")
+                    || enemyHTML.includes("name=familiar\"")
+                    || enemyHTML.includes("name=vermin\"")
+                    || enemyHTML.includes("name=spegasus\"")
                 ) {
                     enemy.children[2].insertAdjacentHTML("afterend", `
                         <div><b style="color: red">${allTexts.get("mana_warning")}</b></div>
