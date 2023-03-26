@@ -6,6 +6,7 @@ import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
 function getAllTexts() {
     let texts = new LocalizedTextMap()
     texts.addText(new LocalizedText("hide_faction_event_enemies", "Show enemies with max power only", "Показывать противников только с максимальной мощностью", "Показувати супротивників лише з максимальною потужністю"))
+    texts.addText(new LocalizedText("mana_warning", "Enemies are stealing mana!", "В армии противника пожиратели маны!", "В армії противника крадії мани!"))
 
     return texts
 }
@@ -50,7 +51,7 @@ export default function factionEvent() {
                     || enemyHTML.includes("name=spegasus")
                 ) {
                     enemy.children[2].insertAdjacentHTML("afterend", `
-                        <div><b style="color: red">В армии противника пожиратели маны!</b></div>
+                        <div><b style="color: red">${allTexts.get("mana_warning")}</b></div>
                     `)
                 }
             }
