@@ -1,7 +1,8 @@
 import {$, cdnHost, get, set} from "../utils/commonUtils";
 
 export default function customInsertion() {
-    if (location.href.includes("war.") && (get("pirate_hunt_custom_ins", false) || get("village_custom_ins", false))) {
+    if (location.href.includes("war.") &&
+        (get("pirate_hunt_custom_ins", false) || get("village_custom_ins", false) || get("faction_custom_ins", false))) {
         let loadId = setInterval(waitForBattleLoad, 200)
         let startId;
 
@@ -12,8 +13,8 @@ export default function customInsertion() {
                 window.clearInterval(loadId)
             }
 
-            if (btype === 115 || btype === 119) {
-                let customInsertion = get(`insertionData_${btype}`, null)
+            if (btype === 115 || btype === 119 || btype === 144) {
+                let customInsertion = get(`insertionData_${btype}${btype === 144 ? defyn : ""}`, null)
                 createSaveInsButton()
                 if (customInsertion) {
                     if (get("custom_ins_auto", false)) {
@@ -67,7 +68,7 @@ export default function customInsertion() {
                         insertionData.push([stekid[i], stage[war_scr].obj[i].nownumber, stekx[i], steky[i]])
                     }
                 }
-                set(`insertionData_${btype}`, insertionData)
+                set(`insertionData_${btype}${btype === 144 ? defyn : ""}`, insertionData)
                 $("custom_save_ins").innerHTML = `<img src="https://cdn2.iconfinder.com/data/icons/flat-ui-icons-24-px/24/checkmark-24-512.png" alt=""></div>`
                 setTimeout(() => {
                     $("custom_save_ins").innerHTML = `<img src="https://i.imgur.com/08mNun9.png" alt=""></div>`

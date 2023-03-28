@@ -35,13 +35,18 @@ export default function factionEvent() {
         setLeaderboard(document.querySelector("#hwm_for_zoom > div > div:nth-child(1) > div > div:nth-child(2) > center"))
         eventHelperSettings(document.querySelector("#hwm_for_zoom > div > div.frac_event_right_block > div > div:nth-child(2)"), (container) => {
             setSettings("hide_faction_event_enemies", allTexts.get("hide_faction_event_enemies"), container, false)
+            setSettings("faction_custom_ins", `Возможность автоматической расстановки 
+                        <img src="https://hwm.events/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
+                        (для полей разной высоты нужна своя расстановка)
+                    `, container, true)
+            setSettings("custom_ins_auto", `Автоматически применять сохраненную расстановку`, container, false)
         }, "beforeend")
         let enemies = getEnemies()
         let maxPower = getMaxPower(enemies)
-        showManaWarning(enemies)
         if (get("hide_faction_event_enemies", false)) {
             filterFactionEventEnemies(enemies, maxPower)
         }
+        showManaWarning(enemies)
     }
 
     function getEnemies() {

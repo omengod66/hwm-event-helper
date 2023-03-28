@@ -1,3 +1,10 @@
+let locale = "ru"
+if (location.host === "my.lordswm.com" || navigator.language.includes("uk")) {
+    locale = "ua"
+}
+if (location.host === "www.lordswm.com") {
+    locale = "en"
+}
 export class LocalizedTextMap {
     constructor() {
         this.allTexts = new Map()
@@ -8,7 +15,7 @@ export class LocalizedTextMap {
     }
 
     get(id) {
-        return this.allTexts[id][navigator.language.includes("uk") ? "ua" : navigator.language.includes("en") ? "en" : "ru"]
+        return this.allTexts[id][locale]
     }
 }
 
