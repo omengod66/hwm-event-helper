@@ -50,7 +50,7 @@ export async function setLeaderboard(where, position = "afterbegin") {
                         <a href="/pl_info.php?id=${hero["member_id"]}" style="text-decoration: none; font-size: 9px">${hero["member_name"]}</a>
                          [${hero["member_cl"]}]
                     </div>
-                    <div>${hero["member_score"]}${hero["attempts_left"] ? `<span title="${allTexts.get("attempts_left")}" style="cursor: help; font-size: 5pt">(${hero["attempts_left"]})</span>` : ""}</div>
+                    <div>${hero["member_score"]?hero["member_score"]:hero["successful_battles"].length}${hero["attempts_left"] ? `<span title="${allTexts.get("attempts_left")}" style="cursor: help; font-size: 5pt">(${hero["attempts_left"]})</span>` : ""}</div>
                 </div>`
     }
 }

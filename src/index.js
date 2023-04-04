@@ -17,6 +17,7 @@ import processBattlePage from "./events/war";
 import processBattleLogPage from "./events/warLog";
 import villageEvent from "./events/village";
 import dungeonEvent from "./events/dungeon";
+import roguesLikeEvent from "./events/roguesLike";
 
 
 async function setup() {
@@ -52,6 +53,7 @@ thiefEvent()
 huntEvent()
 villageEvent()
 dungeonEvent()
+roguesLikeEvent()
 
 customInsertion()
 processHeroPage()
