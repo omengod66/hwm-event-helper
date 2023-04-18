@@ -49,16 +49,22 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     function getAFSEventBattlesTemplate(lost) {
-        return `
+        let result = getBattlesTemplate(battles["AFS"])
+
+        return  getSpoiler(
+            "examples",
+            "AFS",
+            `<div class="home_button2 btn_hover2" style="margin: 3px 0">Примеры боёв (${result[1]}/${result[2]})</div>`,
+            `
                 <div style="display: flex;width: 100%;justify-content: space-evenly;">
                     <div style="display: flex; flex-direction: column">
                         <div style="text-align: center;">
                             <h3>АиМ</h3>
                         </div>
                         <div style="text-align: center;">${lost ? "Поражения" : ""}</div>
-                        ${getBattlesTemplate(battles["AFS"])}
+                        ${result[0]}
                     </div>
-                </div>`
+                </div>`)
     }
 
     function getFFAEventBattlesTemplate(lost) {
@@ -69,9 +75,15 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                             <h3>АиМ</h3>
                         </div>
                         <div style="text-align: center;">${lost ? "Поражения" : ""}</div>
-                        ${getBattlesTemplate(battles["AFS"])}
+                        ${getBattlesTemplate(battles["AFS"])[0]}
                     </div>
-                    <div style="display: flex; flex-direction: column"><div style="text-align: center;"><h3>КБО</h3></div><div style="text-align: center;">${lost ? "Поражения" : ""}</div>${getBattlesTemplate(battles["FFA"], "FFA")}</div>
+                    <div style="display: flex; flex-direction: column">
+                        <div style="text-align: center;">
+                            <h3>КБО</h3>
+                        </div>
+                        <div style="text-align: center;">${lost ? "Поражения" : ""}</div>
+                        ${getBattlesTemplate(battles["FFA"], "FFA")[0]}
+                    </div>
                 </div>`
     }
 
@@ -102,7 +114,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         })
 
 
-        return result
+        return [result, my_lvl_battles.length, not_my_lvl_battles.length]
 
     }
 

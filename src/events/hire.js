@@ -1,6 +1,6 @@
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
-import {get, set, sortByKey} from "../utils/commonUtils";
+import {$, get, set, sortByKey} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
@@ -9,7 +9,7 @@ export default function hireEvent() {
     if (location.href.includes("naym_event.")) {
         // addFilteringArea()
         // processFilters()
-        setLeaderboard(Array.from(document.querySelectorAll('[align="left"][valign="top"]')[0].getElementsByTagName("center")).slice(-1)[0])
+        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).slice(-1)[0])
         eventHelperSettings(document.querySelector('.Global'), (container) => {
             setSettings("auto_send_rogues_event", "Отправлять бои из разбойничьего ивента в сервис автоматически", container)
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
@@ -19,64 +19,79 @@ export default function hireEvent() {
         }, "afterend")
         set("eh_current_level", null)
         collapseEventDesc()
+        getEventBattles(Array.from(document.querySelectorAll(".global_container_block")).at(-2), "getRoguesEventBattles", 1)
         interceptButtons()
-        getEventBattles(document.querySelector(".Global").parentElement, "getRoguesEventBattles", 1)
     }
     if (location.href.includes("naym_event_set")) {
         let buy_history = get("buy_history", [])
+        function setListeners() {
+            document.querySelector("#ne_set_available_troops").insertAdjacentHTML("beforeend", `<div id="set_check"><div>`)
 
-        Array.from(Array.from(document.querySelectorAll('td[class="wbwhite"][valign="top"]')).slice(-2, -1)[0].getElementsByTagName("tr"))
-            .filter(elem => elem.innerHTML.includes("cre_creature"))
-            .forEach((elem, index) => {
-                let submit = elem.querySelector("input[type=submit]")
-                if (submit) {
-                    let data = submit["onclick"].toString()
-                    let findings = data.match(/(\d{1,5}), '([a-zA-Z0-9_-]+)', '(\d{0,3},?\d{1,3})', (\d{1,5})\)/)
-
-
-                    let price = parseInt(findings[4].replace(",", ""))
-                    let count = parseInt(findings[1])
-                    let name = findings[2]
-                    let time = Date.now()
+            Array.from(document.querySelector("#ne_set_available_troops").children)
+                .filter(elem => elem.innerHTML.includes("cre_creature"))
+                .forEach((elem, index) => {
+                    let submit = elem.querySelector("input[type=submit]")
+                    if (submit) {
+                        let data = submit["onclick"].toString()
+                        let findings = data.match(/(\d{1,5}), '([a-zA-Z0-9_-]+)', '(\d{0,3},?\d{1,3})', (\d{1,5})\)/)
 
 
-                    submit.addEventListener("click", () => {
-                        buy_history.push({
-                            "name": name,
-                            "price": price,
-                            "count": count,
-                            "time": time,
-                            "action": "sell"
-                        })
-                        set("buy_history", buy_history.filter(elem => Date.now() - elem.time < 86400 * 14 * 1000))
-                    })
-                }
-            })
-        Array.from(Array.from(document.querySelectorAll('td[class="wbwhite"][valign="top"]')).slice(-1)[0].getElementsByTagName("tr"))
-            .filter(elem => elem.innerHTML.includes("cre_creature"))
-            .forEach((elem, index) => {
-                let submit = elem.querySelector("input[type=submit]")
-
-                if (submit) {
-                    submit.addEventListener("click", () => {
-                        let form = elem.querySelector("form")
-
-                        let price = parseInt(form.querySelector("input[name=price]").value)
-                        let count = parseInt(form.querySelector("select[name=cnt]").value)
-                        let name = form.querySelector("input[name=mid]").value
+                        let price = parseInt(findings[4].replace(",", ""))
+                        let count = parseInt(findings[1])
+                        let name = findings[2]
                         let time = Date.now()
-                        buy_history.push({
-                            "name": name,
-                            "price": price,
-                            "count": count,
-                            "time": time,
-                            "action": "buy"
-                        })
-                        set("buy_history", buy_history.filter(elem => Date.now() - elem.time < 86400 * 14 * 1000))
-                    })
-                }
-            })
 
+
+                        submit.addEventListener("click", () => {
+                            buy_history.push({
+                                "name": name,
+                                "price": price,
+                                "count": count,
+                                "time": time,
+                                "action": "sell"
+                            })
+                            set("buy_history", buy_history.filter(elem => Date.now() - elem.time < 86400 * 14 * 1000))
+                        })
+                    }
+                })
+            Array.from(document.querySelector("#ne_set_troops_on_market").querySelectorAll(".hwm_event_set_stack_block"))
+                .filter(elem => elem.innerHTML.includes("cre_creature"))
+                .forEach((elem, index) => {
+                    let submit = elem.querySelector("div[id^=ne_set_button]")
+
+
+                    if (submit) {
+                        let submit_a =submit.querySelector("a")
+                        submit.addEventListener("click", () => {
+                            let data = submit_a["onclick"].toString()
+                            let findings = data.match(/'([a-zA-Z0-9_-]+)', (\d{1,5})\)/)
+
+                            let price = parseInt(elem.querySelector("input[id^=ne_set_market_price]").value)
+                            let count = parseInt(elem.querySelector("select[name=cnt]").value)
+                            let name = findings[1]
+                            let time = Date.now()
+                            buy_history.push({
+                                "name": name,
+                                "price": price,
+                                "count": count,
+                                "time": time,
+                                "action": "buy"
+                            })
+                            set("buy_history", buy_history.filter(elem => Date.now() - elem.time < 86400 * 14 * 1000))
+                        })
+                    }
+                })
+        }
+
+        setListeners()
+
+        setInterval(() => {
+            if (!$("set_check")) {
+                setListeners()
+                showPriceChange()
+                showBuyHistory()
+            }
+        }, 100)
 
         function drawChart(prices, index, elem) {
             elem.insertAdjacentHTML("afterend", `
@@ -130,7 +145,7 @@ export default function hireEvent() {
 
         async function showPriceChange() {
             let doc = await doGet(`getRoguesCreaturesPrices`, false)
-            Array.from(Array.from(document.querySelectorAll('td[class="wbwhite"][valign="top"]')).slice(-1)[0].getElementsByTagName("tr"))
+            Array.from(document.querySelector("#ne_set_troops_on_market").querySelectorAll(".hwm_event_set_stack_block"))
                 .filter(elem => elem.innerHTML.includes("cre_creature"))
                 .forEach((elem, index) => {
                     let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
@@ -164,9 +179,10 @@ export default function hireEvent() {
             showPriceChange()
         }
 
-        if (buy_history.length > 0) {
-            let rows = sortByKey(buy_history, "time").reverse().reduce((prev, curr) => {
-                return prev + `
+        function showBuyHistory() {
+            if (buy_history.length > 0) {
+                let rows = sortByKey(buy_history, "time").reverse().reduce((prev, curr) => {
+                    return prev + `
                     <div style="display: flex; justify-content: space-evenly;
     align-items: center;
     border: 1px solid #000000;">
@@ -187,19 +203,21 @@ export default function hireEvent() {
                         </div>
                     </div>
                 `
-            }, "")
-            Array.from(document.querySelectorAll('td[class="wbwhite"][valign="top"]')).slice(-2, -1)[0]
-                .insertAdjacentHTML("beforeend", `
+                }, "")
+                document.querySelector("#ne_set_available_troops")
+                    .insertAdjacentHTML("beforeend", `
                     <div style="display: flex; flex-direction: column">
                      <div><h3>История покупок и продаж</h3></div>
                      ${rows}
                     </div>
                 `)
+            }
         }
+        showBuyHistory()
     }
 
     function interceptButtons() {
-        let buttons = Array.from(document.querySelector(".TextBlock.TextBlockBOTTOM").querySelectorAll("#close-image"))
+        let buttons = Array.from(document.querySelectorAll('input[id^=ne_attack_button]'))
         if (buttons.length === 2) {
             let available = 2 - buttons.filter(x => x.disabled).length
             buttons.forEach((button, index) => {
