@@ -4,6 +4,25 @@ import {$, get, set, sortByKey} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
+import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
+
+function getAllTexts() {
+    let texts = new LocalizedTextMap()
+    texts.addText(new LocalizedText("auto_send_rogues_event", "Send battles from the rogue event to the service automatically", "Отправлять бои из разбойничьего ивента в сервис автоматически", "Відправляти бої з розбійницького івента у сервіс автоматично"))
+    texts.addText(new LocalizedText("only_clan_visibility", "My battles are only available to the clan", "Мои бои доступны только для клана", "Мої бої доступні лише для клану"))
+    texts.addText(new LocalizedText("collapse_event_desc", "Always collapse fight descriptions", "Всегда сворачивать описания боев", "Завжди згортати описи боїв"))
+    texts.addText(new LocalizedText("hide_rogues_event_enemies", "Show price statistics", "Показывать статистику цен", "Показувати статистику цін"))
+    texts.addText(new LocalizedText("return_to_prev_level", "Return to an unfinished level", "Возвращать на незавершенный уровень", "Повертати на незавершений рівень"))
+    texts.addText(new LocalizedText("bought", "bought", "куплено", "продано"))
+    texts.addText(new LocalizedText("sold", "sold", "продано", "куплено"))
+    texts.addText(new LocalizedText("trade_for", "for", "по", "по"))
+    texts.addText(new LocalizedText("trade_history", "Trade history", "История покупок и продаж", "Історія покупок та продажів"))
+
+    return texts
+}
+
+let allTexts = getAllTexts()
+
 
 export default function hireEvent() {
     if (location.href.includes("naym_event.")) {
@@ -11,11 +30,11 @@ export default function hireEvent() {
         // processFilters()
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).slice(-1)[0])
         eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
-            setSettings("auto_send_rogues_event", "Отправлять бои из разбойничьего ивента в сервис автоматически", container)
-            setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
-            setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
-            setSettings("hide_rogues_event_enemies", "Показывать статистику цен", container)
-            setSettings("return_to_prev_level", "Возвращать на незавершенный уровень", container, false)
+            setSettings("auto_send_rogues_event", allTexts.get("auto_send_rogues_event"), container)
+            setSettings("only_clan_visibility", allTexts.get("only_clan_visibility"), container, false)
+            setSettings("collapse_event_desc", allTexts.get("collapse_event_desc"), container, false)
+            setSettings("hide_rogues_event_enemies", allTexts.get("hide_rogues_event_enemies"), container)
+            setSettings("return_to_prev_level", allTexts.get("return_to_prev_level"), container, false)
         }, "afterbegin")
         set("eh_current_level", null)
         collapseEventDesc()
@@ -97,12 +116,33 @@ export default function hireEvent() {
             elem.insertAdjacentHTML("afterend", `
                     <tr>
                         <td colspan="3">
-                            <div style="height: 130px; overflow: hidden">
+                            <div style="height: 165px; overflow: hidden">
                                 <canvas id="chart${index}" height="150" style="width: 100%"></canvas>
                             </div>
                         </td>
                     </tr>`)
-            const labels = Array.from(' '.repeat(prices.length));
+            function padTo2Digits(num) {
+                return num.toString().padStart(2, '0');
+            }
+            function formatDate(date) {
+                return (
+                    [
+                        padTo2Digits(date.getHours()),
+                        "00"
+                    ].join(':') +
+                    ' ' +
+                    [
+                        padTo2Digits(date.getDate()),
+                        date.toLocaleString('default', { month: 'long' })
+                    ].join('-')
+                );
+            }
+            let date = new Date(1681783201*1000)
+            const labels = prices.map(() => {
+                let label = formatDate(date)
+                date.setHours(date.getHours() + 1)
+                return label
+            })
             const data = {
                 labels: labels,
                 datasets: [
@@ -111,6 +151,9 @@ export default function hireEvent() {
                         data: prices.map(price => parseInt(price)),
                         borderColor: "blue",
                         backgroundColor: "rgb(44,73,107)",
+                        pointStyle: 'circle',
+                        pointRadius: 3,
+                        pointHoverRadius: 4
                     },
                 ]
             };
@@ -132,11 +175,19 @@ export default function hireEvent() {
                     elements: {
                         line: {
                             borderWidth: 1
-                        },
-                        point: {
-                            radius: 1
                         }
-                    }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
                 },
             };
             const ctx = document.getElementById(`chart${index}`).getContext('2d');
@@ -150,7 +201,7 @@ export default function hireEvent() {
                 .forEach((elem, index) => {
                     let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
                     let prices = doc[creatureName].map(price => price - 0)
-                    let priceElem = elem.querySelector(".txt_with_icons")
+                    let priceElem = elem.querySelectorAll(".txt_with_icons")[1]
                     if (prices[prices.length - 1] > prices[prices.length - 2]) {
                         elem.style.background = "#ff9e9e"
                     } else if (prices[prices.length - 1] < prices[prices.length - 2]) {
@@ -190,7 +241,7 @@ export default function hireEvent() {
                             ${new Date(curr.time).toLocaleTimeString()}
                         </div>
                         <div>
-                            ${curr.action === "buy" ? "<p style='color: green'>куплено</p>" : "<p style='color: red'>продано</p>"}
+                            ${curr.action === "buy" ? `<p style='color: green'>${allTexts.get("bought")}</p>` : `<p style='color: red'>${allTexts.get("sold")}</p>`}
                         </div>
                         <div>
                             ${curr.count}
@@ -199,7 +250,7 @@ export default function hireEvent() {
                             <div style="width: 40px"><img src="https://cfcdn.lordswm.com/i/portraits/${curr.name}anip33.png" style="height: 48px; width: 48px; border-radius: 50%; object-fit: cover;"></div>
                         </div>
                         <div>
-                            по ${curr.price}
+                            ${allTexts.get("trade_for")} ${curr.price}
                         </div>
                     </div>
                 `
@@ -207,7 +258,7 @@ export default function hireEvent() {
                 document.querySelector("#ne_set_available_troops")
                     .insertAdjacentHTML("beforeend", `
                     <div style="display: flex; flex-direction: column">
-                     <div><h3>История покупок и продаж</h3></div>
+                     <div><h3>${allTexts.get("trade_history")}</h3></div>
                      ${rows}
                     </div>
                 `)
