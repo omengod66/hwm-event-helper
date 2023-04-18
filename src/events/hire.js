@@ -13,8 +13,8 @@ function getAllTexts() {
     texts.addText(new LocalizedText("collapse_event_desc", "Always collapse fight descriptions", "Всегда сворачивать описания боев", "Завжди згортати описи боїв"))
     texts.addText(new LocalizedText("hide_rogues_event_enemies", "Show price statistics", "Показывать статистику цен", "Показувати статистику цін"))
     texts.addText(new LocalizedText("return_to_prev_level", "Return to an unfinished level", "Возвращать на незавершенный уровень", "Повертати на незавершений рівень"))
-    texts.addText(new LocalizedText("bought", "bought", "куплено", "продано"))
-    texts.addText(new LocalizedText("sold", "sold", "продано", "куплено"))
+    texts.addText(new LocalizedText("bought", "bought", "куплено", "куплено"))
+    texts.addText(new LocalizedText("sold", "sold", "продано", "продано"))
     texts.addText(new LocalizedText("trade_for", "for", "по", "по"))
     texts.addText(new LocalizedText("trade_history", "Trade history", "История покупок и продаж", "Історія покупок та продажів"))
 
