@@ -10,13 +10,13 @@ export default function hireEvent() {
         // addFilteringArea()
         // processFilters()
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).slice(-1)[0])
-        eventHelperSettings(document.querySelector('.Global'), (container) => {
+        eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
             setSettings("auto_send_rogues_event", "Отправлять бои из разбойничьего ивента в сервис автоматически", container)
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
             setSettings("hide_rogues_event_enemies", "Показывать статистику цен", container)
             setSettings("return_to_prev_level", "Возвращать на незавершенный уровень", container, false)
-        }, "afterend")
+        }, "afterbegin")
         set("eh_current_level", null)
         collapseEventDesc()
         getEventBattles(Array.from(document.querySelectorAll(".global_container_block")).at(-2), "getRoguesEventBattles", 1)
