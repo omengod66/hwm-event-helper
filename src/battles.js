@@ -13,7 +13,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("ffa", "FFA", "КБО", "КБО"))
     texts.addText(new LocalizedText("your_cl", "Your CL", "Твой уровень", "Твій рівень"))
     texts.addText(new LocalizedText("another_cl", "Another CLs", "Другие уровни", "Інші рівні"))
-    texts.addText(new LocalizedText("another_cl_army", "Starting from the 51st wave, the opponents at all levels are the same. The difference is only in quantity.", "Начиная с 51й волны, противники на всех уровнях одинаковые. Разница только в количестве.", "Починаючи з 51 хвилі, противники на всіх рівнях однакові. Різниця лише у кількості."))
+    texts.addText(new LocalizedText("another_cl_army", "Starting from the 51st wave, the opponents at all combat levels are the same. The difference is only in quantity.", "Начиная с 51й волны, противники на всех уровнях одинаковые. Разница только в количестве.", "Починаючи з 51 хвилі, противники на всіх бойових рівнях однакові. Різниця лише у кількості."))
     texts.addText(new LocalizedText("battle", "Battle", "Бой", "Бій"))
     texts.addText(new LocalizedText("empty", "empty", "пусто", "порожньо"))
     texts.addText(new LocalizedText("enemy", "Enemy", "Враг", "Ворог"))

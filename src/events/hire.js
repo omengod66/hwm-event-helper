@@ -17,6 +17,9 @@ function getAllTexts() {
     texts.addText(new LocalizedText("sold", "sold", "продано", "продано"))
     texts.addText(new LocalizedText("trade_for", "for", "по", "по"))
     texts.addText(new LocalizedText("trade_history", "Trade history", "История покупок и продаж", "Історія покупок та продажів"))
+    texts.addText(new LocalizedText("hire_hint", "Red means higher prices, while green means the opposite. At this event, the cost of a creature can only be within + -15% of the initial cost. Thus, if 115% is written next to the price, it will no longer rise upwards, and if the price is 85%, then it will no longer fall either.",
+        "Красный цвет значит подорожание, а зеленый наоборот. На этом ивенте цена существа может находиться только в пределах +-15% от изначальной стоимости. Таким образом, если рядом с ценой написано 115%, она больше расти вверх не будет, а если цена 85%, то падать больше не будет тоже.",
+        "Червоний колір означає подорожчання, а зелений – навпаки. На цьому івенті ціна істоти може бути лише в межах +-15% від початкової вартості. Таким чином, якщо поряд з ціною написано 115%, вона більше не зростатиме, а якщо ціна 85%, то падати більше не буде теж."))
 
     return texts
 }
@@ -42,6 +45,11 @@ export default function hireEvent() {
         interceptButtons()
     }
     if (location.href.includes("naym_event_set")) {
+        Array.from(document.querySelectorAll(".hwm_event_block_header")).at(-1).insertAdjacentHTML("beforeend", `
+            <div class="hwm_event_block_miniheader">${allTexts.get("hire_hint")}</div>
+        `)
+
+
         let buy_history = get("buy_history", [])
         function setListeners() {
             document.querySelector("#ne_set_available_troops").insertAdjacentHTML("beforeend", `<div id="set_check"><div>`)
@@ -207,7 +215,7 @@ export default function hireEvent() {
                     } else if (prices[prices.length - 1] < prices[prices.length - 2]) {
                         elem.style.background = "#9eff98"
                     }
-                    priceElem.insertAdjacentHTML("beforeend", ` (${(prices[prices.length - 1] / Math.max(...prices) * 100).toFixed()}%)`)
+                    priceElem.insertAdjacentHTML("beforeend", ` (${Math.max(Math.min(Math.round(prices.at(-1) / prices[0] * 100), 115), 85)}%)`)
                     Array.from(elem.querySelectorAll('input[type="submit"]'))
                         .forEach(input => {
                             input.classList.add("btn_hover2", "home_button2")
