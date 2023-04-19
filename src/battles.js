@@ -1,5 +1,5 @@
 import {doGet, doPost} from "./utils/networkUtils";
-import {$, allClasses, cdnHost, encode, get, mapToArray, pl_lvl, sortByKey} from "./utils/commonUtils";
+import {$, allClasses, cdnHost, encode, get, groupBy, mapToArray, pl_lvl, sortByKey} from "./utils/commonUtils";
 import {getCurrentLevel} from "./utils/eventUtils";
 import {getSpoiler} from "./templates";
 import {LocalizedText, LocalizedTextMap} from "./utils/localizationUtils";
@@ -78,14 +78,12 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             "AFS",
             `<div class="home_button2 btn_hover2" style="margin: 3px 0">${allTexts.get("examples")} (${result[1]}/${result[2]})</div>`,
             `
-                <div style="display: flex;width: 100%;justify-content: space-evenly;">
-                    <div style="display: flex; flex-direction: column">
-                        <div style="text-align: center;">
-                            <h3>${allTexts.get("afs")}</h3>
-                        </div>
-                        <div style="text-align: center;">${lost ? allTexts.get("loses") : ""}</div>
-                        ${result[0]}
+                <div style="display: flex; flex-direction: column">
+                    <div style="text-align: center;">
+                        <h3>${allTexts.get("afs")}</h3>
                     </div>
+                    <div style="text-align: center;">${lost ? allTexts.get("loses") : ""}</div>
+                    ${result[0]}
                 </div>`)
     }
 
@@ -143,13 +141,18 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     function ffaBattlesToHTML(battles) {
         if (battles.length > 0) {
             battles.sort((a, b) => a.nickname.localeCompare(b.nickname))
-            return battles.reduce((prev, curr, index) => {
+            return groupBy(battles, "nickname").reduce((prev, curr, index) => {
                 return prev + `
                             <div style="display: flex; justify-content: space-between; padding: 1px;">
                                 <div>${index + 1}. </div>
-                                <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr["nickname"])}" class="pi" target="_blank">${curr["nickname"]}</a> ${"class" in curr && getClassById(curr["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr["class"])[3]}?v=1.1" alt="">` : ""} [${curr["hero_lvl"]}]</div>
-                                <div> ${getFFAEventBattleSide(curr)}</div>
-                                <div> <a target="_blank" href="/warlog.php?warid=${curr["battle_id"]}&show_for_all=${curr["battle_secret"]}&lt=-1">${allTexts.get("battle")}</a></div>
+                                <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a> ${"class" in curr && getClassById(curr[0]["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr[0]["class"])[3]}?v=1.1" alt="">` : ""} [${curr[0]["hero_lvl"]}]</div>
+                                <div style="display: flex;min-width: 120px;justify-content: space-between;">
+                                ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
+                                    return prev_entry + `
+                                                    <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
+                                                    `
+                                }, "") }
+                                </div>
                             </div>
                             `
             }, "")
@@ -174,10 +177,10 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             } else if (battle["battle_side"] === 1) {
                 return `${allTexts.get("enemy")}#2`
             } else {
-                return ""
+                return `${allTexts.get("enemy")}#?`
             }
         } else {
-            return ""
+            return `${allTexts.get("enemy")}#?`
         }
     }
 }
