@@ -29,6 +29,22 @@ let allTexts = getAllTexts()
 
 export default function hireEvent() {
     if (location.href.includes("naym_event.")) {
+        document.body.insertAdjacentHTML("afterbegin", `<style>.hwm_event_set_stack_block {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-radius: 5px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    margin: 2px;
+    padding: 6px;
+    background-color: #fffef9;
+    box-shadow: inset 0 0 0 1px #b19673, 0 2px 2px rgb(0 0 0 / 25%);
+}</style>`)
         // addFilteringArea()
         // processFilters()
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).slice(-1)[0])

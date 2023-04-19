@@ -143,15 +143,17 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             battles.sort((a, b) => a.nickname.localeCompare(b.nickname))
             return groupBy(battles, "nickname").reduce((prev, curr, index) => {
                 return prev + `
-                            <div style="display: flex; justify-content: space-between; padding: 1px;">
-                                <div>${index + 1}. </div>
-                                <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a> ${"class" in curr && getClassById(curr[0]["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr[0]["class"])[3]}?v=1.1" alt="">` : ""} [${curr[0]["hero_lvl"]}]</div>
-                                <div style="display: flex;min-width: 120px;justify-content: space-between;">
-                                ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
-                                    return prev_entry + `
-                                                    <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
-                                                    `
-                                }, "") }
+                            <div class="hwm_event_set_stack_block">
+                                <div style="width: 80%;display: flex;justify-content: space-between;">
+                                    <div>${index + 1}. </div>
+                                    <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a> ${"class" in curr && getClassById(curr[0]["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr[0]["class"])[3]}?v=1.1" alt="">` : ""} [${curr[0]["hero_lvl"]}]</div>
+                                    <div style="display: flex;min-width: 120px;justify-content: space-between;">
+                                    ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
+                                        return prev_entry + `
+                                                                        <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
+                                                                        `
+                                    }, "") }
+                                    </div>
                                 </div>
                             </div>
                             `
