@@ -244,7 +244,7 @@ export default function hireEvent() {
                     return prev + `
                     <div style="display: flex; justify-content: space-evenly;
     align-items: center;
-    border: 1px solid #000000;">
+    padding: 0" class="hwm_event_set_stack_block">
                         <div>   
                             ${new Date(curr.time).toLocaleTimeString()}
                         </div>
