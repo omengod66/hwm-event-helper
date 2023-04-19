@@ -266,7 +266,7 @@ export default function hireEvent() {
                 document.querySelector("#ne_set_available_troops")
                     .insertAdjacentHTML("beforeend", `
                     <div style="display: flex; flex-direction: column">
-                     <div><h3>${allTexts.get("trade_history")}</h3></div>
+                     <div style="text-align: center"><h3>${allTexts.get("trade_history")}</h3></div>
                      ${rows}
                     </div>
                 `)
