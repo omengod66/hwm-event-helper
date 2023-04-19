@@ -13,6 +13,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("ffa", "FFA", "КБО", "КБО"))
     texts.addText(new LocalizedText("your_cl", "Your CL", "Твой уровень", "Твій рівень"))
     texts.addText(new LocalizedText("another_cl", "Another CLs", "Другие уровни", "Інші рівні"))
+    texts.addText(new LocalizedText("another_cl_army", "Starting from the 51st wave, the opponents at all levels are the same. The difference is only in quantity.", "Начиная с 51й волны, противники на всех уровнях одинаковые. Разница только в количестве.", "Починаючи з 51 хвилі, противники на всіх рівнях однакові. Різниця лише у кількості."))
     texts.addText(new LocalizedText("battle", "Battle", "Бой", "Бій"))
     texts.addText(new LocalizedText("empty", "empty", "пусто", "порожньо"))
     texts.addText(new LocalizedText("enemy", "Enemy", "Враг", "Ворог"))
@@ -114,7 +115,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         let my_lvl_battles = battles.filter(battle => battle["hero_lvl"] === pl_lvl)
         result += ffaBattlesToHTML(my_lvl_battles)
 
-        result += `<div style="text-align: center;"><h4>${allTexts.get("another_cl")}</h4></div>`
+        result += `<div style="text-align: center;"><h4>${allTexts.get("another_cl")}</h4><h6>${allTexts.get("another_cl_army")}</h6></div>`
         let not_my_lvl_battles = battles.filter(battle => battle["hero_lvl"] !== pl_lvl)
         let cl_buckets = {}
         not_my_lvl_battles.forEach(battle => {
