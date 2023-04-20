@@ -29,25 +29,9 @@ let allTexts = getAllTexts()
 
 export default function hireEvent() {
     if (location.href.includes("naym_event.")) {
-        document.body.insertAdjacentHTML("afterbegin", `<style>.hwm_event_set_stack_block {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    border-radius: 5px;
-    position: relative;
-    align-items: center;
-    justify-content: center;
-    margin: 2px;
-    padding: 6px;
-    background-color: #fffef9;
-    box-shadow: inset 0 0 0 1px #b19673, 0 2px 2px rgb(0 0 0 / 25%);
-}</style>`)
         // addFilteringArea()
         // processFilters()
-        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).slice(-1)[0])
+        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
         eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
             setSettings("auto_send_rogues_event", allTexts.get("auto_send_rogues_event"), container)
             setSettings("only_clan_visibility", allTexts.get("only_clan_visibility"), container, false)
@@ -61,6 +45,17 @@ export default function hireEvent() {
         interceptButtons()
     }
     if (location.href.includes("naym_event_set")) {
+        let totalPrice = Array.from(document.querySelector("#ne_set_available_troops").querySelectorAll(".hwm_event_set_stack_block"))
+            .map(elem => {
+                return parseInt(Array.from(elem.querySelectorAll(".txt_with_icons.hwm_ne_event_img_q")).at(-1).innerText.replace(",", ""))
+            })
+            .reduce((previousValue, currentValue) => previousValue + currentValue, 0)
+            .toLocaleString()
+        document.querySelector("#ne_set_now_power").insertAdjacentHTML("afterend", `
+              <span id="ne_set_now_power" class="txt_with_icons hwm_ne_event_img_q" style="font-weight: bold; background-image: url('https://dcdn.heroeswm.ru/i/adv_ev_silver48.png')">${totalPrice}</span>
+        `)
+
+
         Array.from(document.querySelectorAll(".hwm_event_block_header")).at(-1).insertAdjacentHTML("beforeend", `
             <div class="hwm_event_block_miniheader">${allTexts.get("hire_hint")}</div>
         `)

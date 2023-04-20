@@ -47,6 +47,22 @@ export async function sendBattle(warid, secret, type, index = null, battle_side 
 }
 
 export async function getEventBattles(target, from = "getFFAEventBattles", callback = 2, lost = false) {
+    document.body.insertAdjacentHTML("afterbegin", `<style>.hwm_event_example_block {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        border-radius: 5px;
+        position: relative;
+        align-items: center;
+        justify-content: center;
+        margin: 2px;
+        padding: 6px;
+        background-color: #fffef9;
+        box-shadow: inset 0 0 0 1px #b19673, 0 2px 2px rgb(0 0 0 / 25%);
+    }</style>`)
     let battles = await doGet(`${from}?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
     processEventBattles(target)
 
