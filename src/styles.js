@@ -56,6 +56,17 @@ export function setGlobalStyles() {
                         opacity: 1;
                     }
                     
+                    .roguesSpoilerWrapper{
+                       width: 100%;
+                       display: flex;
+                       flex-direction: column;
+                    }
+                    .roguesSpoilerLabel{
+                       width: 100%;
+                       display: flex !important;
+                       justify-content: center;
+                    }
+                    
                      .record-wrapper{
                         display: flex;
                         flex-direction: column;

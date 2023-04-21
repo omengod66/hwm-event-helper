@@ -1,10 +1,10 @@
 import {doGet} from "./utils/networkUtils";
-import {get, my_sign, pl_id, pl_lvl, set} from "./utils/commonUtils";
+import {my_sign, pl_id, pl_lvl, set} from "./utils/commonUtils";
 import {setGlobalStyles} from "./styles";
 import leaderEvent from "./events/leader";
 import adventureEvent from "./events/adventure";
 import factionEvent from "./events/faction";
-import hireEvent from "./events/hire";
+import hireEvent from "./events/rogues";
 import pirateEvent from "./events/pirate";
 import portalCoupleEvent from "./events/portalCouple";
 import portalSoloEvent from "./events/portalSolo";

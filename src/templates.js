@@ -1,10 +1,10 @@
 import {cdnHost, heroCreatures} from "./utils/commonUtils";
 
-export function getSpoiler(type, index, spoilerHead, spoilerBody) {
+export function getSpoiler(type, index, spoilerHead, spoilerBody, spoilerWrapperClass = "", spoilerLabelClass = "") {
     return `
-            <div>
+            <div class="${spoilerWrapperClass}">
                 <input type="checkbox" id="spoiler_${type}_${index}"/>
-                <label for="spoiler_${type}_${index}">
+                <label for="spoiler_${type}_${index}" class="${spoilerLabelClass}">
                     ${spoilerHead}
                 </label>
                 <div class="spoiler">
