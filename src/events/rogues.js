@@ -253,7 +253,7 @@ export default function hireEvent() {
                 .filter(elem => elem.innerHTML.includes("cre_creature"))
                 .forEach((elem, index) => {
                     let creatureName = elem.innerHTML.match(/\?name=([a-zA-Z0-9_-]+)/)[1]
-                    let creatureCount = elem.querySelector(".cre_amount").innerText
+                    let creatureCount = elem.querySelector(".cre_amount").innerText - 0
                     let creatureHistory = groupByKey(sortByKey(buy_history, "time").reverse(), "name")[creatureName] ?? []
                     let recentPurchases = [];
                     creatureHistory.some((item) => {
@@ -272,7 +272,7 @@ export default function hireEvent() {
                     let target = Array.from(elem.querySelectorAll(".txt_with_icons.hwm_ne_event_img_q")).at(-1)
                     if (totalPrice !== 0) {
                         let currentPriceElement = target.firstChild
-                        let currentPrice = currentPriceElement.innerText.replace(",", "")-0
+                        let currentPrice = currentPriceElement.innerText.replace(",", "") - 0
                         if (totalCount === creatureCount) {
                             if (currentPrice > totalPrice) {
                                 currentPriceElement.style.color = "green"
