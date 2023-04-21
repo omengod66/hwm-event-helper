@@ -1,6 +1,6 @@
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
-import {$, get, groupBy, set, sortByKey} from "../utils/commonUtils";
+import {$, get, groupBy, groupByKey, set, sortByKey} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
@@ -86,9 +86,11 @@ export default function hireEvent() {
                             </div>
                         </td>
                     </tr>`)
+
             function padTo2Digits(num) {
                 return num.toString().padStart(2, '0');
             }
+
             function formatDate(date) {
                 return (
                     [
@@ -98,11 +100,12 @@ export default function hireEvent() {
                     ' ' +
                     [
                         padTo2Digits(date.getDate()),
-                        date.toLocaleString('default', { month: 'long' })
+                        date.toLocaleString('default', {month: 'long'})
                     ].join('-')
                 );
             }
-            let date = new Date(1681783201*1000)
+
+            let date = new Date(1681783201 * 1000)
             const labels = prices.map(() => {
                 let label = formatDate(date)
                 date.setHours(date.getHours() + 1)
@@ -167,9 +170,9 @@ export default function hireEvent() {
                     let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
                     let prices = doc[creatureName].map(price => price - 0)
                     let priceElem = elem.querySelectorAll(".txt_with_icons")[1]
-                    if (prices[prices.length - 1]-0 > prices[prices.length - 2]-0) {
+                    if (prices[prices.length - 1] - 0 > prices[prices.length - 2] - 0) {
                         elem.style.background = "#ff9e9e"
-                    } else if (prices[prices.length - 1]-0 < prices[prices.length - 2]-0) {
+                    } else if (prices[prices.length - 1] - 0 < prices[prices.length - 2] - 0) {
                         elem.style.background = "#9eff98"
                     }
                     priceElem.insertAdjacentHTML("beforeend", ` (${Math.max(Math.min(Math.round(prices.at(-1) / prices[0] * 100), 115), 85)}%)`)
@@ -187,15 +190,15 @@ export default function hireEvent() {
             if (buy_history.length > 0) {
                 let rows = groupBy(sortByKey(buy_history, "time").reverse(), "name")
                     .reduce((result, currCreatureList) => {
-                        return result+`
+                        return result + `
                             <div style="display: flex; justify-content: space-evenly;align-items: center;padding: 0" class="hwm_event_set_stack_block">
-                                ${getSpoiler(currCreatureList[0].name, "",`
+                                ${getSpoiler(currCreatureList[0].name, "", `
                                     <div style="width: 40px">
                                         <img src="https://cfcdn.lordswm.com/i/portraits/${currCreatureList[0].name}anip33.png" style="height: 48px; width: 48px; border-radius: 50%; object-fit: cover;" alt="">
                                     </div>
-                                `, 
-                                currCreatureList.reduce((prev, curr) => {
-                                    return prev + `
+                                `,
+                            currCreatureList.reduce((prev, curr) => {
+                                return prev + `
                                         <div style="display: flex; justify-content: space-evenly;align-items: center;padding: 0" class="hwm_event_set_stack_block">
                                             <div>
                                                 ${new Date(curr.time).toLocaleTimeString()}
@@ -214,7 +217,7 @@ export default function hireEvent() {
                                             </div>
                                         </div>
                                     `
-                                }, ""), 
+                            }, ""),
                             "roguesSpoilerWrapper", "roguesSpoilerLabel")}
                             </div>
                         `
@@ -230,6 +233,7 @@ export default function hireEvent() {
                 `)
             }
         }
+
         function setTotalPrice() {
             let totalPrice = Array.from(document.querySelector("#ne_set_available_troops").querySelectorAll(".hwm_event_set_stack_block"))
                 .map(elem => {
@@ -241,12 +245,47 @@ export default function hireEvent() {
               <span id="ne_set_now_power" class="txt_with_icons hwm_ne_event_img_q" style="font-weight: bold; background-image: url('https://dcdn.heroeswm.ru/i/adv_ev_silver48.png')">${totalPrice}</span>
         `)
         }
+
         function setListeners() {
             document.querySelector("#ne_set_available_troops").insertAdjacentHTML("beforeend", `<div id="set_check"><div>`)
 
             Array.from(document.querySelector("#ne_set_available_troops").children)
                 .filter(elem => elem.innerHTML.includes("cre_creature"))
                 .forEach((elem, index) => {
+                    let creatureName = elem.innerHTML.match(/\?name=([a-zA-Z0-9_-]+)/)[1]
+                    let creatureCount = elem.querySelector(".cre_amount").innerText
+                    let creatureHistory = groupByKey(sortByKey(buy_history, "time").reverse(), "name")[creatureName] ?? []
+                    let recentPurchases = [];
+                    creatureHistory.some((item) => {
+                        if ("sell" === item.action) {
+                            return true;
+                        } else {
+                            recentPurchases.push(item);
+                        }
+                    });
+                    let [totalCount, totalPrice] = recentPurchases.reduce(([resultCount, resultPrice], currentPurchase) => {
+                        return [
+                            resultCount + currentPurchase["count"],
+                            resultPrice + currentPurchase["count"] * currentPurchase["price"]
+                        ]
+                    }, [0, 0])
+                    let target = Array.from(elem.querySelectorAll(".txt_with_icons.hwm_ne_event_img_q")).at(-1)
+                    if (totalPrice !== 0) {
+                        let currentPriceElement = target.firstChild
+                        let currentPrice = currentPriceElement.innerText.replace(",", "")-0
+                        if (totalCount === creatureCount) {
+                            if (currentPrice > totalPrice) {
+                                currentPriceElement.style.color = "green"
+                            } else if (currentPrice < totalPrice) {
+                                currentPriceElement.style.color = "red"
+                            }
+                        }
+
+                        target.insertAdjacentHTML("beforeend", `
+                            ${allTexts.get("bought")} ${totalCount} ${allTexts.get("trade_for")} ${totalPrice}
+                        `)
+                    }
+
                     let submit = elem.querySelector("input[type=submit]")
                     if (submit) {
                         let data = submit["onclick"].toString()
@@ -278,7 +317,7 @@ export default function hireEvent() {
 
 
                     if (submit) {
-                        let submit_a =submit.querySelector("a")
+                        let submit_a = submit.querySelector("a")
                         submit.addEventListener("click", () => {
                             let data = submit_a["onclick"].toString()
                             let findings = data.match(/'([a-zA-Z0-9_-]+)', (\d{1,5})\)/)
