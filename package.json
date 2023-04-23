@@ -2,23 +2,20 @@
   "name": "hwm-event-helper",
   "version": "16.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "webpack-dev-server",
-    "build": "webpack --mode production"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "GNU GPLv3",
-  "dependencies": {
-    "@babel/core": "^7.18.13",
-    "webpack": "^4.46.0",
-    "webpack-userscript": "^2.5.8"
-  },
+  "source": "src/index.js",
+  "main": "build/EventHelperV2.user.js",
   "devDependencies": {
-    "@babel/preset-env": "^7.18.9",
-    "babel-loader": "^8.2.5",
-    "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.9.3"
+    "parcel": "latest"
+  },
+  "scripts": {
+    "watch": "parcel watch",
+    "build": "parcel build"
+  },
+  "targets": {
+    "main": {
+      "sourceMap": {
+        "inline": false
+      }
+    }
   }
 }
