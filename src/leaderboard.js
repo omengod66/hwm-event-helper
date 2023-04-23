@@ -80,3 +80,17 @@ export async function setLeaderboard(where, position = "afterbegin", withClan = 
                 </div>`
     }
 }
+
+export async function setTopClanAttempts(where) {
+    let topClanAttempts = await doGet(`getTopClanTotalAttempts`)
+    where.querySelectorAll("tr").forEach(clanElem => {
+        let clanId = clanElem.innerHTML.match(/id=(\d{1,5})/)[1]
+        let scoreElem = Array.from(clanElem.querySelectorAll("td")).at(-1)
+        let clanAttempts = topClanAttempts[clanId]
+        if (clanAttempts) {
+            scoreElem.insertAdjacentHTML("beforeend", `
+                <span title="Оставшиеся попытки" style="cursor: help; font-size: 5pt">(${clanAttempts})</span>
+            `)
+        }
+    })
+}
