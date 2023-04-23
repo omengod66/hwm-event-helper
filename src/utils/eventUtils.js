@@ -23,8 +23,13 @@ export function getCurrentLevel() {
 }
 
 export function setClickableLevels() {
-    Array.from(document.getElementsByClassName("Checkpoints")).forEach(elem => {
-        elem.addEventListener("click", () => {location.href = location.pathname + "?sel_level=" + elem.innerText.trim()})
-        elem.style.cursor = "pointer"
-    })
+    Array.from(document.querySelectorAll(".Checkpoints"))
+        .filter(elem => elem.classList.contains("CheckpointComplete"))
+        .forEach(elem => {
+            elem.style.pointerEvents = "all"
+            elem.addEventListener("click", () => {
+                location.href = location.pathname + "?sel_level=" + elem.innerText.trim()
+            })
+            elem.style.cursor = "pointer"
+        })
 }

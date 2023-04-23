@@ -1,7 +1,7 @@
 import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {$, get, groupBy, groupByKey, set, sortByKey} from "../utils/commonUtils";
-import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, setClickableLevels} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
@@ -47,6 +47,7 @@ export default function hireEvent() {
         }, "afterbegin")
         set("eh_current_level", null)
         collapseEventDesc()
+        setClickableLevels()
         getEventBattles(Array.from(document.querySelectorAll(".global_container_block")).at(-2), "getRoguesEventBattles", 1)
         interceptButtons()
     }
