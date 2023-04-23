@@ -18,6 +18,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("sold", "sold", "продано", "продано"))
     texts.addText(new LocalizedText("trade_for", "for", "по", "по"))
     texts.addText(new LocalizedText("trade_history", "Trade history", "История покупок и продаж", "Історія покупок та продажів"))
+    texts.addText(new LocalizedText("show_top_clan_attempts", "Show remaining attempts for TOP3 clans", "Показывать оставшиеся попытки у ТОП3 кланов", "Показувати спроби, що залишилися, у ТОП3 кланів"))
     texts.addText(new LocalizedText("hire_hint", "Red means higher prices, while green means the opposite. At this event, the cost of a creature can only be within + -15% of the initial cost. Thus, if 115% is written next to the price, it will no longer rise upwards, and if the price is 85%, then it will no longer fall either.",
         "Красный цвет значит подорожание, а зеленый наоборот. На этом ивенте цена существа может находиться только в пределах +-15% от изначальной стоимости. Таким образом, если рядом с ценой написано 115%, она больше расти вверх не будет, а если цена 85%, то падать больше не будет тоже.",
         "Червоний колір означає подорожчання, а зелений – навпаки. На цьому івенті ціна істоти може бути лише в межах +-15% від початкової вартості. Таким чином, якщо поряд з ціною написано 115%, вона більше не зростатиме, а якщо ціна 85%, то падати більше не буде теж."))
@@ -33,7 +34,9 @@ export default function hireEvent() {
         // addFilteringArea()
         // processFilters()
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
-        setTopClanAttempts(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("table")).at(-1))
+        if (get("show_top_clan_attempts", true)) {
+            setTopClanAttempts(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("table")).at(-1))
+        }
         eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
             setSettings("auto_send_rogues_event", allTexts.get("auto_send_rogues_event"), container)
             setSettings("only_clan_visibility", allTexts.get("only_clan_visibility"), container, false)
