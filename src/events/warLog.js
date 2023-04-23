@@ -3,6 +3,7 @@ import {eventHelperSettings, setSettings} from "../settings";
 import {sendBattle} from "../battles";
 
 export default function processBattleLogPage() {
+    window.sendBattle = sendBattle
     if (location.href.includes(`pl_warlog.php?id=${pl_id}`)) {
         eventHelperSettings(document.querySelector(`[class="global_container_block"]`), (container) => {
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
