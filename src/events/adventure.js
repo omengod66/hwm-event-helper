@@ -1,5 +1,4 @@
 const {setLeaderboard} = require("../leaderboard");
-const {setGlobalStyles} = require("../styles");
 const {collapseEventDesc} = require("../utils/eventUtils");
 const {eventHelperSettings, setSettings} = require("../settings");
 const {getEventBattles} = require("../battles");
@@ -9,7 +8,6 @@ export default function adventureEvent() {
         setLeaderboard(document.querySelector('[style="min-width:250px;"]').getElementsByTagName("center")[0])
     }
     if (location.href.includes("adventure_event.php?map=1")) {
-        setGlobalStyles()
         collapseEventDesc()
         eventHelperSettings(document.querySelector('.Global'), (container) => {
             setSettings("auto_send_ffa_event", "Отправлять бои из КБО ивента в сервис автоматически", container)

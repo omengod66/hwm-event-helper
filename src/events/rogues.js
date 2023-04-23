@@ -1,4 +1,4 @@
-import {setLeaderboard} from "../leaderboard";
+import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {$, get, groupBy, groupByKey, set, sortByKey} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel} from "../utils/eventUtils";
@@ -33,12 +33,14 @@ export default function hireEvent() {
         // addFilteringArea()
         // processFilters()
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
+        setTopClanAttempts(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("table")).at(-1))
         eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
             setSettings("auto_send_rogues_event", allTexts.get("auto_send_rogues_event"), container)
             setSettings("only_clan_visibility", allTexts.get("only_clan_visibility"), container, false)
             setSettings("collapse_event_desc", allTexts.get("collapse_event_desc"), container, false)
             setSettings("hide_rogues_event_enemies", allTexts.get("hide_rogues_event_enemies"), container)
             setSettings("return_to_prev_level", allTexts.get("return_to_prev_level"), container, false)
+            setSettings("show_top_clan_attempts", allTexts.get("show_top_clan_attempts"), container)
         }, "afterbegin")
         set("eh_current_level", null)
         collapseEventDesc()
@@ -117,11 +119,11 @@ export default function hireEvent() {
                     {
                         label: 'Price',
                         data: prices.map(price => parseInt(price)),
-                        borderColor: "blue",
-                        backgroundColor: "rgb(44,73,107)",
+                        borderColor: "rgb(100,100,100)",
+                        backgroundColor: "rgb(116,152,168)",
                         pointStyle: 'circle',
-                        pointRadius: 3,
-                        pointHoverRadius: 4
+                        pointRadius: 1.5,
+                        pointHoverRadius: 5
                     },
                 ]
             };
@@ -148,6 +150,14 @@ export default function hireEvent() {
                     scales: {
                         x: {
                             ticks: {
+                                display: false
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            grid: {
                                 display: false
                             }
                         }

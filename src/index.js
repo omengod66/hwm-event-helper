@@ -18,6 +18,7 @@ import processBattleLogPage from "./events/warLog";
 import villageEvent from "./events/village";
 import dungeonEvent from "./events/dungeon";
 import roguesLikeEvent from "./events/roguesLike";
+import clanPage from "./events/clan";
 
 
 async function setup() {
@@ -59,3 +60,4 @@ customInsertion()
 processHeroPage()
 processBattlePage()
 processBattleLogPage()
+clanPage()
