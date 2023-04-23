@@ -39,11 +39,11 @@ export async function sendBattle(warid, secret, type, index = null, battle_side 
         "3": "uploadFactionEventBattle",
         "4": "uploadRoguesEventBattle",
     }
-
-    await doPost(types[type], formData)
-    if (index) {
-        $(`send_battle_${index}`).outerHTML = allTexts.get("sent")
-    }
+    doPost(types[type], formData).then(() => {
+        if (index != null) {
+            $(`send_battle_${index}`).outerHTML = allTexts.get("sent")
+        }
+    })
 }
 
 export async function getEventBattles(target, from = "getFFAEventBattles", callback = 2, lost = false) {

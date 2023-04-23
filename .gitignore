@@ -1,5 +1,4 @@
 /node_modules/
 /hwm-event-helper.iml
 /.idea/
-/build/EventHelper.meta.js
-/build/EventHelper.user.js
+/build/

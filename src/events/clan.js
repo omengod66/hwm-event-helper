@@ -12,16 +12,18 @@ export default async function clanPage() {
             let clanId = new URLSearchParams(window.location.search).get("id")
             let heroesAttempts = await doGet(`getTopClanDetailedAttempts?clan_id=${clanId}`)
 
-            Array.from(document.getElementsByTagName("table")).at(-1).querySelectorAll("tr")
-                .forEach(heroElem => {
+            let heroes = Array.from(document.getElementsByTagName("table")).at(-1).querySelectorAll("tr")
+            if (heroes.length - 10 < Object.keys(heroesAttempts).length) {
+                heroes.forEach(heroElem => {
                     let heroId = heroElem.innerHTML.match(/id=(\d{1,8})/)[1]
                     let heroAttempts = heroesAttempts[heroId]
                     heroElem.insertAdjacentHTML("beforeend", `
                         <td class="wbwhite">${
-                            heroAttempts ? heroAttempts : 0
-                        }</td>
+                        heroAttempts ? heroAttempts : 0
+                    }</td>
                     `)
                 })
+            }
         }
     }
 }
