@@ -34,11 +34,11 @@ export function findAll(regexPattern, sourceString) {
     return output
 }
 
-export function sortByKey(array, key) {
+export function sortByKey(array, key, asc = 1) {
     return array.sort((a, b) => {
         let x = a[key];
         let y = b[key];
-        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        return ((x < y) ? -1 * asc : ((x > y) ? 1 * asc : 0));
     });
 }
 
@@ -69,8 +69,8 @@ export function groupBy(collection, property) {
 export function groupByKey(array, key) {
     return array
         .reduce((hash, obj) => {
-            if(obj[key] === undefined) return hash;
-            return Object.assign(hash, { [obj[key]]:( hash[obj[key]] || [] ).concat(obj)})
+            if (obj[key] === undefined) return hash;
+            return Object.assign(hash, {[obj[key]]: (hash[obj[key]] || []).concat(obj)})
         }, {})
 }
 
