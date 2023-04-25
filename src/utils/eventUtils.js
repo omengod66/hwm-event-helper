@@ -1,4 +1,17 @@
-import {get} from "./commonUtils";
+import {$, get} from "./commonUtils";
+import {LocalizedText, LocalizedTextMap} from "./localizationUtils";
+
+function getAllTexts() {
+    let texts = new LocalizedTextMap()
+    texts.addText(new LocalizedText("time_d", "d", "д", "д"))
+    texts.addText(new LocalizedText("time_h", "h", "ч", "г"))
+    texts.addText(new LocalizedText("time_m", "m", "м", "х"))
+    texts.addText(new LocalizedText("time_s", "s", "с", "с"))
+
+    return texts
+}
+
+let allTexts = getAllTexts()
 
 export function collapseEventDesc() {
     if (get("collapse_event_desc", false)) {
@@ -32,4 +45,32 @@ export function setClickableLevels() {
             })
             elem.style.cursor = "pointer"
         })
+}
+
+export function setTimer(where) {
+    where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
+    let container = $("timer_container")
+    let countDownDate = new Date(1682629200000).getTime();
+    function process() {
+        let now = new Date().getTime();
+        let distance = countDownDate - now;
+
+        let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (distance > 1000 * 60 * 60 * 24) {
+            container.innerHTML = `${days}${allTexts.get("time_d")} ${hours}${allTexts.get("time_h")} ${minutes}${allTexts.get("time_m")} ${seconds}${allTexts.get("time_s")}`
+        } else {
+            if (distance < 0) {
+                clearInterval(timer);
+                container.innerHTML = ""
+            } else {
+                container.innerHTML = `<div style="color: red">${days}${allTexts.get("time_d")} ${hours}${allTexts.get("time_h")} ${minutes}${allTexts.get("time_m")} ${seconds}${allTexts.get("time_s")}</div>`
+            }
+        }
+    }
+    process()
+    let timer = setInterval(process, 1000);
 }

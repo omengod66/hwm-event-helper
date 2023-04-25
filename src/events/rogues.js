@@ -1,7 +1,7 @@
 import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {$, get, groupBy, groupByKey, set, sortByKey} from "../utils/commonUtils";
-import {collapseEventDesc, getCurrentLevel, setClickableLevels} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
@@ -18,6 +18,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("sold", "sold", "продано", "продано"))
     texts.addText(new LocalizedText("trade_for", "for", "по", "по"))
     texts.addText(new LocalizedText("trade_history", "Trade history", "История покупок и продаж", "Історія покупок та продажів"))
+    texts.addText(new LocalizedText("show_event_timer", "Show time until the end of the event", "Показывать время до конца ивента", "Показувати час до кінця івента"))
     texts.addText(new LocalizedText("show_top_clan_attempts", "Show remaining attempts for TOP3 clans", "Показывать оставшиеся попытки у ТОП3 кланов", "Показувати спроби, що залишилися, у ТОП3 кланів"))
     texts.addText(new LocalizedText("hire_hint", "Red means higher prices, while green means the opposite. At this event, the cost of a creature can only be within + -15% of the initial cost. Thus, if 115% is written next to the price, it will no longer rise upwards, and if the price is 85%, then it will no longer fall either.",
         "Красный цвет значит подорожание, а зеленый наоборот. На этом ивенте цена существа может находиться только в пределах +-15% от изначальной стоимости. Таким образом, если рядом с ценой написано 115%, она больше расти вверх не будет, а если цена 85%, то падать больше не будет тоже.",
@@ -44,14 +45,21 @@ export default function hireEvent() {
             setSettings("hide_rogues_event_enemies", allTexts.get("hide_rogues_event_enemies"), container)
             setSettings("return_to_prev_level", allTexts.get("return_to_prev_level"), container, false)
             setSettings("show_top_clan_attempts", allTexts.get("show_top_clan_attempts"), container)
+            setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
         }, "afterbegin")
         set("eh_current_level", null)
+        if (get("show_event_timer", true)) {
+            setTimer(document.querySelector(".global_container_block_header"))
+        }
         collapseEventDesc()
         setClickableLevels()
         getEventBattles(Array.from(document.querySelectorAll(".global_container_block")).at(-2), "getRoguesEventBattles", 1)
         interceptButtons()
     }
     if (location.href.includes("naym_event_set")) {
+        if (get("show_event_timer", true)) {
+            setTimer(document.querySelector(".global_container_block_header"))
+        }
         Array.from(document.querySelectorAll(".hwm_event_block_header")).at(-1).insertAdjacentHTML("beforeend", `
             <div class="hwm_event_block_miniheader">${allTexts.get("hire_hint")}</div>
         `)
