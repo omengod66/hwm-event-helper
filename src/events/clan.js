@@ -1,12 +1,24 @@
 import {doGet} from "../utils/networkUtils";
 import {get, sortByKey} from "../utils/commonUtils";
+import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
 
 const {eventHelperSettings, setSettings} = require("../settings");
+
+function getAllTexts() {
+    let texts = new LocalizedTextMap()
+    texts.addText(new LocalizedText("show_event_attempts_left", "Show remaining attempts for players", "Показывать оставшиеся попытки у игроков", "Показувати спроби, які залишилися у гравців"))
+    texts.addText(new LocalizedText("show_sort", "Show buttons to sort players", "Показывать кнопки для сортировки игроков", "Показувати кнопки для сортування гравців"))
+
+    return texts
+}
+
+let allTexts = getAllTexts()
 export default async function clanPage() {
     if (/clan_info\.php/.test(location.href)) {
         let heroesTable = Array.from(document.getElementsByTagName("table")).at(-1)
         eventHelperSettings(heroesTable, (container) => {
-            setSettings("show_event_attempts_left", "Показывать оставшиеся попытки у игроков", container, false)
+            setSettings("show_event_attempts_left", allTexts.get("show_event_attempts_left"), container, false)
+            setSettings("show_sort", allTexts.get("show_sort"), container)
         }, "beforebegin")
 
         if (get("show_event_attempts_left", false)) {
@@ -24,8 +36,10 @@ export default async function clanPage() {
                     }</td>
                     `)
                 })
-                replaceWithSortableTable(heroesTable)
             }
+        }
+        if (get("show_event_attempts_left", false) || get("show_sort", true)) {
+            replaceWithSortableTable(heroesTable)
         }
     }
 }
@@ -34,58 +48,30 @@ function replaceWithSortableTable(heroesTable) {
     let heroesData = []
     heroesTable.querySelectorAll("tr").forEach((heroTr, index) => {
         let tds = heroTr.querySelectorAll("td")
-        switch (tds.length) {
-            case 4: {
-                heroesData.push({
-                    order: index + 1,
-                    info: tds[1].innerHTML,
-                    cl: tds[2].innerText - 0,
-                    description: tds[3].innerHTML
-                })
-                return
-            }
-            case 5: {
-                heroesData.push({
-                    order: index + 1,
-                    status: tds[1].innerHTML.match(/clans\/(.+)\.gif/)[1],
-                    info: tds[2].innerHTML,
-                    cl: tds[3].innerText - 0,
-                    description: tds[4].innerHTML
-                })
-                return
-            }
-            case 6: {
-                heroesData.push({
-                    order: index + 1,
-                    info: tds[1].innerHTML,
-                    cl: tds[2].innerText - 0,
-                    description: tds[3].innerHTML,
-                    score: tds[4].innerText.replaceAll(" ", "").match(/(\d{0,3},?\d{0,3})/)[1].replace(",", "") - 0,
-                    attemptsLeft: tds[5].innerText - 0
-                })
-                return
-            }
-            case 7: {
-                heroesData.push({
-                    order: index + 1,
-                    status: tds[1].innerHTML.match(/clans\/(.+)\.gif/)[1],
-                    info: tds[2].innerHTML,
-                    cl: tds[3].innerText - 0,
-                    description: tds[4].innerHTML,
-                    score: tds[5].innerText.replaceAll(" ", "").match(/(\d{0,3},?\d{0,3})/)[1].replace(",", "") - 0,
-                    attemptsLeft: tds[6].innerText - 0
-                })
-                return
-            }
+        let heroData = {}
+        let tdIndex = 1
+        heroData.order = index + 1
+        if (tds[tdIndex].innerHTML.includes("i/clans/")) {
+            heroData.status = tds[tdIndex++].innerHTML.match(/clans\/(.+)\.gif/)[1]
         }
+        heroData.info = tds[tdIndex++].innerHTML
+        heroData.cl = tds[tdIndex++].innerText - 0
+        heroData.description = tds[tdIndex++].innerHTML
+        if (tdIndex<tds.length) {
+            heroData.score = tds[tdIndex++].innerText.replaceAll(" ", "").match(/(\d{0,3},?\d{0,3})/)[1].replace(",", "") - 0
+        }
+        if (tdIndex === tds.length-1) {
+            heroData.attemptsLeft = tds[tdIndex].innerText - 0
+        }
+        heroesData.push(heroData)
     })
     let threshold = sortByKey([...heroesData], "score", -1)[99].score
     heroesTable.outerHTML = `
     <table class="wb" width="100%">
         <thead>
-            <tr>
+            <tr style="background-color: white">
                 ${Object.keys(heroesData[0]).reduce((prev, columnName) => {
-                    return prev + `<th><div class="home_button2 btn_hover2" id="sort_${columnName}"><img height="20px" src="https://static.thenounproject.com/png/2509814-200.png" style="pointer-events: none"></div></th>`
+                    return prev + `<th style="border: 1px solid"><div class="home_button2 btn_hover2" id="sort_${columnName}" style="margin: 2px"><img height="20px" src="https://static.thenounproject.com/png/2509814-200.png" style="pointer-events: none"></div></th>`
                 }, "")}
             </tr>
         </thead>
@@ -100,13 +86,15 @@ function replaceWithSortableTable(heroesTable) {
         let tableHtml = data.reduce((prev, hero, index) => {
             let result = `<td class="wbwhite" width="30" style="text-align: center;">${index + 1}.</td>`
             if (hero.hasOwnProperty('status')) {
-                result += `<td class="wbwhite" width="15" style="text-align: center;"><img align="absmiddle" src="https://dcdn.heroeswm.ru/i/clans/${hero.status}.gif" width="15" height="15" border="0" title="Не в игре" alt="Не в игре"></td>`
+                result += `<td class="wbwhite" width="15" style="text-align: center;"><img align="absmiddle" src="https://dcdn.heroeswm.ru/i/clans/${hero.status}.gif" width="15" height="15" border="0"></td>`
             }
             result += `<td class="wbwhite" width="150">${hero.info}</td>`
             result += `<td class="wbwhite" width="10" align="center">${hero.cl}</td>`
             result += `<td class="wbwhite">${hero.description}</td>`
             if (hero.hasOwnProperty('score')) {
                 result += `<td class="wbwhite" width="30" style="text-align: center;">${hero.score >= threshold ? `<b style="color: blue">${hero.score}</b>` : hero.score}</td>`
+            }
+            if (hero.hasOwnProperty('attemptsLeft')) {
                 result += `<td class="wbwhite" width="30" style="text-align: center;">${hero.attemptsLeft}</td>`
             }
             return prev + `<tr>${result}</tr>`
