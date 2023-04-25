@@ -26,7 +26,7 @@ export default async function clanPage() {
             let heroesAttempts = await doGet(`getTopClanDetailedAttempts?clan_id=${clanId}`)
 
             let heroes = heroesTable.querySelectorAll("tr")
-            if (heroes.length - 10 < Object.keys(heroesAttempts).length) {
+            if (heroes.length - 20 < Object.keys(heroesAttempts).length) {
                 heroes.forEach(heroElem => {
                     let heroId = heroElem.innerHTML.match(/id=(\d{1,8})/)[1]
                     let heroAttempts = heroesAttempts[heroId]
