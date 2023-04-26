@@ -84,7 +84,7 @@ function replaceWithSortableTable(heroesTable) {
 
     const getTableContent = (data) => {
         let tableHtml = data.reduce((prev, hero, index) => {
-            let result = `<td class="wbwhite" width="30" style="text-align: center;">${index + 1}.</td>`
+            let result = `<td class="wbwhite" width="${hero.order === index + 1?30: 70}" style="text-align: center;">${index + 1} ${hero.order === index + 1?"":`(${hero.order})`}</td>`
             if (hero.hasOwnProperty('status')) {
                 result += `<td class="wbwhite" width="15" style="text-align: center;"><img align="absmiddle" src="https://dcdn.heroeswm.ru/i/clans/${hero.status}.gif" width="15" height="15" border="0"></td>`
             }
