@@ -48,6 +48,7 @@ export function setClickableLevels() {
 }
 
 export function setTimer(where) {
+    where.style.display = "flex"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
     let countDownDate = new Date(1682629200000).getTime();
