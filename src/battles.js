@@ -19,6 +19,8 @@ function getAllTexts() {
     texts.addText(new LocalizedText("enemy", "Enemy", "Враг", "Ворог"))
     texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
     texts.addText(new LocalizedText("loses", "Loses", "Поражения", "Поразки"))
+    texts.addText(new LocalizedText("nickname", "nickname", "никнейм", "нікнейм"))
+    texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
 
     return texts
 }
@@ -64,15 +66,39 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         box-shadow: inset 0 0 0 1px #b19673, 0 2px 2px rgb(0 0 0 / 25%);
     }</style>`)
     let battles = await doGet(`${from}?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
-    processEventBattles(target)
+    processEventBattles(target, battles)
 
-    function processEventBattles(where = document.body) {
+    function processEventBattles(where = document.body, battles) {
         switch (callback) {
             case 1: {
                 if (battles.AFS.length === 0 && !lost) {
                     getEventBattles(target, from.replace("Battles", "FailedBattles"), callback, true)
                 } else {
-                    where.insertAdjacentHTML("beforeend", getAFSEventBattlesTemplate(lost))
+                    where.insertAdjacentHTML("beforeend", getAFSEventBattlesTemplate(lost, battles))
+                    $("search_nickname").addEventListener("keypress", (e) => {
+                        if (e.key === "Enter") {
+                            $("process_search").click()
+                        }
+                    })
+                    $("process_search").addEventListener("click", async () => {
+                        let player_battles = await doGet(`getRoguesPlayerBattles?nickname=${encodeURIComponent($("search_nickname").value.trim())}&token=${get("hwm_events_token", "")}`)
+                        $("player_battles").innerHTML = groupBy(sortByKey(player_battles["AFS"], "wave", -1), "wave")
+                            .map(currentWaveList => sortByKey(currentWaveList, "battle_id", -1))
+                            .flatMap(currentWaveList => currentWaveList)
+                            .reduce((prev, curr, index) => {
+                                return prev + `
+                                <div class="hwm_event_example_block">
+                                    <div style="width: 80%;display: flex;justify-content: space-evenly;">
+                                        <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr["nickname"])}" class="pi" target="_blank">${curr["nickname"]}</a> ${"class" in curr && getClassById(curr["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr["class"])[3]}?v=1.1" alt="">` : ""} [${curr["hero_lvl"] ?? ""}]</div>
+                                        <div style="display: flex;min-width: 120px;justify-content: space-between;">
+                                            <div>${curr["wave"]}</div>
+                                            <div> <a target="_blank" href="/warlog.php?warid=${curr["battle_id"]}&show_for_all=${curr["battle_secret"]}&lt=-1" style="color:${curr["isLost"] ?? false ? "red" : "green"}">${getFFAEventBattleSide(curr)}</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                `
+                            }, "")
+                    })
                 }
                 break
             }
@@ -80,21 +106,28 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 if (battles.AFS.length === 0 && battles.FFA.length === 0 && !lost) {
                     getEventBattles(target, from.replace("Battles", "FailedBattles"), callback, true)
                 } else {
-                    where.insertAdjacentHTML("beforeend", getFFAEventBattlesTemplate(lost))
+                    where.insertAdjacentHTML("beforeend", getFFAEventBattlesTemplate(lost, battles))
                 }
             }
         }
     }
 
-    function getAFSEventBattlesTemplate(lost) {
+    function getAFSEventBattlesTemplate(lost, battles) {
         let result = getBattlesTemplate(battles["AFS"])
 
-        return  getSpoiler(
+        return getSpoiler(
             "examples",
             "AFS",
             `<div class="home_button2 btn_hover2" style="margin: 3px 0">${allTexts.get("examples")} (${result[1]}/${result[2]})</div>`,
             `
                 <div style="display: flex; flex-direction: column">
+                    <div id="search_by_player">
+                        <div id="search_container" style="display: flex;justify-content: space-evenly;">
+                            <input type="text" name="search_nickname" id="search_nickname" placeholder="${allTexts.get("nickname")}...">
+                            <div id="process_search" class="btn_hover2 home_button2" style="width: 100px">${allTexts.get("search")}</div>
+                        </div>
+                        <div id="player_battles"></div>
+                    </div>
                     <div style="text-align: center;">
                         <h3>${allTexts.get("afs")}</h3>
                     </div>
@@ -103,7 +136,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 </div>`)
     }
 
-    function getFFAEventBattlesTemplate(lost) {
+    function getFFAEventBattlesTemplate(lost, battles) {
         return `
                 <div style="display: flex;width: 100%;justify-content: space-evenly;">
                     <div style="display: flex; flex-direction: column">
@@ -159,16 +192,16 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             battles.sort((a, b) => a.nickname.localeCompare(b.nickname))
             return groupBy(battles, "nickname").reduce((prev, curr, index) => {
                 return prev + `
-                            <div class="hwm_event_set_stack_block">
+                            <div class="hwm_event_example_block">
                                 <div style="width: 80%;display: flex;justify-content: space-between;">
                                     <div>${index + 1}. </div>
                                     <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a> ${"class" in curr && getClassById(curr[0]["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr[0]["class"])[3]}?v=1.1" alt="">` : ""} [${curr[0]["hero_lvl"]}]</div>
                                     <div style="display: flex;min-width: 120px;justify-content: space-between;">
                                     ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
-                                        return prev_entry + `
+                    return prev_entry + `
                                                                         <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
                                                                         `
-                                    }, "") }
+                }, "")}
                                     </div>
                                 </div>
                             </div>

@@ -72,6 +72,6 @@ export function setTimer(where) {
             }
         }
     }
-    process()
     let timer = setInterval(process, 1000);
+    process()
 }
