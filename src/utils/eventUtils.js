@@ -37,7 +37,7 @@ export function getCurrentLevel() {
 
 export function setClickableLevels() {
     Array.from(document.querySelectorAll(".Checkpoints"))
-        .filter(elem => elem.classList.contains("CheckpointComplete"))
+        .filter(elem => elem.classList.contains("CheckpointComplete") || elem.classList.contains("CheckpointLocked"))
         .forEach(elem => {
             elem.style.pointerEvents = "all"
             elem.addEventListener("click", () => {
