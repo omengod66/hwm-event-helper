@@ -84,18 +84,19 @@ function replaceWithSortableTable(heroesTable) {
 
     const getTableContent = (data) => {
         let tableHtml = data.reduce((prev, hero, index) => {
-            let result = `<td class="wbwhite" width="${hero.order === index + 1?30: 70}" style="text-align: center;">${index + 1} ${hero.order === index + 1?"":`(${hero.order})`}</td>`
+            let tdClass = hero.status === "offline" ? "wbwhite" : "wblight"
+            let result = `<td class="${tdClass}" width="${hero.order === index + 1?30: 70}" style="text-align: center;">${index + 1} ${hero.order === index + 1?"":`(${hero.order})`}</td>`
             if (hero.hasOwnProperty('status')) {
-                result += `<td class="wbwhite" width="15" style="text-align: center;"><img align="absmiddle" src="https://dcdn.heroeswm.ru/i/clans/${hero.status}.gif" width="15" height="15" border="0"></td>`
+                result += `<td class="${tdClass}" width="15" style="text-align: center;"><img align="absmiddle" src="https://dcdn.heroeswm.ru/i/clans/${hero.status}.gif" width="15" height="15" border="0"></td>`
             }
-            result += `<td class="wbwhite" width="150">${hero.info}</td>`
-            result += `<td class="wbwhite" width="10" align="center">${hero.cl}</td>`
-            result += `<td class="wbwhite">${hero.description}</td>`
+            result += `<td class="${tdClass}" width="150">${hero.info}</td>`
+            result += `<td class="${tdClass}" width="10" align="center">${hero.cl}</td>`
+            result += `<td class="${tdClass}">${hero.description}</td>`
             if (hero.hasOwnProperty('score')) {
-                result += `<td class="wbwhite" width="30" style="text-align: center;">${hero.score >= threshold ? `<b style="color: blue">${hero.score}</b>` : hero.score}</td>`
+                result += `<td class="${tdClass}" width="30" style="text-align: center;">${hero.score >= threshold ? `<b style="color: blue">${hero.score}</b>` : hero.score}</td>`
             }
             if (hero.hasOwnProperty('attemptsLeft')) {
-                result += `<td class="wbwhite" width="30" style="text-align: center;">${hero.attemptsLeft}</td>`
+                result += `<td class="${tdClass}" width="30" style="text-align: center;">${hero.attemptsLeft}</td>`
             }
             return prev + `<tr>${result}</tr>`
         }, "")
