@@ -14,6 +14,10 @@ function getAllTexts() {
     texts.addText(new LocalizedText("fill_max", "Load maximum", "Набрать максимум", "Набрати максимум"))
     texts.addText(new LocalizedText("fill_maxoff5", "Load -5 from the maximum", "Набрать -5 от максимума", "Набрати -5 від максимуму"))
     texts.addText(new LocalizedText("fill_process", "Loading in progress", "Идет погрузка", "Триває навантаження"))
+
+    texts.addText(new LocalizedText("auto_return_after_battle", "Auto return after battle", "Автовозврат после боя", "Автоповернення після бою"))
+    texts.addText(new LocalizedText("show_autofill_options", "Buttons for fast loading", "Кнопки для быстрой загрузки", "Кнопки для швидкого завантаження"))
+    texts.addText(new LocalizedText("sort_products", "Sort products by profit", "Сортировать товары по прибыли", "Сортувати товари за прибутком"))
     return texts
 }
 
@@ -22,7 +26,10 @@ let allTexts = getAllTexts()
 
 export default function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
-        let trs = document.querySelectorAll("#tableDiv")[2].querySelector("table > tbody").childNodes;
+        let tableDiv = document.querySelectorAll("#tableDiv")[2]
+        tableDiv.style.height = "max-content"
+        tableDiv.firstChild.style.position = "unset"
+        let trs = tableDiv.querySelector("table > tbody").childNodes;
         let items = Array.from(trs)
             .filter(item => item.querySelector("td:nth-child(5)").innerHTML.length > 100)
             .map(item => {
@@ -41,15 +48,15 @@ export default function pirateEvent() {
         items = sortByKey(items, "opt_price", -1);
         let template = getPirateEventTemplate(items);
         let target_td = document.querySelectorAll("#tableDiv")[2];
-        target_td.removeChild(target_td.childNodes[0]);
-        target_td.insertAdjacentHTML("beforeend", template);
+        if (get("sort_products", true)) {
+            target_td.removeChild(target_td.childNodes[0]);
+            target_td.insertAdjacentHTML("beforeend", template);
+        }
 
         let tonns = findAll(/(\d{1,3}) [tт]/, document.querySelectorAll("#tableDiv")[0].querySelector(" table > tbody > tr:nth-child(2) > td").innerText).slice(-2)
         let maxCapacity = tonns[0][1]-0
         let currentCapacity = tonns[1][1]-0
-        if (currentCapacity === 0) {
-
-
+        if (currentCapacity === 0 && get("show_autofill_options", true)) {
             target_td.insertAdjacentHTML("beforeend", `
                 <div id="fill_container">
                     <div id="fill_result" style="display: none; flex-direction: column; align-items: center">
@@ -66,7 +73,7 @@ export default function pirateEvent() {
             async function fillShip(itemsForCapacity) {
                 $(`fill_result`).style.display = "flex"
                 $(`fill_options`).remove()
-                $(`items_container`).remove()
+                $(`items_container`)?.remove()
                 for (const item of itemsForCapacity) {
                     let count = item[1]
                     let res_id = itemsMap[item[0]].res_id
@@ -89,6 +96,12 @@ export default function pirateEvent() {
                 setTimeout(() => location.reload(), 500)
             })
         }
+
+        eventHelperSettings(target_td, (container) => {
+            setSettings("auto_return_after_battle", allTexts.get("auto_return_after_battle"), container)
+            setSettings("show_autofill_options", allTexts.get("show_autofill_options"), container)
+            setSettings("sort_products", allTexts.get("sort_products"), container)
+        })
     }
     function getItemsForCapacity(items, capacity) {
         let states = []
@@ -112,7 +125,9 @@ export default function pirateEvent() {
     }
 
     if (location.href.includes("pirate_land")) {
-        document.querySelector("input[type=submit]").click()
+        if (get("auto_return_after_battle", true)) {
+            document.querySelector("input[type=submit]").click()
+        }
     }
 
     function getPirateEventTemplate(items) {
