@@ -94,7 +94,7 @@ export default function pirateEvent() {
         let states = []
         function makeStep(roomLeft, state) {
             if (roomLeft === 0) {
-                states.push(state)
+                states.push({"state": state, "total": state.reduce((acc, curr) => acc+curr.profit, 0)})
             }
             for (let i = 0; i < items.length; i++) {
                 let newRoom = roomLeft - items[i].weight
@@ -107,12 +107,8 @@ export default function pirateEvent() {
         }
         makeStep(capacity, [])
 
-        let totalStates = states.map(state => {
-            return {"state": state, "total": state.reduce((acc, curr) => acc+curr.profit, 0)}
-        })
-
-        sortByKey(totalStates, "total", -1)
-        return Object.entries(groupByKey(totalStates[0].state, "name")).map(([key, value]) => [key, value.length])
+        sortByKey(states, "total", -1)
+        return Object.entries(groupByKey(states[0].state, "name")).map(([key, value]) => [key, value.length])
     }
 
     if (location.href.includes("pirate_land")) {
