@@ -2,6 +2,20 @@ import {get, set, sortByKey} from "../utils/commonUtils";
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {doGet} from "../utils/networkUtils";
+import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
+
+function getAllTexts() {
+    let texts = new LocalizedTextMap()
+    texts.addText(new LocalizedText("item", "Item", "Товар", "Товар"))
+    texts.addText(new LocalizedText("profit", "Profit", "Прибыль", "Прибуток"))
+    texts.addText(new LocalizedText("weight", "Weight", "Вес", "Вага"))
+    texts.addText(new LocalizedText("prices", "Prices", "Цены", "Ціни"))
+    texts.addText(new LocalizedText("buy", "Buy", "Купить", "Придбати"))
+    return texts
+}
+
+let allTexts = getAllTexts()
+
 
 export default function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
@@ -24,6 +38,10 @@ export default function pirateEvent() {
         let target_td = document.querySelectorAll("#tableDiv")[2];
         target_td.removeChild(target_td.childNodes[0]);
         target_td.insertAdjacentHTML("beforeend", template);
+    }
+
+    if (location.href.includes("pirate_land")) {
+        document.querySelector("input[type=submit]").click()
     }
 
     function getPirateEventTemplate(items) {
@@ -60,11 +78,11 @@ export default function pirateEvent() {
                 </style>
                 <div class="items-container">
                     <div class="items-row">
-                        <div class="item-itself">Товар</div>
-                        <div class="item-itself">Прибыль</div>
-                        <div class="item-itself">Вес</div>
-                        <div class="item-itself">Цены</div>
-                        <div class="item-itself">Купить</div>
+                        <div class="item-itself">${allTexts.get("item")}</div>
+                        <div class="item-itself">${allTexts.get("profit")}</div>
+                        <div class="item-itself">${allTexts.get("weight")}</div>
+                        <div class="item-itself">${allTexts.get("prices")}</div>
+                        <div class="item-itself">${allTexts.get("buy")}</div>
                     </div>`;
         items.forEach(item => {
             final_str += `
@@ -73,7 +91,7 @@ export default function pirateEvent() {
                         <div class="item-itself">${item.opt_price.toFixed(2)}</div>
                         <div class="item-itself">${item.weight}</div>
                         <div class="item-itself">${item.buy_price}->${item.sell_price}</div>
-                        <div class="item-itself">${item.buy_form.toString().replaceAll("Погрузить", "Купить")}</div>
+                        <div class="item-itself">${item.buy_form.toString().replaceAll("Погрузить", "Купить").replaceAll("Load", "Buy")}</div>
                     </div>`;
         })
 
@@ -82,10 +100,6 @@ export default function pirateEvent() {
 
     if (location.href.includes("pirate_self_event.")) {
         setLeaderboard(Array.from(document.querySelectorAll('table[width="100%"][align="left"]')).slice(-1)[0].previousElementSibling)
-    }
-
-    if (location.href.includes("pirate_land")) {
-        document.querySelector("input[type=submit]").click()
     }
 
     if (location.href.includes("pirate_self_event_set")) {
