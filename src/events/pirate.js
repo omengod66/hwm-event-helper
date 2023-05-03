@@ -7,7 +7,7 @@ import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
 function getAllTexts() {
     let texts = new LocalizedTextMap()
     texts.addText(new LocalizedText("item", "Item", "Товар", "Товар"))
-    texts.addText(new LocalizedText("profit", "Per 1t.", "За 1т.", "За 1т."))
+    texts.addText(new LocalizedText("profit", "Profit per 1t.", "Прибыль за 1т.", "Прибуток за 1т."))
     texts.addText(new LocalizedText("weight", "Weight", "Вес", "Вага"))
     texts.addText(new LocalizedText("prices", "Prices", "Цены", "Ціни"))
     texts.addText(new LocalizedText("buy", "Buy", "Купить", "Придбати"))
