@@ -9,7 +9,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("support", "Keep the services alive", "Поддержать существование сервисов", "Підтримати існування сервісів"))
     texts.addText(new LocalizedText("patreon", "Patreon", "Патреон", "Патреон"))
     texts.addText(new LocalizedText("boosty", "Boosty", "Бусти", "Бусті"))
-    texts.addText(new LocalizedText("ok", "Ok", "Ок", "Ок"))
+    texts.addText(new LocalizedText("ok", "X", "X", "X"))
     texts.addText(new LocalizedText("reg_available", "Registration available!", "Доступна регистрация!", "Доступна реєстрація!"))
     texts.addText(new LocalizedText("signup", "Sign up", "Зарегистрироваться", "Зареєструватись"))
     return texts

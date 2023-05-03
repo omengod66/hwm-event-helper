@@ -3,6 +3,7 @@ import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {doGet, doPost} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
+import {setTimer} from "../utils/eventUtils";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -18,6 +19,8 @@ function getAllTexts() {
     texts.addText(new LocalizedText("auto_return_after_battle", "Auto return after battle", "Автовозврат после боя", "Автоповернення після бою"))
     texts.addText(new LocalizedText("show_autofill_options", "Buttons for fast loading", "Кнопки для быстрой загрузки", "Кнопки для швидкого завантаження"))
     texts.addText(new LocalizedText("sort_products", "Sort products by profit", "Сортировать товары по прибыли", "Сортувати товари за прибутком"))
+    texts.addText(new LocalizedText("show_event_timer", "Show time until the end of the event", "Показывать время до конца ивента", "Показувати час до кінця івента"))
+
     return texts
 }
 
@@ -26,6 +29,10 @@ let allTexts = getAllTexts()
 
 export default function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
+        if (get("show_event_timer", true)) {
+            setTimer(document.querySelector(".global_container_block_header"))
+        }
+
         let tableDiv = document.querySelectorAll("#tableDiv")[2]
         tableDiv.style.height = "max-content"
         tableDiv.firstChild.style.position = "unset"
@@ -53,9 +60,9 @@ export default function pirateEvent() {
             target_td.insertAdjacentHTML("beforeend", template);
         }
 
-        let tonns = findAll(/(\d{1,3}) [tт]/, document.querySelectorAll("#tableDiv")[0].querySelector(" table > tbody > tr:nth-child(2) > td").innerText).slice(-2)
+        let tonns = findAll(/[- ](\d{1,3}) [tт]\.\n[a-zA-Zа-яА-Я]+: (\d{1,3}) [tт]/, document.querySelectorAll("#tableDiv")[0].querySelector(" table > tbody > tr:nth-child(2) > td").innerText)
         let maxCapacity = tonns[0][1]-0
-        let currentCapacity = tonns[1][1]-0
+        let currentCapacity = tonns[0][2]-0
         if (currentCapacity === 0 && get("show_autofill_options", true)) {
             target_td.insertAdjacentHTML("beforeend", `
                 <div id="fill_container">
@@ -101,6 +108,7 @@ export default function pirateEvent() {
             setSettings("auto_return_after_battle", allTexts.get("auto_return_after_battle"), container)
             setSettings("show_autofill_options", allTexts.get("show_autofill_options"), container)
             setSettings("sort_products", allTexts.get("sort_products"), container)
+            setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
         })
     }
     function getItemsForCapacity(items, capacity) {
