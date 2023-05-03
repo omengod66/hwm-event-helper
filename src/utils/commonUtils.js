@@ -50,6 +50,14 @@ export function mapToArray(map) {
     return result
 }
 
+export function arrayToMapByKey(array, key){
+    let result = {}
+    array.forEach(item => {
+        result[item[key]] = item
+    })
+    return result
+}
+
 export function groupBy(collection, property) {
     var i = 0, val, index,
         values = [], result = [];
