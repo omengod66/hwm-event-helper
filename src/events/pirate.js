@@ -61,9 +61,9 @@ export default function pirateEvent() {
         }
 
         let tonns = findAll(/[- ](\d{1,3}) [tт]\.\n[a-zA-Zа-яА-Я]+: (\d{1,3}) [tт]/, document.querySelectorAll("#tableDiv")[0].querySelector(" table > tbody > tr:nth-child(2) > td").innerText)
-        let maxCapacity = tonns[0][1]-0
-        let currentCapacity = tonns[0][2]-0
-        if (currentCapacity === 0 && get("show_autofill_options", true) && 1 === 0) {
+        let maxCapacity = tonns[0][1] - 0
+        let currentCapacity = tonns[0][2] - 0
+        if (currentCapacity === 0 && get("show_autofill_options", true)) {
             target_td.insertAdjacentHTML("beforeend", `
                 <div id="fill_container">
                     <div id="fill_result" style="display: none; flex-direction: column; align-items: center">
@@ -94,12 +94,13 @@ export default function pirateEvent() {
                     await doPost(`/pirate_event.php`, formData, true)
                 }
             }
+
             $(`fill_max`).addEventListener("click", async () => {
                 await fillShip(getItemsForCapacity(items, maxCapacity))
                 setTimeout(() => location.reload(), 500)
             })
             $(`fill_maxOff5`).addEventListener("click", async () => {
-                await fillShip(getItemsForCapacity(items, maxCapacity-5))
+                await fillShip(getItemsForCapacity(items, maxCapacity - 5))
                 setTimeout(() => location.reload(), 500)
             })
         }
@@ -111,25 +112,28 @@ export default function pirateEvent() {
             setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
         })
     }
-    function getItemsForCapacity(items, capacity) {
-        let states = []
-        function makeStep(roomLeft, state) {
-            if (roomLeft === 0) {
-                states.push({"state": state, "total": state.reduce((acc, curr) => acc+curr.profit, 0)})
-            }
-            for (let i = 0; i < items.length; i++) {
-                let newRoom = roomLeft - items[i].weight
-                if (newRoom >= 0) {
-                    let newState = JSON.parse(JSON.stringify(state))
-                    newState.push(items[i])
-                    makeStep(newRoom, newState)
+
+    function getItemsForCapacity(items, target) {
+        const lookup = Array.apply(null, Array(target + 1)).map(() => {
+            return {items: [], totalProfit: 0}
+        })
+
+        for (let i = 0; i <= target; i++) {
+            for (let j = 0; j < items.length; j++) {
+                if (items[j].weight <= i) {
+                    if (items[j].weight <= i) {
+                        if (lookup[i].totalProfit < lookup[i - items[j].weight].totalProfit + items[j].profit) {
+                            let newItems = JSON.parse(JSON.stringify(lookup[i - items[j].weight].items))
+                            newItems.push(items[j])
+                            lookup[i].items = newItems
+                            lookup[i].totalProfit = lookup[i - items[j].weight].totalProfit + items[j].profit
+                        }
+                    }
                 }
             }
         }
-        makeStep(capacity, [])
 
-        sortByKey(states, "total", -1)
-        return Object.entries(groupByKey(states[0].state, "name")).map(([key, value]) => [key, value.length])
+        return Object.entries(groupByKey(lookup[target].items, "name")).map(([key, value]) => [key, value.length]);
     }
 
     if (location.href.includes("pirate_land")) {
