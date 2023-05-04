@@ -63,7 +63,7 @@ export default function pirateEvent() {
         let tonns = findAll(/[- ](\d{1,3}) [tт]\.\n[a-zA-Zа-яА-Я]+: (\d{1,3}) [tт]/, document.querySelectorAll("#tableDiv")[0].querySelector(" table > tbody > tr:nth-child(2) > td").innerText)
         let maxCapacity = tonns[0][1]-0
         let currentCapacity = tonns[0][2]-0
-        if (currentCapacity === 0 && get("show_autofill_options", true)) {
+        if (currentCapacity === 0 && get("show_autofill_options", true) && 1 === 0) {
             target_td.insertAdjacentHTML("beforeend", `
                 <div id="fill_container">
                     <div id="fill_result" style="display: none; flex-direction: column; align-items: center">
