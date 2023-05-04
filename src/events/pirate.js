@@ -20,6 +20,8 @@ function getAllTexts() {
     texts.addText(new LocalizedText("show_autofill_options", "Buttons for fast loading", "Кнопки для быстрой загрузки", "Кнопки для швидкого завантаження"))
     texts.addText(new LocalizedText("sort_products", "Sort products by profit", "Сортировать товары по прибыли", "Сортувати товари за прибутком"))
     texts.addText(new LocalizedText("show_event_timer", "Show time until the end of the event", "Показывать время до конца ивента", "Показувати час до кінця івента"))
+    texts.addText(new LocalizedText("show_ship_available_alert", "Notify about new ship", "Уведомлять о новом корабле", "Повідомляти про новий корабель"))
+    texts.addText(new LocalizedText("ship_available_alert", "STOP! New ship is available", "СТОЙ! Доступен новый корабль", "СТІЙ! Доступний новий корабель"))
 
     return texts
 }
@@ -29,6 +31,22 @@ let allTexts = getAllTexts()
 
 export default function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
+        if (get("show_ship_available_alert", true)) {
+            let isNewShipAvailable = !Array.from(document.querySelectorAll("input[type='submit']")).filter(input => input.nextElementSibling?.value === "buy_new_ship")[0].disabled
+            let battleButton = Array.from(document.querySelectorAll("input[type='submit']")).filter(input => input.parentElement.previousElementSibling?.value === "go_go_go")[0]
+            let isBattleAvailable = !battleButton.disabled
+            if (isNewShipAvailable && isBattleAvailable) {
+                battleButton.insertAdjacentHTML("beforebegin", `<p><b style="color: red">${allTexts.get("ship_available_alert")}</b></p>`)
+                let wasPrank = false
+                battleButton.addEventListener("mouseover", () => {
+                    if (!wasPrank) {
+                        battleButton.style.transform = "translateX(100px)"
+                        wasPrank = true
+                    }
+                })
+            }
+        }
+
         if (get("show_event_timer", true)) {
             setTimer(document.querySelector(".global_container_block_header"))
         }
@@ -110,6 +128,7 @@ export default function pirateEvent() {
             setSettings("show_autofill_options", allTexts.get("show_autofill_options"), container)
             setSettings("sort_products", allTexts.get("sort_products"), container)
             setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
+            setSettings("show_ship_available_alert", allTexts.get("show_ship_available_alert"), container)
         })
     }
 
