@@ -31,6 +31,11 @@ let allTexts = getAllTexts()
 
 export default function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
+        Array.from(document.querySelectorAll("#tableDiv")).forEach(tdiv => {
+            tdiv.style.height = "max-content"
+            tdiv.firstChild.style.position = "unset"
+        })
+
         if (get("show_ship_available_alert", true)) {
             let isNewShipAvailable = !Array.from(document.querySelectorAll("input[type='submit']")).filter(input => input.nextElementSibling?.value === "buy_new_ship")[0].disabled
             let battleButton = Array.from(document.querySelectorAll("input[type='submit']")).filter(input => input.parentElement.previousElementSibling?.value === "go_go_go")[0]
@@ -52,8 +57,6 @@ export default function pirateEvent() {
         }
 
         let tableDiv = document.querySelectorAll("#tableDiv")[2]
-        tableDiv.style.height = "max-content"
-        tableDiv.firstChild.style.position = "unset"
         let trs = tableDiv.querySelector("table > tbody").childNodes;
         let items = Array.from(trs)
             .filter(item => item.querySelector("td:nth-child(5)").innerHTML.length > 100)
