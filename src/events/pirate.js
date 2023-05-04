@@ -31,6 +31,9 @@ let allTexts = getAllTexts()
 
 export default function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
+        document.querySelector(".pirate_event_blocks").style.width = "100%"
+        document.querySelector("#set_mobile_max_width").style.justifyContent = "center"
+        document.querySelector(".global_inside_shadow.pirate_event_picture").remove()
         Array.from(document.querySelectorAll("#tableDiv")).forEach(tdiv => {
             tdiv.style.height = "max-content"
             tdiv.firstChild.style.position = "unset"
