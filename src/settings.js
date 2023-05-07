@@ -4,7 +4,7 @@ import {LocalizedText, LocalizedTextMap} from "./utils/localizationUtils";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
-    texts.addText(new LocalizedText("settings", "Settings", "Настройки", "Настройки"))
+    texts.addText(new LocalizedText("settings", "Settings", "Настройки", "Налаштування"))
     texts.addText(new LocalizedText("support_alert", "If you like this script, please consider supporting it.", "Если тебе нравится этот скрипт, просьба рассмотреть возможность поддержать его работоспособность.", "Якщо тобі подобається цей скрипт, прохання розглянути можливість підтримати його працездатність."))
     texts.addText(new LocalizedText("support", "Keep the services alive", "Поддержать существование сервисов", "Підтримати існування сервісів"))
     texts.addText(new LocalizedText("patreon", "Patreon", "Патреон", "Патреон"))
@@ -71,8 +71,8 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
         let regHTML;
         if (!get("hwm_events_token", null)) {
             regHTML = `
-                <div style="width: 100%; text-align: center"><b>Доступна регистрация!</b></div>
-                <div id="start_registration" class="home_button2 btn_hover2" style="padding: 2px 4px; margin-top: 4px">Зарегистрироваться</div>
+                <div style="width: 100%; text-align: center"><b>${allTexts.get("reg_available")}</b></div>
+                <div id="start_registration" class="home_button2 btn_hover2" style="padding: 2px 4px; margin-top: 4px">${allTexts.get("signup")}</div>
             `
         } else {
             regHTML = ""
