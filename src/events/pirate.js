@@ -40,7 +40,11 @@ export default function pirateEvent() {
         })
 
         if (get("show_ship_available_alert", true)) {
-            let isNewShipAvailable = !Array.from(document.querySelectorAll("input[type='submit']")).filter(input => input.nextElementSibling?.value === "buy_new_ship")[0].disabled
+            let isNewShipAvailable = false
+            let newShipButton = Array.from(document.querySelectorAll("input[type='submit']")).filter(input => input.nextElementSibling?.value === "buy_new_ship")
+            if (newShipButton.length > 0) {
+                isNewShipAvailable = !newShipButton[0].disabled
+            }
             let battleButton = Array.from(document.querySelectorAll("input[type='submit']")).filter(input => input.parentElement.previousElementSibling?.value === "go_go_go")[0]
             let isBattleAvailable = !battleButton.disabled
             if (isNewShipAvailable && isBattleAvailable) {
