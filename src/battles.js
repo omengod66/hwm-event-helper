@@ -21,7 +21,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("loses", "Loses", "Поражения", "Поразки"))
     texts.addText(new LocalizedText("nickname", "nickname", "никнейм", "нікнейм"))
     texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
-    texts.addText(new LocalizedText("hwmevents", `Website with examples <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Share with friends!`, `Проходки есть и на сайте <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Поделись с другом!`, `Приклади також є і на сайті <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Поділися з друзями!`))
+    texts.addText(new LocalizedText("hwmevents", `Website with examples <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Share with friends!`, `Проходки есть и на сайте <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Поделись с другом!`, `Приклади також є і на сайті <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Поділися з друзями!`))
 
     return texts
 }
