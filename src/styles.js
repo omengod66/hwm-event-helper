@@ -1,6 +1,18 @@
 export function setGlobalStyles() {
     document.body.insertAdjacentHTML("beforeend", `
                 <style>
+                    .battle_examples_container {
+                        display: flex;
+                        width: 100%;
+                        justify-content: space-evenly;
+                    }
+                    @media (max-width: 800px) {
+                        .battle_examples_container {
+                            flex-direction: column;
+                            justify-content: center;
+                        }
+                    }
+                
                     .btn_hover2{
                         transition: -webkit-filter .3s;
                         transition: filter .3s;
@@ -54,6 +66,7 @@ export function setGlobalStyles() {
                     input[id^="spoiler"]:checked + label + .spoiler {
                         display: block;
                         opacity: 1;
+                        width: 100%;
                     }
                     
                     .roguesSpoilerWrapper{

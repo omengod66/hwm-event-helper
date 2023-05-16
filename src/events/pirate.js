@@ -150,13 +150,11 @@ export default function pirateEvent() {
         for (let i = 0; i <= target; i++) {
             for (let j = 0; j < items.length; j++) {
                 if (items[j].weight <= i) {
-                    if (items[j].weight <= i) {
-                        if (lookup[i].totalProfit < lookup[i - items[j].weight].totalProfit + items[j].profit) {
-                            let newItems = JSON.parse(JSON.stringify(lookup[i - items[j].weight].items))
-                            newItems.push(items[j])
-                            lookup[i].items = newItems
-                            lookup[i].totalProfit = lookup[i - items[j].weight].totalProfit + items[j].profit
-                        }
+                    if (lookup[i].totalProfit < lookup[i - items[j].weight].totalProfit + items[j].profit) {
+                        let newItems = JSON.parse(JSON.stringify(lookup[i - items[j].weight].items))
+                        newItems.push(items[j])
+                        lookup[i].items = newItems
+                        lookup[i].totalProfit = lookup[i - items[j].weight].totalProfit + items[j].profit
                     }
                 }
             }
@@ -230,8 +228,6 @@ export default function pirateEvent() {
     }
 
     if (location.href.includes("pirate_self_event_set")) {
-
-
         eventHelperSettings(document.querySelector(".pirate_self_top_block"), (container) => {
             setSettings("hide_solo_pirate_event_enemies", "Показывать статистику цен", container, false)
         }, "beforeend")

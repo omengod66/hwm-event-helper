@@ -11,18 +11,19 @@ export default async function thiefEvent() {
         set("eh_current_level", null)
         collapseEventDesc()
         interceptButtons()
-        getEventBattles(document.querySelectorAll('[align="left"][valign="top"]')[1])
-        setLeaderboard(Array.from(document.querySelectorAll('[align="left"][valign="top"]')[0].getElementsByTagName("center")).slice(-1)[0])
+        document.querySelector(".new_event_map").insertAdjacentHTML("afterend", `<div id="battle_examples"></div>`)
+        getEventBattles($(`battle_examples`))
+        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).children[0].getElementsByTagName("center")).at(-1))
         let doc = await doGet(`/pl_info.php?id=${pl_id}`, true)
         processPlInfoTroopsResponse(doc)
     }
 
     function interceptButtons() {
-        let buttons = Array.from(document.querySelectorAll("#close-image"))
+        let buttons = Array.from(document.querySelectorAll('input[id^=ne_attack_button]'))
         if (buttons.length === 4) {
             let available = 4 - buttons.filter(x => x.disabled).length
             buttons.forEach((button, index) => {
-                button.addEventListener("click", () => {
+                button.addEventListener("mousedown", () => {
                     set("event_battle_side", index % 2)
                     set("eh_current_level", [getCurrentLevel(), available])
                 })
@@ -45,9 +46,9 @@ export default async function thiefEvent() {
     }
 
     function showAmbushCreatures(creaturesData) {
-        let creaturesMultiplier = document.querySelector(" div.TextBlock.TextBlockTOP > div > table > tbody > tr:nth-child(3) > td:nth-child(8) > b").innerText
+        let creaturesMultiplier = document.querySelector("#map_event_stats > div:nth-child(2) > div:nth-child(4) > div > div:nth-child(2) > b").innerText
         creaturesMultiplier = creaturesMultiplier.match(/\d{1,3}/)[0] - 0
-        document.querySelector('.Global').insertAdjacentHTML("afterend", `
+        document.querySelector("#map_event_stats").insertAdjacentHTML("beforeend", `
                 <div id="ambush-creatures" style="display: flex; flex-direction: column; align-items: center">
                     <div>Текущее количество существ (с учетом дополнительных % численности)</div><div id="current-ambush-creatures"></div><br>
                     <div>Количество существ при добавлении +<input type="text" id="your-creatures-multiplier" style="width: 30px;" value="1">% <div class="btn-gradient blue" id="add_percent">+1%</div></div>
@@ -67,12 +68,12 @@ export default async function thiefEvent() {
         $(`your-creatures-multiplier`).addEventListener('input', () => {
             applyMultiplier(creaturesData, creaturesMultiplier)
         })
-        eventHelperSettings(document.querySelector('.Global'), (container) => {
+        eventHelperSettings(document.querySelector("#map_event_stats"), (container) => {
             setSettings("auto_send_ffa_event", "Отправлять бои из КБО ивента в сервис автоматически", container)
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
             setSettings("return_to_prev_level", "Возвращать на незавершенный уровень", container, false)
-        }, "afterend")
+        }, "afterbegin")
     }
 
     function applyMultiplier(creaturesData, creaturesMultiplier) {

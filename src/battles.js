@@ -118,7 +118,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         return getSpoiler(
             "examples",
             "AFS",
-            `<div class="home_button2 btn_hover2" style="margin: 3px 0">${allTexts.get("examples")} (${result[1]}/${result[2]})</div>`,
+            `<div class="home_button2 btn_hover2" style="margin: 3px 0; min-width: 100px;">${allTexts.get("examples")} (${result[1]}/${result[2]})</div>`,
             `
                 <div style="display: flex; flex-direction: column">
                     <div id="search_by_player">
@@ -138,7 +138,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
     function getFFAEventBattlesTemplate(lost, battles) {
         return `
-                <div style="display: flex;width: 100%;justify-content: space-evenly;">
+                <div class="battle_examples_container">
                     <div style="display: flex; flex-direction: column">
                         <div style="text-align: center;">
                             <h3>${allTexts.get("afs")}</h3>
@@ -178,7 +178,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             result += getSpoiler(
                 type,
                 index,
-                `<div class="home_button2 btn_hover2" style="margin: 3px 0">${bucket[0]}${allTexts.get("cl")} (${bucket[1].length})</div>`,
+                `<div class="home_button2 btn_hover2" style="margin: 3px 0; min-width: 100px;">${bucket[0]}${allTexts.get("cl")} (${bucket[1].length})</div>`,
                 ffaBattlesToHTML(bucket[1]))
         })
 
