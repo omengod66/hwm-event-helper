@@ -21,6 +21,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("loses", "Loses", "Поражения", "Поразки"))
     texts.addText(new LocalizedText("nickname", "nickname", "никнейм", "нікнейм"))
     texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
+    texts.addText(new LocalizedText("hwmevents", `Website with examples <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Share with friends!`, `Проходки есть и на сайте <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Поделись с другом!`, `Приклади також є і на сайті <a href="https://hwm.events/ffa">https://hwm.events/ffa</a> Поділися з друзями!`))
 
     return texts
 }
@@ -138,6 +139,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
     function getFFAEventBattlesTemplate(lost, battles) {
         return `
+                <div style="text-align: center"><b>${allTexts.get("hwmevents")}</b></div>
                 <div class="battle_examples_container">
                     <div style="display: flex; flex-direction: column">
                         <div style="text-align: center;">
