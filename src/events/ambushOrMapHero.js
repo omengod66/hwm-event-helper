@@ -1,7 +1,7 @@
 import {$, get, pl_id, set} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
-import {setLeaderboard} from "../leaderboard";
+import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {doGet} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
 import {eventHelperSettings, setSettings} from "../settings";
@@ -16,6 +16,8 @@ function getAllTexts() {
     texts.addText(new LocalizedText("show_creature_calculator", "Show recruit count calculator", "Показывать калькулятор численности", "Показувати калькулятор чисельності"))
     texts.addText(new LocalizedText("current_amount", "Current number of creatures (including additional %)", "Текущее количество существ (с учетом дополнительных % численности)", "Поточна кількість істот (з урахуванням додаткових % чисельності)"))
     texts.addText(new LocalizedText("new_amount", "Number of creatures when added", "Количество существ при добавлении", "Кількість істот при додаванні"))
+    texts.addText(new LocalizedText("show_event_timer", "Show time until the end of the event", "Показывать время до конца ивента", "Показувати час до кінця івента"))
+    texts.addText(new LocalizedText("show_top_clan_attempts", "Show remaining attempts for TOP3 clans", "Показывать оставшиеся попытки у ТОП3 кланов", "Показувати спроби, що залишилися, у ТОП3 кланів"))
     return texts
 }
 
@@ -30,29 +32,37 @@ export default async function thiefEvent() {
             setSettings("collapse_event_desc",  allTexts.get("collapse_event_desc"), container, false)
             setSettings("return_to_prev_level",  allTexts.get("return_to_prev_level"), container, false)
             setSettings("show_creature_calculator",  allTexts.get("show_creature_calculator"), container)
+            setSettings("show_top_clan_attempts", allTexts.get("show_top_clan_attempts"), container)
+            setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
         }, "afterbegin")
 
         set("eh_current_level", null)
-        setTimer(document.querySelector(".global_container_block_header"))
+        if (get("show_event_timer", true)) {
+            setTimer(document.querySelector(".global_container_block_header"))
+        }
         collapseEventDesc()
         interceptButtons()
         document.querySelector(".new_event_map").insertAdjacentHTML("afterend", `<div id="battle_examples"></div>`)
-        getEventBattles($(`battle_examples`))
+        getEventBattles($(`battle_examples`)).then(battles => {
+            trySetCreatureAmount(battles["AFS"])
+            trySetCreatureAmount(battles["FFA"])
+        })
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).children[0].getElementsByTagName("center")).at(-1))
+        if (get("show_top_clan_attempts", true)) {
+            setTopClanAttempts(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("table")).at(-1))
+        }
         showCalculator()
     }
 
     function interceptButtons() {
         let buttons = Array.from(document.querySelectorAll('input[id^=ne_attack_button]'))
-        if (buttons.length === 4) {
-            let available = 4 - buttons.filter(x => x.disabled).length
-            buttons.forEach((button, index) => {
-                button.addEventListener("mousedown", () => {
-                    set("event_battle_side", index % 2)
-                    set("eh_current_level", [getCurrentLevel(), available])
-                })
+        let available = buttons.filter(x => !x.disabled).length
+        buttons.forEach((button, index) => {
+            button.addEventListener("mousedown", () => {
+                set("event_battle_side", (button.parentElement.querySelector("[name='variant']").value-1) % 2)
+                set("eh_current_level", [getCurrentLevel(), available])
             })
-        }
+        })
     }
 
     async function showCalculator() {
@@ -99,5 +109,9 @@ export default async function thiefEvent() {
         creaturesData.forEach(creature => {
             $(`future-ambush-creatures`).insertAdjacentHTML("beforeend", getNewCreatureIcon(creature.portrait, Math.round(creature.amount * (1 + 0.01 * (creaturesMultiplier + newMultiplier)))))
         })
+    }
+
+    function trySetCreatureAmount(battles) {
+
     }
 }
