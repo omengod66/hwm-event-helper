@@ -197,7 +197,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                             <div class="hwm_event_example_block">
                                 <div style="width: 80%;display: flex;justify-content: space-between;">
                                     <div>${index + 1}. </div>
-                                    <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a> ${"class" in curr && getClassById(curr[0]["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(curr[0]["class"])[3]}?v=1.1" alt="">` : ""} [${curr[0]["hero_lvl"]}]</div>
+                                    <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a> [${curr[0]["hero_lvl"]}]</div>
                                     <div style="display: flex;min-width: 120px;justify-content: space-between;">
                                     ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
                     return prev_entry + `
@@ -224,16 +224,17 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     function getFFAEventBattleSide(battle) {
+        let class_img = "class" in battle && getClassById(battle["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(battle["class"])[3]}?v=1.1" alt="">` : ""
         if ("battle_side" in battle) {
             if (battle["battle_side"] === 0) {
-                return `${allTexts.get("enemy")}#1`
+                return `${allTexts.get("enemy")}#1${class_img}`
             } else if (battle["battle_side"] === 1) {
-                return `${allTexts.get("enemy")}#2`
+                return `${allTexts.get("enemy")}#2${class_img}`
             } else {
-                return `${allTexts.get("enemy")}#?`
+                return `${allTexts.get("enemy")}#?${class_img}`
             }
         } else {
-            return `${allTexts.get("enemy")}#?`
+            return `${allTexts.get("enemy")}#?${class_img}`
         }
     }
 }

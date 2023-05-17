@@ -68,7 +68,7 @@ export default async function thiefEvent() {
                 creatureInfo.amount = creature.getElementsByClassName('cre_amount72')[0].innerText
                 creaturesData.push(creatureInfo)
             })
-            let creaturesMultiplier = Array.from(document.querySelectorAll(".show_hint")).at(-1).querySelector("div > div:nth-child(2) > b").innerText
+            let creaturesMultiplier = Array.from(document.querySelectorAll("div.show_hint")).at(-1).querySelector("div > div:nth-child(2) > b").innerText
             creaturesMultiplier = creaturesMultiplier.match(/\d{1,3}/)[0] - 0
             document.querySelector("#map_event_stats").insertAdjacentHTML("beforeend", `
                 <div id="ambush-creatures" style="display: flex; flex-direction: column; align-items: center">
