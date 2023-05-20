@@ -338,6 +338,43 @@ export function setGlobalStyles() {
                     .record-container::-webkit-scrollbar-thumb:hover {
                       background-color: #a8bbbf;
                     }
+                    
+                    
+                    .battle_info_chip {
+                        padding: 4px;
+                        border: 2px solid #776c6c;
+                        margin: 2px;
+                        border-radius: 10px;
+                        font-size: 20px;
+                        background-color: #dbdad8;
+                        background-image: url(https://cfcdn.lordswm.com/i/art_fon_100x100.png);
+                        background-origin: border-box;
+                    }
+                    
+                    .battle_art_chip {
+                        
+                        position: relative; 
+                        height: 50px; 
+                        width: 50px
+                    }
+                    
+                    .art_img {
+                        width: 50px;
+                        height: 50px;
+                        position: absolute;
+                        top: 4px;
+                        left: 4px;
+                    }
+                    .art_mods_container {
+                        height: 10px;
+                        bottom: 0;
+                        position: absolute;
+                        z-index: 1;
+                        display: inline-block;
+                        white-space: nowrap;
+                        text-align: right;
+                        width: 50px
+                    }
                 </style>
             `)
 }

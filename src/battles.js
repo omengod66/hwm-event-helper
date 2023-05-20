@@ -21,7 +21,10 @@ function getAllTexts() {
     texts.addText(new LocalizedText("loses", "Loses", "Поражения", "Поразки"))
     texts.addText(new LocalizedText("nickname", "nickname", "никнейм", "нікнейм"))
     texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
-    texts.addText(new LocalizedText("hwmevents", `Website with examples <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Share with friends!`, `Проходки есть и на сайте <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поделись с другом!`, `Приклади також є і на сайті <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поділися з друзями!`))
+    texts.addText(new LocalizedText("hwmevents",
+        `Website with examples <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Share with friends!`,
+        `Проходки есть и на сайте <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поделись с другом!`,
+        `Приклади також є і на сайті <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поділися з друзями!`))
 
     return texts
 }
@@ -197,7 +200,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                             <div class="hwm_event_example_block">
                                 <div style="width: 80%;display: flex;justify-content: space-between;">
                                     <div>${index + 1}. </div>
-                                    <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a> [${curr[0]["hero_lvl"]}]</div>
+                                    <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a></div>
                                     <div style="display: flex;min-width: 120px;justify-content: space-between;">
                                     ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
                     return prev_entry + `
