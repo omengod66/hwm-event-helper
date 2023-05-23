@@ -25,7 +25,6 @@ export default function processBattleLogPage() {
                 let params = new URLSearchParams("?" + tag.previousElementSibling.previousElementSibling.href.split("?")[1])
                 tag.insertAdjacentHTML("afterend",
                     `  <span><a id="get_battle_info_${index}" style="cursor: pointer; text-decoration: underline" onclick="getBattleInfo('${params.get("warid")}', '${index}')">${allTexts.get("battle_info")}</a></span>`)
-
             })
     }
 
@@ -205,8 +204,10 @@ export default function processBattleLogPage() {
             `
         } else if (data[0] !== ""){
             result =  `
-                <div class="battle_info_chip">
-                    <img style="vertical-align: middle; height: 24px" src="https://${cdnHost}/i/f/r${data[0]}.png?v=1.1" alt="">
+                <div style="display: flex;">
+                    <div class="battle_info_chip">
+                        <img style="vertical-align: middle; height: 24px" src="https://${cdnHost}/i/f/r${data[0]}.png?v=1.1" alt="">
+                    </div>
                 </div>
             `
         }
