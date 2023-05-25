@@ -65,7 +65,8 @@ function replaceWithSortableTable(heroesTable) {
         }
         heroesData.push(heroData)
     })
-    let threshold = sortByKey([...heroesData], "score", -1)[99].score
+    let sortedHeroes = sortByKey([...heroesData], "score", -1)
+    let threshold = sortedHeroes.length > 100 ? sortByKey([...heroesData], "score", -1)[99].score : 0
     heroesTable.outerHTML = `
     <table class="wb" width="100%">
         <thead>
