@@ -1,6 +1,6 @@
 import {$, allFactions, cdnHost, findAll, get, heroCreatures, set} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
-import {collapseEventDesc, getCurrentLevel, setClickableLevels} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {setLeaderboard} from "../leaderboard";
 import {doGet, doPost} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
@@ -18,6 +18,10 @@ export default async function leaderEvent() {
     window.removeOverlay = removeOverlay
 
     if (/(leader_rogues|leader_winter)/.test(location.href)) {
+        if (get("show_event_timer", true)) {
+            setTimer(document.querySelector(".global_container_block_header"))
+        }
+
         isEvent = true
         if (document.body.innerHTML.includes("leader_rogues.php?action=cancel_merc")) {
             addFilteringArea()
