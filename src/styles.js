@@ -104,6 +104,7 @@ export function setGlobalStyles() {
                     .record-number {
                         font-weight: bold;
                         font-size: 18px;
+                        flex-direction: column;
                     }
                     
                     .record-players {

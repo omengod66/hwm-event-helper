@@ -248,7 +248,10 @@ export default async function leaderEvent() {
                 let recordContainer = `
                     <div class="record-wrapper" id="record-${index}">
                         <div class="record-container">
-                            <div class="record-number"><div>${index + 1}</div></div>
+                            <div class="record-number">
+                                ${record.is_clan ? `<img src="https://www.freeiconspng.com/thumbs/lock-icon/black-lock-icon-14.png" style="height: 14px;">`: ""}
+                                <div>${index + 1}</div>
+                            </div>
                             <div class="record-players" id="record-${index}-players">
                                 <div>${getRecordPlayersTemplate(record.nicknames)}</div>
                                 <div>${getRecordResultTemplate(record)}</div>
