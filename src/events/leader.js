@@ -336,6 +336,10 @@ export default async function leaderEvent() {
                                 <div class="special-creature-stat-value">${creatureData.defence.toFixed()}</div>
                             </div>
                             <div>
+                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_mana.png?v=1" alt="mana"></div>
+                                <div class="special-creature-stat-value">${creatureData.maxmanna.toFixed()}</div>
+                            </div>
+                            <div>
                                 <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_shoots.png?v=1" alt="attack"></div>
                                 <div class="special-creature-stat-value">${creatureData.shots.toFixed()}</div>
                             </div>
