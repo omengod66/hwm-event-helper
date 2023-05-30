@@ -91,9 +91,6 @@ export function setGlobalStyles() {
                         overflow: auto;
                         margin-top: 4px;
                     }
-                    .record-wrapper + .record-wrapper {
-                        border-top: 2px solid black;
-                    }
         
                     .record-players, .record-number {
                         display: flex;
@@ -166,6 +163,14 @@ export function setGlobalStyles() {
                         flex-direction: column;
                         margin-top: 10px;
                     }
+                    
+                    .records-container-body > div:nth-child(n+5) {
+                        border-top: 2px solid black;
+                    }
+                    
+                    .records-container-body > div:nth-child(5n) {
+                        border-top: unset;
+                    }
         
                     .record-result {
                         display: flex; 
@@ -211,7 +216,6 @@ export function setGlobalStyles() {
                     }
                     
                     .special-creature {
-                       margin-left: 20px;
                        display: flex;
                     }
                     .special-creature-info{

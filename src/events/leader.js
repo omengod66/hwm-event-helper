@@ -85,7 +85,7 @@ export default async function leaderEvent() {
 
     function createLeaderTemplate() {
         return `
-                    <div class="records-container-body global_container_block" style="flex-wrap: unset; justify-content: unset" id="main-data"></div>
+                    <div class="records-container-body global_container_block" style="flex-wrap: unset; justify-content: unset; display: grid; grid-template-columns: 1fr 4fr 8fr 8fr; overflow: auto" id="main-data"></div>
                 `
     }
 
@@ -263,8 +263,6 @@ export default async function leaderEvent() {
                 }).join(`<img src="https://i.imgur.com/Y3sbLcM.png" alt="" class="record-players-arms">`)
                 //onwheel="if(this.scrollWidth > this.clientWidth){ if (event.deltaY > 0) {this.scrollLeft += 100;} else {this.scrollLeft -= 100;}; event.preventDefault()}"
                 let recordContainer = `
-                    <div class="record-wrapper" id="record-${index}">
-                        <div class="record-container">
                             <div class="record-number">
                                 ${record.is_clan ? `<img src="https://www.freeiconspng.com/thumbs/lock-icon/black-lock-icon-14.png" style="height: 14px;">`: ""}
                                 <div>${index + 1}</div>
@@ -274,12 +272,10 @@ export default async function leaderEvent() {
                                 <div>${getRecordResultTemplate(record)}</div>
                             </div>
                             <div class="record-players-creatures" id="record-${index}-creatures">${playersCreatures}</div>
-                            ${record.special_creature ? getSpecialCreatureTemplate(record.special_creature, index) : ""}
-                        </div>
-                        <div class="special-creature-extended" id="special-creature-extended-${index}">
+                            ${record.special_creature ? getSpecialCreatureTemplate(record.special_creature, index) : "<div></div>"}
+                        <div class="special-creature-extended" id="special-creature-extended-${index}" style="grid-column-start: 1;grid-column-end: 5;">
                             ${record.special_creature ? getSpecialCreatureExtraData(record.special_creature) : ""}
-                        </div>
-                    </div>`
+                        </div>`
                 processedBattleCreatures.push(recordCreatureIds.join(":"))
                 return recordContainer
             }
