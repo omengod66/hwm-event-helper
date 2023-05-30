@@ -47,13 +47,30 @@ export default async function leaderEvent() {
         let leaderBoardTarget = Array.from(document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("center")).slice(-1)[0]
         setLeaderboard(leaderBoardTarget, "beforebegin")
 
-        let examplesElem = document.querySelector('.new_event_map')
+        let examplesElem;
         if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
             examplesElem = document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div')
         } else {
-            examplesElem.style.flexWrap = "wrap"
-            examplesElem.children[0].style.flex = "1 0 20%"
-            examplesElem.children[1].style.flex = "1 0 10%"
+            examplesElem = $(`event_map`)
+            $(`hwm_no_zoom`).style.width = "unset"
+            $(`hwm_no_zoom`).style.maxWidth = "80vw"
+            let mapContainer = document.querySelector('.new_event_map').children[0]
+            mapContainer.style.flex = "1 0 40%"
+            let mapHeight = mapContainer.style.height
+            mapContainer.style.height = "unset"
+            $(`Global`).style.height = "unset"
+            $(`Global`).style.width = "unset"
+
+            mapContainer.querySelector(".CampaignMapBorder").style.width = "-webkit-fill-available"
+            mapContainer.querySelector(".CampaignMapBorder").style.width = "-moz-available"
+            mapContainer.querySelector(".CampaignMapCorners").style.width = "-webkit-fill-available"
+            mapContainer.querySelector(".CampaignMapCorners").style.width = "-moz-available"
+
+            $(`CampaignMapContainer`).style.height = mapHeight
+            $(`CampaignMapContainer`).style.width = "unset"
+
+
+            document.querySelector('.new_event_map').children[1].style.flex = "1 0 0%"
         }
 
         setLoading(examplesElem)
@@ -68,7 +85,7 @@ export default async function leaderEvent() {
 
     function createLeaderTemplate() {
         return `
-                    <div class="records-container-body" id="main-data"></div>
+                    <div class="records-container-body global_container_block" style="flex-wrap: unset; justify-content: unset" id="main-data"></div>
                 `
     }
 

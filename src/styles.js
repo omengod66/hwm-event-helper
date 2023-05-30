@@ -165,7 +165,6 @@ export function setGlobalStyles() {
                         display: flex;
                         flex-direction: column;
                         margin-top: 10px;
-                        width: 670px;
                     }
         
                     .record-result {
