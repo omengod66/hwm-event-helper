@@ -108,7 +108,7 @@ export default async function leaderEvent() {
     function createBanditsTemplate() {
         return `
                     <div class="wrapper">
-                        <div class="records-container-body" id="main-data"></div>
+                        <div class="records-container-body" style="flex-wrap: unset; justify-content: unset; display: grid; grid-template-columns: 1fr 4fr 8fr 8fr; overflow: auto" id="main-data"></div>
                     </div>
                 `
     }
