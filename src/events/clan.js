@@ -51,8 +51,13 @@ function replaceWithSortableTable(heroesTable) {
         let heroData = {}
         let tdIndex = 1
         heroData.order = index + 1
-        if (tds[tdIndex].innerHTML.includes("i/clans/")) {
-            heroData.status = tds[tdIndex++].innerHTML.match(/clans\/(.+)\.gif/)[1]
+        if (tds[tdIndex].innerHTML.includes("i/clans/") || tds[tdIndex].innerText === " ") {
+            let onlineMatch = tds[tdIndex++].innerHTML.match(/clans\/(.+)\.gif/)
+            if (onlineMatch) {
+                heroData.status = onlineMatch[1]
+            } else {
+                heroData.status = "offline"
+            }
         }
         heroData.info = tds[tdIndex++].innerHTML
         heroData.cl = tds[tdIndex++].innerText - 0
