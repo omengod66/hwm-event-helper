@@ -17,9 +17,7 @@ export function collapseEventDesc() {
     if (get("collapse_event_desc", false)) {
         if (document.querySelector(".event_desc_block_inside")
             && document.querySelector(".event_desc_block_inside").getAttribute("style") == null
-            && (document.querySelector("#event_desc_block") !== null && document.querySelector("#event_desc_block").style.display !== "none"
-
-                || document.querySelector(".event_desc_open_btn") != null)) {
+            && (document.querySelector("#event_desc_block") !== null && document.querySelector("#event_desc_block").style.display !== "none")) {
             document.querySelector(".event_desc_open_btn").click()
         }
     }

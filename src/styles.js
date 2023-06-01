@@ -101,7 +101,22 @@ export function setGlobalStyles() {
                     .record-number {
                         font-weight: bold;
                         font-size: 18px;
-                        flex-direction: column;
+                    }
+                    
+                    .fav_player_button {
+                        cursor: pointer;
+                        filter: opacity(0.5);
+                        transition: transform 0.5s ease;
+                    }
+                    
+                    .fav_player_button svg {
+                        width: 24px;
+                        height: 24px;
+                    }
+                    
+                    .fav_player_button:hover {
+                        filter: opacity(1);
+                        transform: scale(1.2);
                     }
                     
                     .record-players {

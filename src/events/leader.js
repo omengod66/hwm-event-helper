@@ -7,12 +7,15 @@ import {getNewCreatureIcon} from "../templates";
 import {addFilteringArea, processFilters} from "../mercenaryFilters";
 
 export default async function leaderEvent() {
+    let favourites = get("leader_favourites", [])
+
     let isEvent = false
     let lg_lvl = parseInt(get('hero_leader_lvl', 10));
     let battles = [];
     let isLostBattles = false;
 
     window.sendApplyArmy = sendApplyArmy
+    window.saveFav = saveFav
     window.showSpecialCreatureData = showSpecialCreatureData
     window.replaceCellListener = replaceCellListener
     window.removeOverlay = removeOverlay
@@ -221,13 +224,24 @@ export default async function leaderEvent() {
     let rowDatas = {}
 
     function processRecords(records) {
-        let allRecords = records.reduce((prev, curr, index) => {
+        let favRecords = records.filter(battle => favourites.includes(battle.nicknames[0]))
+        let notFavRecords = records.filter(battle => !favourites.includes(battle.nicknames[0]))
+        let allRecords = favRecords.concat(notFavRecords).reduce((prev, curr, index) => {
             return prev + addRecord(curr, index)
         }, "")
         $('main-data').insertAdjacentHTML("beforeend", allRecords)
     }
 
+    let fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star-fill" viewBox="0 0 16 16" style="vertical-align: middle">
+      <path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zM8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.178.178 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.178.178 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.178.178 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.178.178 0 0 1-.134-.098L8.16 4.1z"/>
+    </svg>`
+    let not_fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star" viewBox="0 0 16 16" style="vertical-align: middle">
+      <path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.178.178 0 0 0 .134.098l1.42.206c.145.021.204.2.098.303L9.42 6.993a.178.178 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.178.178 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.178.178 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.178.178 0 0 0 .134-.098L7.84 4.1z"/>
+      <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+    </svg>`
+
     function addRecord(record, index) {
+        let isFav = favourites.includes(record.nicknames[0])
         let playersCreaturesInfo = []
         record.creatures.forEach((playerCreatures, playerId) => {
             let rowData = []
@@ -241,10 +255,10 @@ export default async function leaderEvent() {
         })
         let isAllCreaturesAvailable = isAllPresent(playersCreaturesInfo[0])
         let recordLeadership = getLeadership(playersCreaturesInfo[0])
-        if (!get("lg_show_available", false) || isAllCreaturesAvailable && recordLeadership > (lg_lvl + 9) * 1000 && recordLeadership <= (lg_lvl + 10) * 1000) {
+        if (!get("lg_show_available", false) || isAllCreaturesAvailable && recordLeadership > (lg_lvl + 9) * 1000 && recordLeadership <= (lg_lvl + 10) * 1000 || isFav) {
             let recordCreatureIds = Object.keys(record.creatures[0])
             recordCreatureIds.sort((a, b) => a.localeCompare(b))
-            if (!get("lg_hide_duplicates", false) || !processedBattleCreatures.includes(recordCreatureIds.join(":"))) {
+            if (!get("lg_hide_duplicates", false) || !processedBattleCreatures.includes(recordCreatureIds.join(":")) || isFav) {
                 let playersCreatures = record.creatures.map((playerCreatures, playerId) => {
                     let playerCreaturesHTML = ""
                     let rowData = []
@@ -270,6 +284,9 @@ export default async function leaderEvent() {
                             <div class="record-number">
                                 ${record.is_clan ? `<img src="https://www.freeiconspng.com/thumbs/lock-icon/black-lock-icon-14.png" style="height: 14px;">`: ""}
                                 <div>${index + 1}</div>
+                                <div id="fav_${index}" class="fav_player_button" onclick="saveFav('${record.nicknames[0]}', this)">
+                                    ${isFav ? fav_icon : not_fav_icon}
+                                </div>
                             </div>
                             <div class="record-players" id="record-${index}-players">
                                 <div>${getRecordPlayersTemplate(record.nicknames)}</div>
@@ -285,6 +302,17 @@ export default async function leaderEvent() {
             }
         }
         return ""
+    }
+
+    function saveFav(nickname, elem) {
+        if (favourites.includes(nickname)) {
+            elem.innerHTML = not_fav_icon
+            favourites = favourites.filter(v => v !== nickname);
+        } else {
+            elem.innerHTML = fav_icon
+            favourites.push(nickname)
+        }
+        set("leader_favourites", favourites)
     }
 
     function processRecordHeroCreatures(rowData, creatureAmount, creaturePortrait) {
