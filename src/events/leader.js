@@ -92,7 +92,7 @@ export default async function leaderEvent() {
 
     function createLeaderTemplate() {
         return `
-                    <div class="records-container-body global_container_block" style="flex-wrap: unset; justify-content: unset; display: grid; grid-template-columns: 1fr 4fr 8fr 8fr; overflow: auto" id="main-data"></div>
+                    <div class="records-container-body global_container_block" id="main-data"></div>
                 `
     }
 
@@ -115,7 +115,7 @@ export default async function leaderEvent() {
     function createBanditsTemplate() {
         return `
                     <div class="wrapper">
-                        <div class="records-container-body" style="flex-wrap: unset; justify-content: unset; display: grid; grid-template-columns: 1fr 4fr 8fr 8fr; overflow: auto" id="main-data"></div>
+                        <div class="records-container-body" id="main-data"></div>
                     </div>
                 `
     }
@@ -293,8 +293,8 @@ export default async function leaderEvent() {
                                 <div>${getRecordResultTemplate(record)}</div>
                             </div>
                             <div class="record-players-creatures" id="record-${index}-creatures">${playersCreatures}</div>
-                            ${record.special_creature ? getSpecialCreatureTemplate(record.special_creature, index) : "<div></div>"}
-                        <div class="special-creature-extended" id="special-creature-extended-${index}" style="grid-column-start: 1;grid-column-end: 5;">
+                            ${record.special_creature ? getSpecialCreatureTemplate(record.special_creature, index) : `<div class="special-creature"></div>`}
+                        <div class="special-creature-extended" id="special-creature-extended-${index}">
                             ${record.special_creature ? getSpecialCreatureExtraData(record.special_creature) : ""}
                         </div>`
                 processedBattleCreatures.push(recordCreatureIds.join(":"))

@@ -12,6 +12,26 @@ export function setGlobalStyles() {
                             justify-content: center;
                         }
                     }
+                    @media (max-width: 1440px) {
+                        
+                        .records-container-body{
+                            grid-template-columns: 1fr 4fr !important;
+                        }
+                        
+                        .records-container-body > div:nth-child(n+5) {
+                            border-top: unset !important;
+                        }
+                        
+                        .records-container-body > div:nth-child(5n+6), .records-container-body > div:nth-child(5n+7) {
+                            border-top: 2px solid black !important;
+                        }
+                        
+                        .record-players-creatures, .special-creature, .special-creature-extended {
+                            grid-column-start: 1;
+                            grid-column-end: 3 !important; 
+                            justify-content: center;
+                        }
+                    }
                 
                     .btn_hover2{
                         transition: -webkit-filter .3s;
@@ -174,9 +194,14 @@ export function setGlobalStyles() {
                     }
         
                     .records-container-body {
-                        display: flex;
-                        flex-direction: column;
                         margin-top: 10px;
+                        flex-wrap: unset; 
+                        justify-content: unset; 
+                        display: grid; 
+                        grid-template-columns: 1fr 4fr 8fr 8fr; 
+                        overflow: auto;
+                        width: 100%;
+                        padding: unset;
                     }
                     
                     .records-container-body > div:nth-child(n+5) {
@@ -269,6 +294,8 @@ export function setGlobalStyles() {
                     }
                     .special-creature-extended {
                         display: none;
+                        grid-column-start: 1;
+                        grid-column-end: 5;
                     }
                     .visible{
                         display: block;
