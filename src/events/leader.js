@@ -36,7 +36,7 @@ export default async function leaderEvent() {
         }
         let settingsContainer = document.querySelector('.Global')
         if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
-            settingsContainer =document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("table")[0]
+            settingsContainer = document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("table")[0]
         }
         eventHelperSettings(settingsContainer, (container) => {
             setSettings("auto_send_event_lg", "Отправлять бои из ГЛ ивента в сервис автоматически", container)
@@ -226,10 +226,27 @@ export default async function leaderEvent() {
     function processRecords(records) {
         let favRecords = records.filter(battle => favourites.includes(battle.nicknames[0]))
         let notFavRecords = records.filter(battle => !favourites.includes(battle.nicknames[0]))
-        let allRecords = favRecords.concat(notFavRecords).reduce((prev, curr, index) => {
-            return prev + addRecord(curr, index)
-        }, "")
-        $('main-data').insertAdjacentHTML("beforeend", allRecords)
+        let allRecords = favRecords.concat(notFavRecords)
+
+        let pageIndex = 0
+        let pageSize = 25
+
+        function addPage() {
+            if (pageIndex * pageSize < allRecords.length) {
+                let result = allRecords.slice(pageIndex * pageSize, pageIndex * pageSize+25).reduce((prev, curr, index) => {
+                    return prev + addRecord(curr, pageIndex * pageSize+index)
+                }, "")
+                $('main-data').insertAdjacentHTML("beforeend", result)
+                pageIndex++
+            }
+        }
+        addPage()
+
+        window.onscroll = function () {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                addPage()
+            }
+        };
     }
 
     let fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star-fill" viewBox="0 0 16 16" style="vertical-align: middle">
@@ -282,7 +299,7 @@ export default async function leaderEvent() {
                 //onwheel="if(this.scrollWidth > this.clientWidth){ if (event.deltaY > 0) {this.scrollLeft += 100;} else {this.scrollLeft -= 100;}; event.preventDefault()}"
                 let recordContainer = `
                             <div class="record-number">
-                                ${record.is_clan ? `<img src="https://www.freeiconspng.com/thumbs/lock-icon/black-lock-icon-14.png" style="height: 14px;">`: ""}
+                                ${record.is_clan ? `<img src="https://www.freeiconspng.com/thumbs/lock-icon/black-lock-icon-14.png" style="height: 14px;">` : ""}
                                 <div>${index + 1}</div>
                                 <div id="fav_${index}" class="fav_player_button" onclick="saveFav('${record.nicknames[0]}', this)">
                                     ${isFav ? fav_icon : not_fav_icon}
@@ -294,9 +311,9 @@ export default async function leaderEvent() {
                             </div>
                             <div class="record-players-creatures" id="record-${index}-creatures">${playersCreatures}</div>
                             ${record.special_creature ? getSpecialCreatureTemplate(record.special_creature, index) : `<div class="special-creature"></div>`}
-                        <div class="special-creature-extended" id="special-creature-extended-${index}">
-                            ${record.special_creature ? getSpecialCreatureExtraData(record.special_creature) : ""}
-                        </div>`
+                            <div class="special-creature-extended" id="special-creature-extended-${index}">
+                                ${record.special_creature ? getSpecialCreatureExtraData(record.special_creature) : ""}
+                            </div>`
                 processedBattleCreatures.push(recordCreatureIds.join(":"))
                 return recordContainer
             }
