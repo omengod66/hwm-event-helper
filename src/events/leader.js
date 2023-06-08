@@ -242,11 +242,13 @@ export default async function leaderEvent() {
         }
         addPage()
 
-        window.onscroll = function () {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+        setInterval(() => {
+            if (!document.querySelector("#android_outside") && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                addPage()
+            } else if (document.querySelector("#android_outside") && (document.querySelector("#android_outside").clientHeight + document.querySelector("#android_outside").scrollTop) >= document.querySelector("#hwm_no_zoom").offsetHeight - 100) {
                 addPage()
             }
-        };
+        }, 50)
     }
 
     let fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star-fill" viewBox="0 0 16 16" style="vertical-align: middle">
