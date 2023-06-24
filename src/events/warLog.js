@@ -19,8 +19,10 @@ export default function processBattleLogPage() {
 
     if (location.href.includes(`pl_warlog.php?id=`)) {
         Array.from(document.getElementsByTagName("i"))
-            .filter(tag =>(tag.innerText.includes("Враги экспедиции") || tag.innerText.includes("Enemies of the expedition"))
-                && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
+            .filter(tag =>
+                ((tag.innerText.includes("Враги экспедиции") || tag.innerText.includes("Enemies of the expedition")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
+                || ((tag.innerText.includes("Бандиты пустошей") || tag.innerText.includes("Wasteland bandits")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 30)
+            )
             .forEach((tag, index) => {
                 let params = new URLSearchParams("?" + tag.previousElementSibling.previousElementSibling.href.split("?")[1])
                 tag.insertAdjacentHTML("afterend",

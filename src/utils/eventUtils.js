@@ -50,9 +50,10 @@ export function setClickableLevels() {
 
 export function setTimer(where) {
     where.style.display = "flex"
+    where.style.justifyContent = "center"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
-    let countDownDate = new Date(1686171600000).getTime();
+    let countDownDate = new Date(1688158800000).getTime();
     function process() {
         let now = new Date().getTime();
         let distance = countDownDate - now;
