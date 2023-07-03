@@ -234,9 +234,6 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     function getFFAEventBattleSide(battle) {
         let class_img = "class" in battle && getClassById(battle["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(battle["class"])[3]}?v=1.1" alt="">` : ""
         if ("battle_side" in battle) {
-            if (location.href.includes("adventure_event.php?map=1")) {
-                return allTexts.get("battle")
-            }
             if (battle["battle_side"] === 0) {
                 return `${class_img} ${allTexts.get("enemy")}#1`
             } else if (battle["battle_side"] === 1) {
@@ -245,7 +242,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 return `${class_img} ${allTexts.get("enemy")}#?`
             }
         } else {
-            return `${class_img} ${allTexts.get("enemy")}#?`
+            return `${class_img} ${allTexts.get("battle")}`
         }
     }
 
