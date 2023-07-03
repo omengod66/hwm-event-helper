@@ -37,6 +37,9 @@ export function getCurrentLevel() {
 }
 
 export function setClickableLevels() {
+    document.querySelectorAll(".Checkpoints").forEach(cp => {
+        cp.style.zIndex = "1"
+    })
     Array.from(document.querySelectorAll(".Checkpoints"))
         .filter(elem => elem.classList.contains("CheckpointComplete") || elem.classList.contains("CheckpointLocked"))
         .forEach(elem => {
@@ -53,7 +56,7 @@ export function setTimer(where) {
     where.style.justifyContent = "center"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
-    let countDownDate = new Date(1688158800000).getTime();
+    let countDownDate = new Date(1689282000000).getTime();
     function process() {
         let now = new Date().getTime();
         let distance = countDownDate - now;

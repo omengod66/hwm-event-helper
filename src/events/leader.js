@@ -50,10 +50,6 @@ export default async function leaderEvent() {
         let leaderBoardTarget = Array.from(document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("center")).slice(-1)[0]
         setLeaderboard(leaderBoardTarget, "beforebegin")
 
-        document.querySelectorAll(".Checkpoints").forEach(cp => {
-            cp.style.zIndex = "1"
-        })
-
         let examplesElem;
         if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
             examplesElem = document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div')

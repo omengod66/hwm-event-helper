@@ -122,7 +122,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         return getSpoiler(
             "examples",
             "AFS",
-            `<div class="home_button2 btn_hover2" style="margin: 3px 0; min-width: 100px;">${allTexts.get("examples")} (${result[1]}/${result[2]})</div>`,
+            `<div class="home_button2 btn_hover2" style="margin: 3px 0; min-width: 100px;">${allTexts.get("examples")} (${result[1]}/${result[2]}) (В разработке...)</div>`,
             `
                 <div style="display: flex; flex-direction: column">
                     <div id="search_by_player">

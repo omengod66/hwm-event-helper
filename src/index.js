@@ -19,6 +19,7 @@ import villageEvent from "./events/village";
 import dungeonEvent from "./events/dungeon";
 import roguesLikeEvent from "./events/roguesLike";
 import clanPage from "./events/clan";
+import reapingEvent from "./events/reaping";
 
 
 async function setup() {
@@ -46,6 +47,7 @@ leaderEvent()
 adventureEvent()
 factionEvent()
 hireEvent()
+reapingEvent()
 pirateEvent()
 pirateHuntEvent()
 portalCoupleEvent()

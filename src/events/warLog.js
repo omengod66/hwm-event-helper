@@ -21,6 +21,7 @@ export default function processBattleLogPage() {
         Array.from(document.getElementsByTagName("i"))
             .filter(tag =>
                 ((tag.innerText.includes("Враги экспедиции") || tag.innerText.includes("Enemies of the expedition")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
+                || ((tag.innerText.includes("Противник Армии Тьмы") || tag.innerText.includes("Enemies of the expedition")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
                 || ((tag.innerText.includes("Бандиты пустошей") || tag.innerText.includes("Wasteland bandits")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 30)
             )
             .forEach((tag, index) => {
@@ -34,6 +35,7 @@ export default function processBattleLogPage() {
         eventHelperSettings(document.querySelector(`[class="global_container_block"]`), (container) => {
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("auto_send_rogues_event", "Отправлять бои из разбойничьего ивента в сервис автоматически", container)
+            setSettings("auto_send_reaping_event", "Отправлять бои из ивента тьмы в сервис автоматически", container)
             setSettings("auto_send_ffa_event", "Отправлять бои из КБО ивента в сервис автоматически", container)
             setSettings("auto_send_event_lg", "Отправлять бои из ГЛ ивента в сервис автоматически", container)
             setSettings("auto_send_lg", "Отправлять бои с опасными бандитами в сервис автоматически", container)
@@ -71,7 +73,7 @@ export default function processBattleLogPage() {
                 type = "3";
                 isOk = true;
             }
-            if (tag.innerText.includes("Отряд врага") || tag.innerText.includes("Enemy squad")) {
+            if (tag.innerText.includes("Отряд врага") || tag.innerText.includes("Enemy squad") || tag.innerText.includes("Противник Армии Тьмы") || tag.innerText.includes("Enemy squad")) {
                 type = "4";
                 isOk = true;
             }

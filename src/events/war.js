@@ -9,10 +9,11 @@ export default async function processBattlePage() {
             || get("auto_send_ffa_event", true)
             || get("auto_send_faction_event_battles", true)
             || get("auto_send_rogues_event", true)
+            || get("auto_send_reaping_event", true)
             || get("auto_send_hunt_event_battles", true))) {
         let battleData = window.run_all.toString()
         let battleType = battleData.match(/btype\|(\d{1,10})/)[1]
-        if (["133", "135", "138", "139", "140", "142", "143", "144", "148"].includes(battleType)) {
+        if (["133", "135", "138", "139", "140", "142", "143", "144", "147", "148"].includes(battleType)) {
             let battle_id = new URLSearchParams(window.location.search).get("warid")
             let battle_secret = new URLSearchParams(window.location.search).get("show_for_all")
             if (battle_secret == null) {
@@ -52,7 +53,7 @@ export default async function processBattlePage() {
                         sendBattle(battle_id, battle_secret, "1")
                     } else if (battleType === "144" && get("auto_send_faction_event_battles", true) || battleType === "140" && get("auto_send_hunt_event_battles", true)) {
                         sendBattle(battle_id, battle_secret, "3")
-                    } else if (battleType === "133" && get("auto_send_rogues_event", true)) {
+                    } else if (battleType === "133" && get("auto_send_rogues_event", true) || battleType === "147" && get("auto_send_reaping_event", true)) {
                         let battle_side = get("event_battle_side", -1)
                         set("event_battle_side", -1)
                         sendBattle(battle_id, battle_secret, "4", null, battle_side)
