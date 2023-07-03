@@ -232,17 +232,17 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     function getFFAEventBattleSide(battle) {
-        let class_img = "class" in battle && getClassById(battle["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(battle["class"])[3]}?v=1.1" alt="">` : ""
+        let class_img = "class" in battle && getClassById(battle["class"]) ? `<img style="vertical-align: middle; height: 16px" src="https://${cdnHost}/i/f/${getClassById(battle["class"])[3]}?v=1.1" alt=""> ` : ""
         if ("battle_side" in battle) {
             if (battle["battle_side"] === 0) {
-                return `${class_img} ${allTexts.get("enemy")}#1`
+                return `${class_img}${allTexts.get("enemy")}#1`
             } else if (battle["battle_side"] === 1) {
-                return `${class_img} ${allTexts.get("enemy")}#2`
+                return `${class_img}${allTexts.get("enemy")}#2`
             } else {
-                return `${class_img} ${allTexts.get("battle")}`
+                return `${class_img}${allTexts.get("battle")}`
             }
         } else {
-            return `${class_img} ${allTexts.get("battle")}`
+            return `${class_img}${allTexts.get("battle")}`
         }
     }
 
