@@ -27,9 +27,9 @@ function getAllTexts() {
         `Приклади також є і на сайті <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поділися з друзями!`))
 
     texts.addText(new LocalizedText("hwmevents_rogues",
-        `Website with examples <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/ffa</a> Share with friends!`,
-        `Проходки есть и на сайте <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/ffa</a> Поделись с другом!`,
-        `Приклади також є і на сайті <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/ffa</a> Поділися з друзями!`))
+        `Website with examples <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/rogues</a> Share with friends!`,
+        `Проходки есть и на сайте <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/rogues</a> Поделись с другом!`,
+        `Приклади також є і на сайті <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/rogues</a> Поділися з друзями!`))
 
     return texts
 }
