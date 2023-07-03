@@ -239,7 +239,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             } else if (battle["battle_side"] === 1) {
                 return `${class_img} ${allTexts.get("enemy")}#2`
             } else {
-                return `${class_img} ${allTexts.get("enemy")}#?`
+                return `${class_img} ${allTexts.get("battle")}`
             }
         } else {
             return `${class_img} ${allTexts.get("battle")}`
