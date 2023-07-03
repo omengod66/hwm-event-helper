@@ -21,7 +21,7 @@ export default function processBattleLogPage() {
         Array.from(document.getElementsByTagName("i"))
             .filter(tag =>
                 ((tag.innerText.includes("Враги экспедиции") || tag.innerText.includes("Enemies of the expedition")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
-                || ((tag.innerText.includes("Противник Армии Тьмы") || tag.innerText.includes("Enemies of the expedition")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
+                || ((tag.innerText.includes("Противник Армии Тьмы") || tag.innerText.includes("Opponent of the Army of Darkness")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
                 || ((tag.innerText.includes("Бандиты пустошей") || tag.innerText.includes("Wasteland bandits")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 30)
             )
             .forEach((tag, index) => {
@@ -73,7 +73,7 @@ export default function processBattleLogPage() {
                 type = "3";
                 isOk = true;
             }
-            if (tag.innerText.includes("Отряд врага") || tag.innerText.includes("Enemy squad") || tag.innerText.includes("Противник Армии Тьмы") || tag.innerText.includes("Enemy squad")) {
+            if (tag.innerText.includes("Отряд врага") || tag.innerText.includes("Enemy squad") || tag.innerText.includes("Противник Армии Тьмы") || tag.innerText.includes("Opponent of the Army of Darkness")) {
                 type = "4";
                 isOk = true;
             }
