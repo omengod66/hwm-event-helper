@@ -1,7 +1,18 @@
 import {doGet, doPost} from "./utils/networkUtils";
-import {$, allClasses, cdnHost, encode, get, groupBy, mapToArray, pl_lvl, sortByKey} from "./utils/commonUtils";
+import {
+    $,
+    allClasses,
+    cdnHost,
+    encode,
+    get,
+    groupBy,
+    mapToArray,
+    my_sign,
+    pl_lvl,
+    sortByKey
+} from "./utils/commonUtils";
 import {getCurrentLevel} from "./utils/eventUtils";
-import {getSpoiler} from "./templates";
+import {getNewCreatureIcon, getSpoiler} from "./templates";
 import {LocalizedText, LocalizedTextMap} from "./utils/localizationUtils";
 
 function getAllTexts() {
@@ -58,10 +69,18 @@ export async function sendBattle(warid, secret, type, index = null, battle_side 
 }
 
 export async function getEventBattles(target, from = "getFFAEventBattles", callback = 2, lost = false) {
+    window.sendApplyArmy = sendApplyArmy
+    let creaturesInfo = get("eventCreaturesInfo", {})
+    let currentSilver = 0;
+    try {
+        currentSilver = 10000 + parseInt(document.body.innerText.match(/(Добыто серебра|Silver gained): (\d{0,3},?\d{1,3})/)[2].replace(",", ""))
+    } catch (e) {
+    }
+
     document.body.insertAdjacentHTML("afterbegin", `<style>.hwm_event_example_block {
         display: flex;
         flex-wrap: wrap;
-        flex-direction: row;
+        flex-direction: column;
         box-sizing: border-box;
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
@@ -127,7 +146,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         return getSpoiler(
             "examples",
             "AFS",
-            `<div class="home_button2 btn_hover2" style="margin: 3px 0; min-width: 100px;">${allTexts.get("examples")} (${result[1]}/${result[2]}) (В разработке...)</div>`,
+            `<div class="home_button2 btn_hover2" style="margin: 3px 0; min-width: 100px;">${allTexts.get("examples")} (${result[1]}/${result[2]})</div>`,
             `
                 <div style="display: flex; flex-direction: column">
                     <div id="search_by_player">
@@ -197,24 +216,116 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
     }
 
+    function getCreaturesHTML(battle, index) {
+        if (currentSilver === 0 || !("creatures" in battle) || !location.href.includes("reaping_event") || Object.keys(creaturesInfo).length === 0) {
+            console.log("hello")
+            return "<div>hello</div>"
+        }
+
+        let creatures = battle.creatures[0]
+        let totalPrice = Object.entries(creatures).reduce((prev, [portrait, amount]) => {
+            return prev + creaturesInfo[portrait][1] * amount
+        }, 0)
+
+        let playerCreaturesHTML = ""
+        Object
+            .entries(creatures)
+            .forEach(([creaturePortrait, creatureAmount], cellId) => {
+                playerCreaturesHTML += `<div id="creature-${index}-${cellId}">${getNewCreatureIcon(creaturePortrait, creatureAmount, "good-creature")}</div>`
+            })
+
+        return `
+        <div style="width: 80%;display: flex;justify-content: space-between;">
+        <div class="record-player-creatures" id="creatures-${index}">
+            <div id="creatures-${index}-apply" class="creatures-apply">
+                ${totalPrice <= currentSilver ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >Набрать</div>` : ""}
+                <div id="creatures-${index}-leadership" class="player-leadership">
+                    <img height="24" src="https://${cdnHost}/i/adv_ev_silver48.png" alt="">
+                    <span id="leadership-number-${index}" style="color: ${totalPrice <= currentSilver ? "green" : "red"}">
+                        ${totalPrice}
+                    </span>
+                </div>
+            </div>
+            <div id="creatures-${index}-creatures" class="player-creatures-row">${playerCreaturesHTML}</div>
+        </div>
+        </div>
+        `
+    }
+
+    let applyingArmy = false;
+    async function sendApplyArmy(battleId) {
+        if (applyingArmy) {
+            return
+        }
+        applyingArmy = true
+        document.body.style.cursor = 'wait';
+
+        let creatures = battles["AFS"].find(battle => battle.battle_id === battleId).creatures[0]
+
+        let doc = await doGet("/reaping_event_set.php", true)
+
+        let creaturesToRemove = Array.from(doc.querySelectorAll("#ne_set_current_army .cre_creature a"))
+            .map(elem => elem.href.split("=")[1])
+
+        for (const creature of creaturesToRemove) {
+            let url = new URL(`https://${location.host}/reaping_event_set.php`);
+            url.searchParams.set('del', creature);
+            url.searchParams.set('sign', my_sign);
+            url.searchParams.set('js', "1");
+            url.searchParams.set('rand', (Math.random() * 1000000).toString());
+            await doGet(url.toString(), true)
+        }
+
+        doc = await doGet("/reaping_event_set.php", true)
+
+        let creaturesToSell = Array.from(doc.querySelectorAll("#ne_set_available_troops .hwm_event_set_stack_pic"))
+            .map(elem => elem.innerHTML.match(/portraits\/([a-zA-Z0-9_-]+)p33/)[1])
+
+        for (const portrait of creaturesToSell) {
+            let url = new URL(`https://${location.host}/reaping_event_set.php`);
+            url.searchParams.set('act', "sell_unit");
+            url.searchParams.set('mid', creaturesInfo[portrait][0]);
+            url.searchParams.set('price', creaturesInfo[portrait][1]);
+            url.searchParams.set('sign', my_sign);
+            url.searchParams.set('js', "1");
+            url.searchParams.set('rand', (Math.random() * 1000000).toString());
+            await doGet(url.toString(), true)
+        }
+
+        for (const [portrait, amount] of Object.entries(creatures)) {
+            let url = new URL(`https://${location.host}/reaping_event_set.php`);
+            url.searchParams.set('act', "buy");
+            url.searchParams.set('mid', creaturesInfo[portrait][0]);
+            url.searchParams.set('price', creaturesInfo[portrait][1]);
+            url.searchParams.set('cnt', amount.toString());
+            url.searchParams.set('sign', my_sign);
+            url.searchParams.set('js', "1");
+            url.searchParams.set('rand', (Math.random() * 1000000).toString());
+            await doGet(url.toString(), true)
+        }
+        location.reload()
+    }
+
     function ffaBattlesToHTML(battles) {
         if (battles.length > 0) {
             battles.sort((a, b) => a.nickname.localeCompare(b.nickname))
             return groupBy(battles, "nickname").reduce((prev, curr, index) => {
+                let creatures = getCreaturesHTML(curr[0], index)
                 return prev + `
-                            <div class="hwm_event_example_block">
-                                <div style="width: 80%;display: flex;justify-content: space-between;">
-                                    <div>${index + 1}. </div>
-                                    <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a></div>
-                                    <div style="display: flex;min-width: 120px;justify-content: space-between;">
-                                    ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
-                    return prev_entry + `
-                                                                        <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
-                                                                        `
-                }, "")}
-                                    </div>
-                                </div>
+                    <div class="hwm_event_example_block">
+                        <div style="width: 80%;display: flex;justify-content: space-between;">
+                            <div>${index + 1}. </div>
+                            <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a></div>
+                            <div style="display: flex;min-width: 120px;justify-content: space-between;">
+                            ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
+                                 return prev_entry + `
+                                <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
+                            `
+                            }, "")}
                             </div>
+                        </div>
+                        ${creatures}
+                    </div>
                             `
             }, "")
         } else {

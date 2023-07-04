@@ -1,9 +1,10 @@
 import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {get, set} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
-import {collapseEventDesc, setClickableLevels, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
+import {doGet} from "../utils/networkUtils";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -26,7 +27,7 @@ function getAllTexts() {
 
 let allTexts = getAllTexts()
 
-export default function reapingEvent() {
+export default async function reapingEvent() {
     if (location.href.includes("reaping_event.")) {
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
         if (get("show_top_clan_attempts", true)) {
@@ -47,5 +48,28 @@ export default function reapingEvent() {
         collapseEventDesc()
         setClickableLevels()
         getEventBattles(Array.from(document.querySelectorAll(".global_container_block")).at(-2), "getRoguesEventBattles", 1)
+
+        let currentLevel = getCurrentLevel()
+        let storedLevel = get("currentEventLevel", "0")
+        if (storedLevel !== currentLevel) {
+            await setEventCreaturesInfo()
+            set("currentEventLevel", currentLevel)
+        }
+    }
+
+    async function setEventCreaturesInfo() {
+        let doc = await doGet("/reaping_event_set.php", true)
+        let creatureBlocks = doc.querySelectorAll("#ne_set_troops_on_market .hwm_event_set_stack_pic")
+        let creaturesInfo = {}
+        creatureBlocks.forEach(block => {
+            let creaturePriceMatch = block.innerHTML.match(/silver48\.png'\)"><b>(\d{0,3},?\d{0,3})/)
+            if (creaturePriceMatch) {
+                let price = creaturePriceMatch[1].replace(",", "")-0
+                let portrait = block.innerHTML.match(/portraits\/([a-zA-Z0-9_-]+)p33/)[1]
+                let id = block.querySelector("a").href.split("=")[1]
+                creaturesInfo[portrait] = [id, price]
+            }
+        })
+        set("eventCreaturesInfo", creaturesInfo)
     }
 }
