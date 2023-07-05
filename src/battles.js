@@ -32,6 +32,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("loses", "Loses", "Поражения", "Поразки"))
     texts.addText(new LocalizedText("nickname", "nickname", "никнейм", "нікнейм"))
     texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
+    texts.addText(new LocalizedText("hire", "Hire", "Набрать", "Найняти"))
     texts.addText(new LocalizedText("hwmevents",
         `Website with examples <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Share with friends!`,
         `Проходки есть и на сайте <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поделись с другом!`,
@@ -218,8 +219,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
     function getCreaturesHTML(battle, index) {
         if (currentSilver === 0 || !("creatures" in battle) || !location.href.includes("reaping_event") || Object.keys(creaturesInfo).length === 0) {
-            console.log("hello")
-            return "<div>hello</div>"
+            return ""
         }
 
         let creatures = battle.creatures[0]
@@ -238,7 +238,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         <div style="width: 80%;display: flex;justify-content: space-between;">
         <div class="record-player-creatures" id="creatures-${index}">
             <div id="creatures-${index}-apply" class="creatures-apply">
-                ${totalPrice <= currentSilver ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >Набрать</div>` : ""}
+                ${totalPrice <= currentSilver ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >${allTexts.get("hire")}</div>` : ""}
                 <div id="creatures-${index}-leadership" class="player-leadership">
                     <img height="24" src="https://${cdnHost}/i/adv_ev_silver48.png" alt="">
                     <span id="leadership-number-${index}" style="color: ${totalPrice <= currentSilver ? "green" : "red"}">
