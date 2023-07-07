@@ -55,6 +55,7 @@ export default async function reapingEvent() {
             await setEventCreaturesInfo()
             set("currentEventLevel", currentLevel)
         }
+        interceptButtons()
     }
 
     async function setEventCreaturesInfo() {
@@ -71,5 +72,17 @@ export default async function reapingEvent() {
             }
         })
         set("eventCreaturesInfo", creaturesInfo)
+    }
+    function interceptButtons() {
+        let buttons = Array.from(document.querySelectorAll('input[id^=ne_attack_button]'))
+        if (buttons.length === 2) {
+            let available = 2 - buttons.filter(x => x.disabled).length
+            buttons.forEach((button, index) => {
+                button.addEventListener("mousedown", () => {
+                    set("event_battle_side", index % 2)
+                    set("eh_current_level", [getCurrentLevel(), available])
+                })
+            })
+        }
     }
 }

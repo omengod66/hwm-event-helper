@@ -264,12 +264,28 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
         let doc = await doGet("/reaping_event_set.php", true)
 
-        let creaturesToRemove = Array.from(doc.querySelectorAll("#ne_set_current_army .cre_creature a"))
-            .map(elem => elem.href.split("=")[1])
+        let creaturesToRemove = Array.from(doc.querySelectorAll("#ne_set_current_army .cre_creature"))
+            .reduce((result, elem) => {
+                if (elem.children.length > 2) {
+                    let portrait = elem.innerHTML.match(/portraits\/([a-zA-Z0-9_-]+)p33/)[1]
+                    let creatureId = creaturesInfo[portrait][0]
+                    let amount = elem.children[2].innerText - 0
+                    let price = creaturesInfo[portrait][1]
+                    result[creatureId] = {
+                        portrait: portrait,
+                        amount: amount,
+                        price: price
+                    }
+                }
+                return result;
+            }, {})
 
-        for (const creature of creaturesToRemove) {
+        for (const [creatureId, creatureInfo] of Object.entries(creaturesToRemove)) {
+            if (creatureInfo.portrait in creatures && creatures[creatureInfo.portrait] === creatureInfo.amount) {
+                continue
+            }
             let url = new URL(`https://${location.host}/reaping_event_set.php`);
-            url.searchParams.set('del', creature);
+            url.searchParams.set('del', creatureId);
             url.searchParams.set('sign', my_sign);
             url.searchParams.set('js', "1");
             url.searchParams.set('rand', (Math.random() * 1000000).toString());
@@ -278,14 +294,28 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
         doc = await doGet("/reaping_event_set.php", true)
 
-        let creaturesToSell = Array.from(doc.querySelectorAll("#ne_set_available_troops .hwm_event_set_stack_pic"))
-            .map(elem => elem.innerHTML.match(/portraits\/([a-zA-Z0-9_-]+)p33/)[1])
+        let creaturesToSell = Array.from(doc.querySelectorAll("#ne_set_available_troops .cre_creature"))
+            .reduce((result, elem) => {
+                let portrait = elem.innerHTML.match(/portraits\/([a-zA-Z0-9_-]+)p33/)[1]
+                let creatureId = creaturesInfo[portrait][0]
+                let amount = elem.children[2].innerText - 0
+                let price = creaturesInfo[portrait][1]
+                result[creatureId] = {
+                    portrait: portrait,
+                    amount: amount,
+                    price: price
+                }
+                return result;
+            }, {})
 
-        for (const portrait of creaturesToSell) {
+        for (const [creatureId, creatureInfo] of Object.entries(creaturesToSell)) {
+            if (creatureInfo.portrait in creatures && creatures[creatureInfo.portrait] === creatureInfo.amount) {
+                continue
+            }
             let url = new URL(`https://${location.host}/reaping_event_set.php`);
             url.searchParams.set('act', "sell_unit");
-            url.searchParams.set('mid', creaturesInfo[portrait][0]);
-            url.searchParams.set('price', creaturesInfo[portrait][1]);
+            url.searchParams.set('mid', creatureId);
+            url.searchParams.set('price', creatureInfo.price);
             url.searchParams.set('sign', my_sign);
             url.searchParams.set('js', "1");
             url.searchParams.set('rand', (Math.random() * 1000000).toString());
@@ -293,6 +323,9 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         }
 
         for (const [portrait, amount] of Object.entries(creatures)) {
+            if (creaturesInfo[portrait][0] in creaturesToSell && creaturesToSell[creaturesInfo[portrait][0]].amount === amount) {
+                continue
+            }
             let url = new URL(`https://${location.host}/reaping_event_set.php`);
             url.searchParams.set('act', "buy");
             url.searchParams.set('mid', creaturesInfo[portrait][0]);
@@ -304,6 +337,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             await doGet(url.toString(), true)
         }
         location.reload()
+        // applyingArmy = false
     }
 
     function ffaBattlesToHTML(battles) {
@@ -314,13 +348,13 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 return prev + `
                     <div class="hwm_event_example_block">
                         <div style="width: 80%;display: flex;justify-content: space-between;">
-                            <div>${index + 1}. </div>
+                            <div>${curr[0].is_clan ? `<img src="https://www.freeiconspng.com/thumbs/lock-icon/black-lock-icon-14.png" style="height: 14px;">` : ""}${index + 1}. </div>
                             <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a></div>
                             <div style="display: flex;min-width: 120px;justify-content: space-between;">
                             ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
                                  return prev_entry + `
-                                <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
-                            `
+                                    <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
+                                `
                             }, "")}
                             </div>
                         </div>
