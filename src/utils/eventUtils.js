@@ -27,13 +27,15 @@ export function getCurrentLevel() {
     let set_level = new URLSearchParams(window.location.search).get("sel_level")
     if (set_level) {
         return set_level
-    } else {
-        if (document.getElementsByClassName("CheckpointCurrent").length > 0) {
-            return document.getElementsByClassName("CheckpointCurrent")[0].innerHTML.match(/\d{1,3}/)[0];
-        } else {
-            return "100";
-        }
     }
+    let match = document.body.innerText.match(/(Уровень сложности|Difficulty level): (\d{1,3})/)
+    if (match.length > 0) {
+        return match[2]
+    }
+    if (document.getElementsByClassName("CheckpointCurrent").length > 0) {
+        return document.getElementsByClassName("CheckpointCurrent")[0].innerHTML.match(/\d{1,3}/)[0];
+    }
+    return "100";
 }
 
 export function setClickableLevels() {
@@ -56,7 +58,7 @@ export function setTimer(where) {
     where.style.justifyContent = "center"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
-    let countDownDate = new Date(1689282000000).getTime();
+    let countDownDate = new Date(1691528400000).getTime();
     function process() {
         let now = new Date().getTime();
         let distance = countDownDate - now;
