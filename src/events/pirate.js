@@ -228,6 +228,7 @@ export default function pirateEvent() {
     }
 
     if (location.href.includes("pirate_self_event_set")) {
+        return
         eventHelperSettings(document.querySelector(".pirate_self_top_block"), (container) => {
             setSettings("hide_solo_pirate_event_enemies", "Показывать статистику цен", container, false)
         }, "beforeend")
