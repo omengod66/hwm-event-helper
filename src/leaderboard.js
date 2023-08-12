@@ -51,7 +51,7 @@ export async function setLeaderboard(where, position = "afterbegin", withClan = 
         $(`expand_top_heroes`).addEventListener("click", (e) => {
             if (!isLeaderboardExpanded) {
                 topHeroes.slice(15,).forEach((curr, index) => {
-                    $(`top_heroes_container`).insertAdjacentHTML("beforeend", getTopHeroTemplate(curr, index + 15))
+                    $(`top_heroes_container`).insertAdjacentHTML("beforeend", getTopHeroTemplate(curr, index + 15, showStat))
                 })
                 isLeaderboardExpanded = true
                 e.target.innerHTML = "—"
