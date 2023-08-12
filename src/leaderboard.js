@@ -56,7 +56,7 @@ export async function setLeaderboard(where, position = "afterbegin", withClan = 
                 isLeaderboardExpanded = true
                 e.target.innerHTML = "—"
             } else {
-                resetLeaderboard()
+                resetLeaderboard(showStat)
                 isLeaderboardExpanded = false
             }
         })
