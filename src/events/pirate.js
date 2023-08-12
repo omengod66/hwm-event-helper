@@ -1,5 +1,5 @@
 import {$, arrayToMapByKey, findAll, get, groupByKey, my_sign, set, sortByKey} from "../utils/commonUtils";
-import {setLeaderboard} from "../leaderboard";
+import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {doGet, doPost} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
@@ -224,7 +224,22 @@ export default function pirateEvent() {
     }
 
     if (location.href.includes("pirate_self_event.")) {
-        setLeaderboard(Array.from(document.querySelectorAll('table[width="100%"][align="left"]')).slice(-1)[0].previousElementSibling)
+        setLeaderboard(
+            Array.from(document.querySelectorAll('table[width="100%"][align="left"]')).slice(-1)[0].previousElementSibling,
+            "afterbegin",
+            false,
+            true)
+
+        if (get("show_event_timer", true)) {
+            setTimer(Array.from(document.querySelectorAll(".global_container_block_header")).at(1))
+        }
+        if (get("show_top_clan_attempts", true)) {
+            setTopClanAttempts(Array.from(document.querySelectorAll(".global_container_block")[0].getElementsByTagName("table")).at(-1))
+        }
+
+        let newScript = document.createElement('script');
+        newScript.setAttribute('src', 'https://cdn.jsdelivr.net/npm/chart.js');
+        document.head.appendChild(newScript);
     }
 
     if (location.href.includes("pirate_self_event_set")) {
