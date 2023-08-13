@@ -13,6 +13,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("prices", "Prices", "Цены", "Ціни"))
     texts.addText(new LocalizedText("buy", "Buy", "Купить", "Придбати"))
     texts.addText(new LocalizedText("fill_max", "Load maximum", "Набрать максимум", "Набрати максимум"))
+    texts.addText(new LocalizedText("hire_all", "Recruit all", "Нанять всех", "Найняти всіх"))
     texts.addText(new LocalizedText("fill_maxoff5", "Load -5 from the maximum", "Набрать -5 от максимума", "Набрати -5 від максимуму"))
     texts.addText(new LocalizedText("fill_process", "Loading in progress", "Идет погрузка", "Триває навантаження"))
 
@@ -243,163 +244,42 @@ export default function pirateEvent() {
     }
 
     if (location.href.includes("pirate_self_event_set")) {
-        return
-        eventHelperSettings(document.querySelector(".pirate_self_top_block"), (container) => {
-            setSettings("hide_solo_pirate_event_enemies", "Показывать статистику цен", container, false)
-        }, "beforeend")
-        if (get("hide_solo_pirate_event_enemies", true)) {
-            let newScript = document.createElement('script');
-            newScript.setAttribute('src', 'https://cdn.jsdelivr.net/npm/chart.js');
-            document.head.appendChild(newScript);
+        let availableSilver = parseInt(document.body.innerText.match(/(Доступно серебра|Silver available): (\d{0,3},?\d{1,3})/)[2].replace(",", ""))
 
-            newScript.onload = async () => {
-                document.querySelector("#global_table_div2").style.overflow = "auto"
-                document.querySelector("#global_table_div2").style.overflowX = "hidden"
-                document.querySelector("#global_table_div2").style.maxHeight = "60vh"
+        Array.from(document.getElementsByClassName("pirate_self_table_padding"))
+            .forEach(table => {
+                table.style.position = "unset"
+                table.parentElement.style.height = ""
+            });
 
-                let doc = await doGet(`getSoloPirateCreaturesPrices`)
-                document.querySelector("#global_table_div2").setAttribute("style", "")
-                document.querySelector("#global_table_div2 > .global_table_bg_color").style.height = ""
-                document.querySelector("#global_table_div2 > .global_table_bg_color > table").style.position = ""
-
-                Array.from(document.getElementsByClassName("pirate_self_table_padding")[1].getElementsByTagName("tr"))
-                    .filter(elem => elem.innerHTML.includes("cre_creature"))
-                    .forEach((elem, index) => {
-                        let creatureName = elem.innerHTML.match(/name=([a-zA-Z0-9]+)/)[1]
-                        let prices = doc[creatureName]
-                        elem.insertAdjacentHTML("afterend", `
-                                    <tr>
-                                        <td colspan="3">
-                                            <div style="height: 130px; overflow: hidden">
-                                                <canvas id="chart${index}" height="150" style="width: 100%"></canvas>
-                                            </div>
-                                        </td>
-                                    </tr>`)
-                        const labels = Array.from(' '.repeat(prices.length));
-                        const data = {
-                            labels: labels,
-                            datasets: [
-                                {
-                                    label: 'Price',
-                                    data: prices.map(price => parseInt(price)),
-                                    borderColor: "blue",
-                                    backgroundColor: "rgb(44,73,107)",
-                                },
-                            ]
-                        };
-                        const config = {
-                            type: 'line',
-                            data: data,
-                            options: {
-                                animation: false,
-                                responsive: false,
-                                plugins: {
-                                    legend: {
-                                        display: false,
-                                    },
-                                    title: {
-                                        display: false,
-                                        text: 'Chart.js Line Chart'
-                                    }
-                                },
-                                elements: {
-                                    line: {
-                                        borderWidth: 1
-                                    },
-                                    point: {
-                                        radius: 1
-                                    }
-                                }
-                            },
-                        };
-                        const ctx = document.getElementById(`chart${index}`).getContext('2d');
-                        const myChart = new Chart(ctx, config)
-                    })
-            }
-        }
-
-        let buy_history = get("buy_history", [])
-
-        Array.from(document.querySelector(".pirate_self_recruit_block_outside").children[0].getElementsByTagName("tr"))
-            .filter(elem => elem.innerHTML.includes("cre_creature"))
-            .forEach((elem, index) => {
-                let submit = elem.querySelector("div[onclick^=javascript]")
-                if (submit) {
-
-                    let findings = submit["onclick"].toString().match(/(\d{1,5}), '([a-zA-Z0-9_-]+)', '(\d{0,3},?\d{1,3})', (\d{1,5})\)/)
-
-
-                    let price = parseInt(findings[4].replace(",", ""))
-                    let count = parseInt(findings[1])
-                    let name = findings[2]
-                    let time = Date.now()
-
-
-                    submit.addEventListener("click", () => {
-                        buy_history.push({
-                            "name": name,
-                            "price": price,
-                            "count": count,
-                            "time": time,
-                            "action": "sell"
-                        })
-                        set("buy_history", buy_history.filter(elem => Date.now() - elem.time < 86400 * 14 * 1000))
-                    })
-                }
-            })
-        Array.from(document.querySelector(".pirate_self_recruit_block_outside").children[1].getElementsByTagName("tr"))
+        Array.from(document.getElementsByClassName("pirate_self_table_padding")[1].getElementsByTagName("tr"))
             .filter(elem => elem.innerHTML.includes("cre_creature"))
             .forEach((elem, index) => {
                 let submit = elem.querySelector("div[id^=but]")
                 if (submit) {
-                    submit.addEventListener("click", () => {
-                        let price = parseInt(submit.getAttribute("buystr").match(/price=(\d{1,6})/)[1])
-                        let tempCount = submit.getAttribute("cnt")
-                        let count = tempCount ? parseInt(submit.getAttribute("cnt")) : 1
-                        let name = submit.getAttribute("buystr").match(/mid=([a-zA-Z0-9_-]+)/)[1]
-                        let time = Date.now()
-                        buy_history.push({
-                            "name": name,
-                            "price": price,
-                            "count": count,
-                            "time": time,
-                            "action": "buy"
-                        })
-                        set("buy_history", buy_history.filter(elem => Date.now() - elem.time < 86400 * 14 * 1000))
-                    })
+                    let name = submit.getAttribute("buystr").match(/mid=([a-zA-Z0-9_-]+)/)[1]
+                    let price = parseInt(submit.getAttribute("buystr").match(/price=(\d{1,6})/)[1])
+                    let maxAmount = parseInt(elem.innerHTML.match(/(Макс|Max)\. (\d{1,3})/)[2])
+
+                    let currentAmount = 0
+
+                    let currentHire = Array.from(document.querySelector(".pirate_self_recruit_block_outside").children[0].getElementsByTagName("tr"))
+                        .filter(elem => elem.innerHTML.includes("cre_creature"))
+                        .filter(elem => elem.innerHTML.includes(`=${name}"`))
+                    if (currentHire.length > 0) {
+                        currentAmount = parseInt(currentHire[0].querySelector(".cre_creature").innerText)
+                    }
+
+                    let possibleAmount = maxAmount - currentAmount
+                    possibleAmount = Math.min(parseInt(availableSilver / price), possibleAmount)
+
+                    let allSubmit = submit.cloneNode(true)
+                    allSubmit.innerText = allTexts.get("hire_all")
+                    allSubmit.id = `hire_all_${index}`
+                    allSubmit.setAttribute("style", "")
+                    allSubmit.setAttribute("onclick", `location="pirate_self_event_set.php?${submit.getAttribute("buystr")}&cnt=${possibleAmount}"`)
+                    submit.insertAdjacentHTML("afterend", allSubmit.outerHTML)
                 }
             })
-        if (buy_history.length > 0) {
-            let rows = sortByKey(buy_history, "time").reverse().reduce((prev, curr) => {
-                return prev + `
-                    <div style="display: flex; justify-content: space-evenly;
-    align-items: center;
-    border: 1px solid #000000;">
-                        <div>   
-                            ${new Date(curr.time).toLocaleTimeString()}
-                        </div>
-                        <div>
-                            ${curr.action === "buy" ? "<p style='color: green'>куплено</p>" : "<p style='color: red'>продано</p>"}
-                        </div>
-                        <div>
-                            ${curr.count}
-                        </div>
-                        <div>
-                            <div style="width: 40px"><img src="https://cfcdn.lordswm.com/i/portraits/${curr.name}anip33.png" style="height: 48px; width: 48px; border-radius: 50%; object-fit: cover;"></div>
-                        </div>
-                        <div>
-                            по ${curr.price}
-                        </div>
-                    </div>
-                `
-            }, "")
-            document.querySelector(".pirate_self_recruit_block_outside").children[0]
-                .insertAdjacentHTML("beforeend", `
-                    <div style="display: flex; flex-direction: column">
-                     <div><h3>История покупок и продаж</h3></div>
-                     ${rows}
-                    </div>
-                `)
-        }
     }
 }
