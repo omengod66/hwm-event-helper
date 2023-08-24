@@ -29,7 +29,7 @@ export function getCurrentLevel() {
         return set_level
     }
     let match = document.body.innerText.match(/(Уровень сложности|Difficulty level): (\d{1,3})/)
-    if (match.length > 0) {
+    if (match && match.length > 0) {
         return match[2]
     }
     if (document.getElementsByClassName("CheckpointCurrent").length > 0) {
