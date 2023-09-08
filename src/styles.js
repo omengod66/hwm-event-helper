@@ -29,7 +29,6 @@ export function setGlobalStyles() {
                         .record-players-creatures, .special-creature, .special-creature-extended {
                             grid-column-start: 1;
                             grid-column-end: 3 !important; 
-                            justify-content: center;
                         }
                     }
                 
