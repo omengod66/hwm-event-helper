@@ -11,31 +11,31 @@ export function addFilteringArea() {
 
     function setBlockedWavesListener() {
         $('blocked-waves-list').addEventListener('input', (event) => {
-            set("blocked_waves_1", event.target.value.split(",").filter(item => item !== ""))
+            set("blocked_waves_1", event.target.value.split(",").filter(item => item !== "").map(item => item.trim()))
         })
     }
 
     function setAllowedWavesListener() {
         $('allowed-waves-list').addEventListener('input', (event) => {
-            set("allowed_waves_1", event.target.value.split(",").filter(item => item !== ""))
+            set("allowed_waves_1", event.target.value.split(",").filter(item => item !== "").map(item => item.trim()))
         })
     }
 
     function setBlockedHeroesListener() {
         $('blocked-heroes-list').addEventListener('input', (event) => {
-            set("blocked_heroes_1", event.target.value.split(",").filter(item => item !== ""))
+            set("blocked_heroes_1", event.target.value.split(",").filter(item => item !== "").map(item => item.trim()))
         })
     }
 
     function setAllowedHeroesListener() {
         $('allowed-heroes-list').addEventListener('input', (event) => {
-            set("allowed_heroes_1", event.target.value.split(",").filter(item => item !== ""))
+            set("allowed_heroes_1", event.target.value.split(",").filter(item => item !== "").map(item => item.trim()))
         })
     }
 
     function setBlockedLeadershipListener() {
         $('blocked-leadership').addEventListener('input', (event) => {
-            set("blocked_leadership", event.target.value)
+            set("blocked_leadership", event.target.value.trim())
         })
     }
 
@@ -82,20 +82,39 @@ export function addFilteringArea() {
 }
 
 export function processFilters() {
-    if (document.querySelector(".Global > div.TextBlock.TextBlockMIDDLE > div > div > table > tbody")) {
-        let trs = Array.from(document.querySelector(".Global > div.TextBlock.TextBlockMIDDLE > div > div > table > tbody").childNodes)
-        processBlockedWaves(trs)
-        processBlockedHeroes(trs)
-        processBlockedLeadership(trs)
+    if (document.querySelector("#lre_merc_block > div")) {
+        window.leader_rogues_event_state_handle = function () {
+            if (this.readyState == 4) {
+                var txt = this.responseText;
+                var short_txt = txt.substring(0, 11);
+                if (short_txt != '|merc_stat|') {
+                    window.location = 'leader_rogues.php';
+                    return 0;
+                }
+                var data = txt.split('|merc_stat|');
+                if (data && data[1] && document.getElementById('lre_merc_block')) {
+                    let doc = new DOMParser().parseFromString(data[1], "text/html")
+                    let trs = Array.from(doc.querySelector("div").childNodes)
+                        .filter(node => node.innerText.length > 0)
+                    processBlockedWaves(trs)
+                    processBlockedHeroes(trs)
+                    processBlockedLeadership(trs)
+                    document.getElementById('lre_merc_block').innerHTML = doc.documentElement.innerHTML;
+                    if (typeof hwm_hints_init === 'function')
+                        hwm_hints_init();
+                }
+            }
+        }
     }
 
     function processBlockedWaves(trs) {
-        let blockedWaves = get("blocked_waves_1", []).filter(item => item !== "")
-        let allowedWaves = get("allowed_waves_1", []).filter(item => item !== "")
+        let blockedWaves = get("blocked_waves_1", []).filter(item => item !== "").map(item => item.trim())
+        let allowedWaves = get("allowed_waves_1", []).filter(item => item !== "").map(item => item.trim())
         trs.forEach(tr => {
             let waveId = tr.textContent.match(/(Ур\.: |Lv\.: )(\d{1,3})/)[2]
-            if (blockedWaves.includes(waveId - 0) || allowedWaves.length > 0 && !allowedWaves.includes(waveId - 0)) {
+            if (blockedWaves.includes(waveId) || allowedWaves.length > 0 && !allowedWaves.includes(waveId)) {
                 try {
+                    tr.previousSibling.remove()
                     tr.remove()
                 } catch (e) {}
             }
@@ -103,12 +122,13 @@ export function processFilters() {
     }
 
     function processBlockedHeroes(trs) {
-        let blockedHeroes = get("blocked_heroes_1", []).filter(item => item !== "")
-        let allowedHeroes = get("allowed_heroes_1", []).filter(item => item !== "")
+        let blockedHeroes = get("blocked_heroes_1", []).filter(item => item !== "").map(item => item.trim())
+        let allowedHeroes = get("allowed_heroes_1", []).filter(item => item !== "").map(item => item.trim())
         trs.forEach(tr => {
             let heroName = tr.textContent.match(/([А-Яа-яёЁa-zA-Z0-9_* ()-]+) \[\d{1,2}]/)[1]
             if (blockedHeroes.includes(heroName) || allowedHeroes.length > 0 && !allowedHeroes.includes(heroName)) {
                 try {
+                    tr.previousSibling.remove()
                     tr.remove()
                 } catch (e) {}
             }
@@ -116,11 +136,12 @@ export function processFilters() {
     }
 
     function processBlockedLeadership(trs) {
-        let blockedLeadership = get("blocked_leadership", "0")
+        let blockedLeadership = get("blocked_leadership", "0").trim()
         trs.forEach(tr => {
             let leadership = tr.textContent.match(/\d{1,2},\d{3}/)[0].replaceAll(",", "")
             if (blockedLeadership - 0 > leadership - 0) {
                 try {
+                    tr.previousSibling.remove()
                     tr.remove()
                 } catch (e) {}
             }
