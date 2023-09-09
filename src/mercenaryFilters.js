@@ -1,7 +1,7 @@
 import {$, get, set} from "./utils/commonUtils";
 
-export function addFilteringArea() {
-    document.querySelector(".Global").insertAdjacentHTML("afterend",
+export function addFilteringArea(where, position) {
+    where.insertAdjacentHTML(position,
         getFilteringAreaTemplate())
     setBlockedWavesListener()
     setAllowedWavesListener()
@@ -47,9 +47,11 @@ export function addFilteringArea() {
                         flex-direction: column;
                         align-items: center;
                     }
-                    .filtering-item {}
+                    .filtering-item {
+                    width: 100%;
+                    }
                     .filtering-item textarea {
-                        min-width: 400px;
+                        min-width: min(400px, 100%);
                         resize: none;
                         overflow-x: visible;
                         border-radius: 5px;
@@ -83,6 +85,7 @@ export function addFilteringArea() {
 
 export function processFilters() {
     if (document.querySelector("#lre_merc_block > div")) {
+
         window.leader_rogues_event_state_handle = function () {
             if (this.readyState == 4) {
                 var txt = this.responseText;
@@ -105,6 +108,11 @@ export function processFilters() {
                 }
             }
         }
+        let trs = Array.from(document.querySelector("#lre_merc_block > div").childNodes)
+            .filter(node => node.innerText.length > 0)
+        processBlockedWaves(trs)
+        processBlockedHeroes(trs)
+        processBlockedLeadership(trs)
     }
 
     function processBlockedWaves(trs) {

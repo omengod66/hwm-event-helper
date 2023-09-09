@@ -27,7 +27,13 @@ export default async function leaderEvent() {
 
         isEvent = true
         if (document.body.innerHTML.includes("leader_rogues.php?action=cancel_merc")) {
-            addFilteringArea()
+            let filtersContainer = document.querySelector('.Global')
+            let filtersPosition = "afterend"
+            if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
+                filtersContainer = document.querySelector("#lre_merc_block")
+                filtersPosition = "beforebegin"
+            }
+            addFilteringArea(filtersContainer, filtersPosition)
             processFilters()
             return
         }
