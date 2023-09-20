@@ -1,5 +1,6 @@
 import {$, pl_id} from "../utils/commonUtils";
 import {doGet} from "../utils/networkUtils";
+import {setLeaderboard} from "../leaderboard";
 
 export default function portalSoloEvent() {
     let loadStarted = false;
@@ -7,11 +8,13 @@ export default function portalSoloEvent() {
     let pageCount = 0;
     let battleCount = 0;
     if (location.href.includes("tj_single")) {
-        // mainTJSolo();
+        setLeaderboard(Array.from(document.querySelector(".tj_left_div").getElementsByTagName("center")).at(-1))
+
+        mainTJSolo();
     }
 
     function mainTJSolo() {
-        Array.from(document.querySelectorAll('center')).slice(-1)[0]
+        Array.from(document.querySelectorAll('.tj_inside_div')).at(-1)
             .insertAdjacentHTML("beforeend", createTJSoloTemplate());
         $(`statbut`).addEventListener('click', () => {
             processCollectBattles()
@@ -21,7 +24,7 @@ export default function portalSoloEvent() {
     function createTJSoloTemplate() {
         return `
                     <div class="wrapperStat">
-                        <div style="width: 33%"><div id="statbut" class="home_button2 btn_hover2">Посчитать бои с существами</div></div>
+                        <div><div id="statbut" class="home_button2 btn_hover2">Посчитать бои с существами</div></div>
                         <div id="progress" class="progress"></div>
                     </div>
                 `
@@ -55,10 +58,10 @@ export default function portalSoloEvent() {
                 battleCount++;
                 document.getElementById("progress").innerHTML = "Найдено боев: " + battleCount.toString();
             }
-            if (currwarid <= 1246241450) {
-                let wins = Array.from(document.querySelectorAll('.wbwhite')).slice(-4)[0].querySelector("b:nth-child(6)").textContent - 0;
+            if (currwarid <= 1387305701) {
+                let wins = document.querySelector(".tj_hide_top_div > div > b:nth-child(6)").textContent - 0;
                 document.getElementById("progress").innerHTML = "Найдено боев: " + battleCount.toString() + " Осталось боев:" + ((wins * 7 + 20) - battleCount).toString();
-                document.getElementById("statbut").innerHTML = "Готово";
+                document.getElementById("statbut").remove()
                 return
             }
         }
