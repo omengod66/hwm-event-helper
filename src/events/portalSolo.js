@@ -7,7 +7,7 @@ export default function portalSoloEvent() {
     let pageCount = 0;
     let battleCount = 0;
     if (location.href.includes("tj_single")) {
-        mainTJSolo();
+        // mainTJSolo();
     }
 
     function mainTJSolo() {
