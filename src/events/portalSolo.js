@@ -41,8 +41,8 @@ export default function portalSoloEvent() {
     async function collectBattles() {
         if (pageCount < maxPages) {
             let doc = await doGet(`/pl_warlog.php?id=${pl_id}&page=${pageCount}`, true);
-            processResponse(doc)
             pageCount++
+            processResponse(doc)
         }
     }
 
@@ -50,7 +50,8 @@ export default function portalSoloEvent() {
         let arr = Array.from(doc.querySelectorAll('.global_a_hover')).slice(-1)[0].innerHTML.toString().split("\n");
         arr = arr.slice(2, 42);
         for (let i = 0; i < arr.length; i++) {
-            let currwarid = arr[i].match(/warid=\d{10}/g)[0].match(/\d{10}/g)[0] - 0;
+            let currwarid = arr[i].match(/warid=(\d{10})/)[1] - 0;
+
             if (/--117--/.test(arr[i])) {
                 if (/<b>/.test(arr[i].split("vs")[1])) {
                     continue
