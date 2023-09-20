@@ -1,16 +1,35 @@
 import {$, pl_id} from "../utils/commonUtils";
-import {doGet} from "../utils/networkUtils";
+import {doGet, doPost} from "../utils/networkUtils";
 import {setLeaderboard} from "../leaderboard";
 
-export default function portalSoloEvent() {
+export default async function portalSoloEvent() {
     let loadStarted = false;
     let maxPages = 50;
     let pageCount = 0;
     let battleCount = 0;
-    if (location.href.includes("tj_single")) {
+    if (location.href.includes("tj_single.")) {
         setLeaderboard(Array.from(document.querySelector(".tj_left_div").getElementsByTagName("center")).at(-1))
 
         mainTJSolo();
+    }
+
+    if (location.href.includes("tj_single_set")) {
+        let megas = {}
+        Array.from(document.querySelectorAll("a"))
+            .filter(a => a.href.includes("name=mega"))
+            .forEach(a => megas[a.href] = "")
+        let all_megas = await doPost("getPortalMegaCreatures", JSON.stringify(megas))
+
+        Array.from(document.querySelectorAll(".tj_block")).at(-1).insertAdjacentHTML("afterend",
+            `<div class="tj_block" style="width: 100%; margin-bottom: 1em;margin-top:1em;">
+                    <div class="global_table_div_bg"></div>
+                    <div class="tj_inside_div">${Object.entries(all_megas).reduce((prev, [href, text]) => {
+                        return prev + `<div style="font-size: 16px; text-align: center;"><a href="/${href.split("/")[1]}">${text}</a></div>`
+                    }, "")}</div>
+                </div>
+                    `
+        )
+
     }
 
     function mainTJSolo() {
