@@ -23,7 +23,9 @@ export default async function portalSoloEvent() {
         Array.from(document.querySelectorAll(".tj_block")).at(-1).insertAdjacentHTML("afterend",
             `<div class="tj_block" style="width: 100%; margin-bottom: 1em;margin-top:1em;">
                     <div class="global_table_div_bg"></div>
-                    <div class="tj_inside_div">${Object.entries(all_megas).reduce((prev, [href, text]) => {
+                    <div class="tj_inside_div">${Object.entries(all_megas)
+                    .sort((a, b) => a[1].localeCompare(b[1]))
+                    .reduce((prev, [href, text]) => {
                         return prev + `<div style="font-size: 16px; text-align: center;"><a href="/${href.split("/").at(-1)}">${text}</a></div>`
                     }, "")}</div>
                 </div>
