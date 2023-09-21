@@ -40,6 +40,10 @@ async function setup() {
 }
 setup()
 
+if (location.href.includes("skillwheel.php")) {
+    return
+}
+
 setGlobalStyles()
 
 // EVENTS
