@@ -1,6 +1,7 @@
 import {$, pl_id} from "../utils/commonUtils";
 import {doGet, doPost} from "../utils/networkUtils";
 import {setLeaderboard} from "../leaderboard";
+import {setTimer} from "../utils/eventUtils";
 
 export default async function portalSoloEvent() {
     let loadStarted = false;
@@ -8,6 +9,7 @@ export default async function portalSoloEvent() {
     let pageCount = 0;
     let battleCount = 0;
     if (location.href.includes("tj_single.")) {
+        setTimer(document.querySelector(".global_container_block_header"))
         setLeaderboard(Array.from(document.querySelector(".tj_left_div").getElementsByTagName("center")).at(-1))
 
         mainTJSolo();
