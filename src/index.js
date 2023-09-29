@@ -40,7 +40,7 @@ async function setup() {
 }
 setup()
 
-if (location.href.includes("skillwheel.php")) {
+if (location.href.includes("skillwheel.php") || location.href.includes("skillwheel_demo.php")) {
     return
 }
 
