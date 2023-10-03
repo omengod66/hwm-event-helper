@@ -3,12 +3,16 @@ import {$} from "../utils/commonUtils";
 
 export default async function dungeonEvent() {
     if (/recruit_event/.test(location.href)) {
+        let annoyingPicture = document.querySelector(".global_inside_shadow")
+        if (annoyingPicture) {
+            annoyingPicture.remove()
+        }
         let enemies = Array.from(document.querySelectorAll(".recruit_event_enemy_block"))
         enemies.forEach(enemy => {
             if (enemy.innerText.includes("обороняющихся")) {
                 let powerElem = enemy.querySelector("div:nth-child(3)>div:nth-child(3)")
                 let powerRaw = powerElem.innerText
-                let powerParsedTransformed = Math.floor(parseInt(powerRaw.replaceAll(",", ""))*0.8)
+                let powerParsedTransformed = Math.floor(parseInt(powerRaw.replaceAll(",", "")) * 0.8)
                     .toLocaleString()
                 powerElem.innerHTML = `${powerRaw} (<i style="cursor: pointer" title="При потере в бою">${powerParsedTransformed}</i>)`
             }
