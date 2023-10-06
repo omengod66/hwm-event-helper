@@ -1,8 +1,10 @@
 import {doGet} from "../utils/networkUtils";
 import {$} from "../utils/commonUtils";
+import {setTimer} from "../utils/eventUtils";
 
 export default async function dungeonEvent() {
     if (/recruit_event/.test(location.href)) {
+        setTimer(document.querySelector(".global_container_block_header"))
         let annoyingPicture = document.querySelector(".global_inside_shadow")
         if (annoyingPicture) {
             annoyingPicture.remove()
