@@ -58,7 +58,7 @@ export function setTimer(where) {
     where.style.justifyContent = "center"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
-    let countDownDate = new Date(1698181200000).getTime();
+    let countDownDate = new Date(1699736400000).getTime();
     function process() {
         let now = new Date().getTime();
         let distance = countDownDate - now;
