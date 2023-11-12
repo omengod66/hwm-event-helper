@@ -13,7 +13,6 @@
   },
   "targets": {
     "main": {
-      "optimize": true,
       "sourceMap": {
         "inline": false
       }
