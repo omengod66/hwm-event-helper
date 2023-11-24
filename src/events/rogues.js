@@ -119,7 +119,7 @@ export default function hireEvent() {
                 );
             }
 
-            let date = new Date(1681783201 * 1000)
+            let date = new Date(1700802001000)
             const labels = prices.map(() => {
                 let label = formatDate(date)
                 date.setHours(date.getHours() + 1)

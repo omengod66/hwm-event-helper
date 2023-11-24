@@ -2,6 +2,7 @@ import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {get} from "../utils/commonUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
+import {setTimer} from "../utils/eventUtils";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -43,12 +44,13 @@ export default function factionEvent() {
     }
 
     if (location.href.includes("faction_event")) {
-        setLeaderboard(document.querySelector("#hwm_for_zoom > div > div:nth-child(1) > div > div:nth-child(2) > center"))
-        eventHelperSettings(document.querySelector("#hwm_for_zoom > div > div.frac_event_right_block > div > div:nth-child(2)"), (container) => {
+        setTimer(document.querySelectorAll(".global_container_block_header")[1])
+        setLeaderboard(document.querySelector("#hwm_no_zoom > div > div.frac_event_stat > div > div:nth-child(2) > center"))
+        eventHelperSettings(document.querySelector("#fe_skip"), (container) => {
             setSettings("hide_faction_event_enemies", allTexts.get("hide_faction_event_enemies"), container, false)
             setSettings("faction_custom_ins", allTexts.get("faction_custom_ins"), container, true)
             setSettings("custom_ins_auto", allTexts.get("custom_ins_auto"), container, false)
-        }, "beforeend")
+        }, "beforebegin")
         let enemies = getEnemies()
         let maxPower = getMaxPower(enemies)
         if (get("hide_faction_event_enemies", false)) {
