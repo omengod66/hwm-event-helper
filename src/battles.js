@@ -8,7 +8,7 @@ import {
     groupBy,
     mapToArray,
     my_sign,
-    pl_lvl,
+    pl_lvl, set,
     sortByKey
 } from "./utils/commonUtils";
 import {getCurrentLevel} from "./utils/eventUtils";
@@ -19,6 +19,7 @@ function getAllTexts() {
     let texts = new LocalizedTextMap()
     texts.addText(new LocalizedText("sent", "Sent", "Отправлено", "Надіслано"))
     texts.addText(new LocalizedText("examples", "Battle examples", "Примеры боёв", "Приклади боїв"))
+    texts.addText(new LocalizedText("favourites", "Аavourites", "Избранное", "Відібране"))
     texts.addText(new LocalizedText("cl", "CL", "БУ", "БР"))
     texts.addText(new LocalizedText("afs", "AFS", "АиМ", "АзМ"))
     texts.addText(new LocalizedText("ffa", "FFA", "КБО", "КБО"))
@@ -48,6 +49,20 @@ function getAllTexts() {
 
 let allTexts = getAllTexts()
 
+let arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" viewBox="0 0 16 16" style="vertical-align: bottom;">
+        <path fill-rule="evenodd"
+              d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"
+              fill="green" ></path>
+    </svg>`
+let fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star-fill" viewBox="0 0 16 16" style="vertical-align: middle">
+      <path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zM8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.178.178 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.178.178 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.178.178 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.178.178 0 0 1-.134-.098L8.16 4.1z"/>
+    </svg>`
+let not_fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star" viewBox="0 0 16 16" style="vertical-align: middle">
+      <path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.178.178 0 0 0 .134.098l1.42.206c.145.021.204.2.098.303L9.42 6.993a.178.178 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.178.178 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.178.178 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.178.178 0 0 0 .134-.098L7.84 4.1z"/>
+      <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+    </svg>`
+
 export async function sendBattle(warid, secret, type, index = null, battle_side = -1) {
     let formData = new FormData()
     formData.append('battle_id', warid)
@@ -71,6 +86,8 @@ export async function sendBattle(warid, secret, type, index = null, battle_side 
 
 export async function getEventBattles(target, from = "getFFAEventBattles", callback = 2, lost = false) {
     window.sendApplyArmy = sendApplyArmy
+    window.saveFav = saveFav
+    let favourites = get("leader_favourites", [])
     let creaturesInfo = get("eventCreaturesInfo", {})
     let currentSilver = 0;
     try {
@@ -100,6 +117,9 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     function processEventBattles(where = document.body, battles) {
         switch (callback) {
             case 1: {
+                if (get("hide_easy_examples", false)) {
+                    battles.AFS = battles.AFS.filter(battle => !battle.easy)
+                }
                 if (battles.AFS.length === 0 && !lost) {
                     getEventBattles(target, from.replace("Battles", "FailedBattles"), callback, true)
                 } else {
@@ -188,6 +208,13 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
     function getBattlesTemplate(battles, type = "AFS") {
         let result = ""
+
+        let favBattles = battles.filter(battle => favourites.includes(battle.nickname))
+        if (favBattles.length > 0) {
+            result += `<div style="text-align: center;"><h4>${allTexts.get("favourites")}</h4></div>`
+            result += ffaBattlesToHTML(favBattles)
+        }
+
         result += `<div style="text-align: center;"><h4>${allTexts.get("your_cl")}</h4></div>`
         let my_lvl_battles = battles.filter(battle => battle["hero_lvl"] === pl_lvl)
         result += ffaBattlesToHTML(my_lvl_battles)
@@ -223,9 +250,14 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         }
 
         let creatures = battle.creatures[0]
-        let totalPrice = Object.entries(creatures).reduce((prev, [portrait, amount]) => {
-            return prev + creaturesInfo[portrait][1] * amount
-        }, 0)
+        let totalPrice;
+        try {
+            totalPrice = Object.entries(creatures).reduce((prev, [portrait, amount]) => {
+                return prev + creaturesInfo[portrait][1] * amount
+            }, 0)
+        } catch (e) {
+            totalPrice = 999999
+        }
 
         let playerCreaturesHTML = ""
         Object
@@ -253,6 +285,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     let applyingArmy = false;
+
     async function sendApplyArmy(battleId) {
         if (applyingArmy) {
             return
@@ -345,17 +378,22 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
             battles.sort((a, b) => a.nickname.localeCompare(b.nickname))
             return groupBy(battles, "nickname").reduce((prev, curr, index) => {
                 let creatures = getCreaturesHTML(curr[0], index)
+                let isFav = favourites.includes(curr[0].nickname)
                 return prev + `
                     <div class="hwm_event_example_block">
                         <div style="width: 80%;display: flex;justify-content: space-between;">
+                            <div id="fav_${curr[0]["battle_id"]}" class="fav_player_button" onclick="saveFav('${curr[0].nickname}', this)">
+                                ${isFav ? fav_icon : not_fav_icon}
+                            </div>
                             <div>${curr[0].is_clan ? `<img src="https://www.freeiconspng.com/thumbs/lock-icon/black-lock-icon-14.png" style="height: 14px;">` : ""}${index + 1}. </div>
+                            
                             <div style="text-align: center"> <a href="/pl_info.php?nick=${encode(curr[0]["nickname"])}" class="pi" target="_blank">${curr[0]["nickname"]}</a></div>
                             <div style="display: flex;min-width: 120px;justify-content: space-between;">
                             ${sortByKey(curr, "battle_side").reduce((prev_entry, curr_entry) => {
-                                 return prev_entry + `
-                                    <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a></div>
+                    return prev_entry + `
+                                    <div> <a target="_blank" href="/warlog.php?warid=${curr_entry["battle_id"]}&show_for_all=${curr_entry["battle_secret"]}&lt=-1">${getFFAEventBattleSide(curr_entry)}</a>${curr_entry["easy"] ? arrowSvg : ""}</div>
                                 `
-                            }, "")}
+                }, "")}
                             </div>
                         </div>
                         ${creatures}
@@ -365,6 +403,17 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         } else {
             return `<div style="text-align: center;"><h5>${allTexts.get("empty")}</h5></div>`
         }
+    }
+
+    function saveFav(nickname, elem) {
+        if (favourites.includes(nickname)) {
+            elem.innerHTML = not_fav_icon
+            favourites = favourites.filter(v => v !== nickname);
+        } else {
+            elem.innerHTML = fav_icon
+            favourites.push(nickname)
+        }
+        set("leader_favourites", favourites)
     }
 
     function getClassById(id) {

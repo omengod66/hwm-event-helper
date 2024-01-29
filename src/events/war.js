@@ -15,12 +15,12 @@ export default async function processBattlePage() {
         let battleType = battleData.match(/btype\|(\d{1,10})/)[1]
         if (["133", "135", "138", "139", "140", "142", "143", "144", "147", "148"].includes(battleType)) {
             let battle_id = new URLSearchParams(window.location.search).get("warid")
-            let battle_secret = new URLSearchParams(window.location.search).get("show_for_all")
+            let battle_secret = new URLSearchParams(window.location.search).get("show_for_all") || new URLSearchParams(window.location.search).get("show")
             if (battle_secret == null) {
                 let doc = await doGet(`/pl_info.php?id=${pl_id}`, true);
-                let match = doc.body.innerHTML.match(/show_for_all=(\w[0-9a-f]{10})/)
+                let match = doc.body.innerHTML.match(/(show_for_all|show)=(\w[0-9a-f]{10})/)
                 if (match) {
-                    battle_secret = match[1]
+                    battle_secret = match[2]
                 }
             }
             let startId;

@@ -50,7 +50,7 @@ export function mapToArray(map) {
     return result
 }
 
-export function arrayToMapByKey(array, key){
+export function arrayToMapByKey(array, key) {
     let result = {}
     array.forEach(item => {
         result[item[key]] = item
@@ -135,3 +135,78 @@ export let allFactions = [
     [10, 'Фараон', 'r10.png'],
     [0, 'Нейтрал', 'r_neut.png']
 ];
+
+export const magicSpells = {
+    "Магическая стрела": "chaos",
+    "Каменные шипы": "chaos",
+    "Ледяная глыба": "chaos",
+    "Молния": "chaos",
+    "Кольцо холода": "chaos",
+    "Огненный шар": "chaos",
+    "Метеоритный дождь": "chaos",
+    "Цепная молния": "chaos",
+    "Взрыв": "chaos",
+    "Огненная стрела": "chaos",
+    "Магический кулак": "nature",
+    "Осиный рой": "nature",
+    "Поднятие мертвецов": "nature",
+    "Землетрясение": "nature",
+    "Создание фантома": "nature",
+    "Огненная стена": "nature",
+    "Призыв феникса": "nature",
+    "Призыв элементалей": "nature",
+    "Призыв элементалей огня": "nature",
+    "Призыв элементалей воздуха": "nature",
+    "Призыв элементалей воды": "nature",
+    "Призыв элементалей земли": "nature",
+    "Благословение": "light",
+    "Ускорение": "light",
+    "Рассеивание": "light",
+    "Каменная кожа": "light",
+    "Уклонение": "light",
+    "Карающий удар": "light",
+    "Массовое благословление": "light",
+    "Массовое ускорение": "light",
+    "Массовое рассеивание": "light",
+    "Массовая каменная кожа": "light",
+    "Массовый карающий удар": "light",
+    "Антимагия": "light",
+    "Массовое уклонение": "light",
+    "Телепорт": "light",
+    "Воскрешение": "light",
+    "Божественная месть": "light",
+    "Замедление": "dark",
+    "Проклятие": "dark",
+    "Разложение": "dark",
+    "Разрушающий луч": "dark",
+    "Слабость": "dark",
+    "Забывчивость": "dark",
+    "Массовое замедление": "dark",
+    "Массовое проклятие": "dark",
+    "Массовое разложение": "dark",
+    "Массовый разрушающий луч": "dark",
+    "Массовая слабость": "dark",
+    "Массовая забывчивость": "dark",
+    "Ослепление": "dark",
+    "Берсерк": "dark",
+    "Гипноз": "dark"
+}
+
+export function mode(array) {
+    if (array.length === 0)
+        return null;
+    let modeMap = {};
+    let maxEl = array[0], maxCount = 1;
+    for (let i = 0; i < array.length; i++) {
+        let el = array[i];
+        if (modeMap[el] == null)
+            modeMap[el] = 1;
+        else
+            modeMap[el]++;
+        if (modeMap[el] > maxCount) {
+            maxEl = el;
+            maxCount = modeMap[el];
+        }
+    }
+    return maxEl;
+}
