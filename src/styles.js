@@ -49,6 +49,7 @@ export function setGlobalStyles() {
                          filter: brightness(125%) drop-shadow(0 0 5px #ffe4b3);
                     }
                     .home_button2{
+                        width: fit-content;
                         padding: 2px 4px;
                         overflow: hidden;
                         text-overflow: ellipsis;

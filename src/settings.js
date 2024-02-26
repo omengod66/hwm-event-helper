@@ -65,14 +65,14 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
                 <div style="color: #dadada;background-color: #862d2d;text-align: center;font-weight: bold;">⚠️${allTexts.get("warning")}</div>
                 <div style="color: #dadada; background-color: #690303; padding: 5px">
                     ${allTexts.get("manifest_notif")}
-                    <div><div class="home_button2 btn_hover2" id="eh_manifest_notif_hide" style="width: fit-content; margin: auto">${allTexts.get("hide")}</div></div>
+                    <div><div class="home_button2 btn_hover2" id="eh_manifest_notif_hide" style="margin: auto">${allTexts.get("hide")}</div></div>
                 </div>
             </div>
         `
     }
     where.insertAdjacentHTML(position, `
                 <div style="margin-top: 10px; display: flex; flex-direction: column;"  id="event_helper_settings_container">
-                    <div id="event_helper_settings" class="home_button2 btn_hover2" style="width: fit-content;align-self: center">${allTexts.get("settings")} EventHelper</div>
+                    <div id="event_helper_settings" class="home_button2 btn_hover2" style="align-self: center">${allTexts.get("settings")} EventHelper</div>
                     ${(() => {
                         if (!get("eh_manifest_notif_shown", false)) {
                             return scriptNotice
@@ -88,14 +88,11 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
                                             <div style="    align-items: center;
                                                 display: flex;">${allTexts.get("support")} </div>
                                             <div id="patreon_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
-                                                margin-top: 4px;
-                                                width: fit-content;"><a href="https://www.patreon.com/user?u=58444506" target="_blank" style="display: flex; align-items: center">${allTexts.get("patreon")}<img src="https://cdn.icon-icons.com/icons2/2429/PNG/512/patreon_logo_icon_147253.png" style="height: 24px;"></a></div>
+                                                margin-top: 4px;"><a href="https://www.patreon.com/user?u=58444506" target="_blank" style="display: flex; align-items: center">${allTexts.get("patreon")}<img src="https://cdn.icon-icons.com/icons2/2429/PNG/512/patreon_logo_icon_147253.png" style="height: 24px;"></a></div>
                                             <div id="boosty_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
-                                                margin-top: 4px;
-                                                width: fit-content;"><a href="https://boosty.to/thunder_hwm" target="_blank" style="display: flex; align-items: center">${allTexts.get("boosty")}<img src="https://mikulski.rocks/wp-content/uploads/2022/04/Color.png" style="height: 24px;"></a></div>
+                                                margin-top: 4px;"><a href="https://boosty.to/thunder_hwm" target="_blank" style="display: flex; align-items: center">${allTexts.get("boosty")}<img src="https://mikulski.rocks/wp-content/uploads/2022/04/Color.png" style="height: 24px;"></a></div>
                                             <div id="patreon_accept" class="home_button2 btn_hover2" style="padding: 2px 4px;
-                            margin-top: 4px; margin-left: 10px;
-                            width: fit-content;">${allTexts.get("ok")}</div>
+                            margin-top: 4px; margin-left: 10px;">${allTexts.get("ok")}</div>
                                         </div>
                                     </div>`
                        } else {
@@ -146,11 +143,9 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
 <div style="display: flex;"><div style="    align-items: center;
     display: flex;">${allTexts.get("support")} </div>
 <div id="patreon_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
-    margin-top: 4px;
-    width: fit-content;"><a href="https://www.patreon.com/user?u=58444506" target="_blank" style="display: flex; align-items: center">${allTexts.get("patreon")}<img src="https://cdn.icon-icons.com/icons2/2429/PNG/512/patreon_logo_icon_147253.png" style="height: 24px;"></a></div>
+    margin-top: 4px;"><a href="https://www.patreon.com/user?u=58444506" target="_blank" style="display: flex; align-items: center">${allTexts.get("patreon")}<img src="https://cdn.icon-icons.com/icons2/2429/PNG/512/patreon_logo_icon_147253.png" style="height: 24px;"></a></div>
 <div id="boosty_link" class="home_button2 btn_hover2" style="padding: 2px 4px;
-    margin-top: 4px;
-    width: fit-content;"><a href="https://boosty.to/thunder_hwm" target="_blank" style="display: flex; align-items: center">${allTexts.get("boosty")}<img src="https://mikulski.rocks/wp-content/uploads/2022/04/Color.png" style="height: 24px;"></a></div>
+    margin-top: 4px;"><a href="https://boosty.to/thunder_hwm" target="_blank" style="display: flex; align-items: center">${allTexts.get("boosty")}<img src="https://mikulski.rocks/wp-content/uploads/2022/04/Color.png" style="height: 24px;"></a></div>
 </div>                    </div>
                 `)
 
