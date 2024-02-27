@@ -1,5 +1,5 @@
 import {$, arrayToMapByKey, findAll, get, groupByKey, my_sign, set, sortByKey} from "../utils/commonUtils";
-import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
+import {setLeaderboard, setTopBattles, setTopClanAttempts} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {doGet, doPost} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
@@ -30,7 +30,7 @@ function getAllTexts() {
 let allTexts = getAllTexts()
 
 
-export default function pirateEvent() {
+export default async function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
         document.querySelector(".pirate_event_blocks").style.width = "100%"
         document.querySelector("#set_mobile_max_width").style.justifyContent = "center"
@@ -225,7 +225,8 @@ export default function pirateEvent() {
     }
 
     if (location.href.includes("pirate_self_event.")) {
-        setLeaderboard(
+        document.querySelector(".pirate_self_left_block").style.maxWidth = "unset"
+        await setLeaderboard(
             Array.from(document.querySelectorAll('table[width="100%"][align="left"]')).slice(-1)[0].previousElementSibling,
             "afterbegin",
             false,
@@ -234,9 +235,7 @@ export default function pirateEvent() {
         if (get("show_event_timer", true)) {
             setTimer(Array.from(document.querySelectorAll(".global_container_block_header")).at(1))
         }
-        if (get("show_top_clan_attempts", true)) {
-            setTopClanAttempts(Array.from(document.querySelectorAll(".global_container_block")[0].getElementsByTagName("table")).at(-1))
-        }
+        setTopBattles()
 
         let newScript = document.createElement('script');
         newScript.setAttribute('src', 'https://cdn.jsdelivr.net/npm/chart.js');

@@ -1,10 +1,11 @@
-import {$, allFactions, cdnHost, findAll, get, heroCreatures, set} from "../utils/commonUtils";
+import {$, allFactions, cdnHost, findAll, get, heroCreatures, magicSpells, mode, set} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
 import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {setLeaderboard} from "../leaderboard";
 import {doGet, doPost} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
 import {addFilteringArea, processFilters} from "../mercenaryFilters";
+import {fav_icon, greenArrowSvg, not_fav_icon, redArrowSvg} from "../utils/icons";
 
 export default async function leaderEvent() {
     let favourites = get("leader_favourites", [])
@@ -50,6 +51,9 @@ export default async function leaderEvent() {
             setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
             setSettings("lg_show_available", "Отображать только доступные наборы", container, false)
             setSettings("lg_hide_duplicates", "Скрывать дубликаты наборов", container, false)
+            setSettings("lg_show_harder", "Отображать сложные бои", container)
+            setSettings("lg_show_standard", "Отображать обычные бои", container)
+            setSettings("lg_show_easier", "Отображать облегченные бои", container)
         }, "afterend")
         collapseEventDesc()
         setClickableLevels()
@@ -228,20 +232,39 @@ export default async function leaderEvent() {
     function processRecords(records) {
         let favRecords = records.filter(battle => favourites.includes(battle.nicknames[0]))
         let notFavRecords = records.filter(battle => !favourites.includes(battle.nicknames[0]))
-        let allRecords = favRecords.concat(notFavRecords)
+
+        let harderRecords = []
+        if (get("lg_show_harder", true)) {
+            harderRecords = notFavRecords.filter(battle => battle.hasOwnProperty("harder"))
+        }
+        let standardRecords = []
+        if (get("lg_show_standard", true)) {
+            standardRecords = notFavRecords.filter(battle => !battle.hasOwnProperty("harder") && !battle.hasOwnProperty("easier"))
+        }
+        let easierRecords = []
+        if (get("lg_show_easier", true)) {
+            easierRecords = notFavRecords.filter(battle => battle.hasOwnProperty("easier"))
+        }
+        let allRecords;
+        if (isEvent) {
+            allRecords = [...favRecords, ...harderRecords, ...standardRecords, ...easierRecords]
+        } else {
+            allRecords = favRecords.concat(notFavRecords)
+        }
 
         let pageIndex = 0
         let pageSize = 25
 
         function addPage() {
             if (pageIndex * pageSize < allRecords.length) {
-                let result = allRecords.slice(pageIndex * pageSize, pageIndex * pageSize+25).reduce((prev, curr, index) => {
-                    return prev + addRecord(curr, pageIndex * pageSize+index)
+                let result = allRecords.slice(pageIndex * pageSize, pageIndex * pageSize + 25).reduce((prev, curr, index) => {
+                    return prev + addRecord(curr, pageIndex * pageSize + index)
                 }, "")
                 $('main-data').insertAdjacentHTML("beforeend", result)
                 pageIndex++
             }
         }
+
         addPage()
 
         setInterval(() => {
@@ -252,14 +275,6 @@ export default async function leaderEvent() {
             }
         }, 50)
     }
-
-    let fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star-fill" viewBox="0 0 16 16" style="vertical-align: middle">
-      <path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zM8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.178.178 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.178.178 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.178.178 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.178.178 0 0 1-.134-.098L8.16 4.1z"/>
-    </svg>`
-    let not_fav_icon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-star" viewBox="0 0 16 16" style="vertical-align: middle">
-      <path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.178.178 0 0 0 .134.098l1.42.206c.145.021.204.2.098.303L9.42 6.993a.178.178 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.178.178 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.178.178 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.178.178 0 0 0 .134-.098L7.84 4.1z"/>
-      <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-    </svg>`
 
     function addRecord(record, index) {
         let isFav = favourites.includes(record.nicknames[0])
@@ -313,8 +328,9 @@ export default async function leaderEvent() {
                                 <div>${getRecordPlayersTemplate(record.nicknames)}</div>
                                 <div>${getRecordResultTemplate(record)}</div>
                             </div>
-                            <div class="record-players-creatures" id="record-${index}-creatures">${playersCreatures}</div>
                             ${record.special_creature ? getSpecialCreatureTemplate(record.special_creature, index) : `<div class="special-creature"></div>`}
+                            <div class="record-players-creatures" id="record-${index}-creatures">${playersCreatures}</div>
+                            <div class="record-enemy-creatures">${getEnemyCreaturesTemplate(record)}</div>
                             <div class="special-creature-extended" id="special-creature-extended-${index}">
                                 ${record.special_creature ? getSpecialCreatureExtraData(record.special_creature) : ""}
                             </div>`
@@ -323,6 +339,15 @@ export default async function leaderEvent() {
             }
         }
         return ""
+    }
+
+    function getEnemyCreaturesTemplate(record) {
+        if (!record.enemy_creatures) {
+            return ""
+        }
+        return `<div class="enemy-text">враг --></div>` + Object.entries(record.enemy_creatures).sort(([key1, value1], [key2, value2]) => key1.localeCompare(key2)).map(([creaturePortrait, creatureAmount]) => {
+            return `<div>${getNewCreatureIcon(creaturePortrait, creatureAmount, "good-creature")}</div>`
+        }).join("")
     }
 
     function saveFav(nickname, elem) {
@@ -352,50 +377,17 @@ export default async function leaderEvent() {
     }
 
     function getSpecialCreatureTemplate(creatureData, index) {
+        let build = "attack"
+        if (creatureData.casts.length > 5) {
+            let temp = creatureData.casts.map(spell => magicSpells[spell])
+            build = mode(temp)
+        }
         return `
                 <div class="special-creature">
                     <div class="special-creature-info">
-                        ${getNewCreatureIcon(creatureData.portrait, "")}
+                        ${getNewCreatureIcon(creatureData.portrait, `<img src="https://hwm.events/battles/skills/${build}.png">`)}
                         <div class="special-creature-info-button" onclick="showSpecialCreatureData('${index}')">
                             <img src="https://${cdnHost}/i/combat/btn_info.png" alt="creature info" height="50">
-                        </div>
-                    </div>
-                    <div class="special-creature-stats">
-                        <div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_attack.png?v=1" alt="attack"></div>
-                                <div class="special-creature-stat-value">${creatureData.attack.toFixed()}</div>
-                            </div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_speed.png?v=1" alt="attack"></div>
-                                <div class="special-creature-stat-value">${creatureData.speed.toFixed()}</div>
-                            </div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_initiative.png?v=1" alt="attack"></div>
-                                <div class="special-creature-stat-value">${creatureData.maxinit}</div>
-                            </div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_hit_points.png?v=1" alt="attack"></div>
-                                <div class="special-creature-stat-value">${creatureData.health.toFixed()}</div>
-                            </div>
-                        </div>
-                        <div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_defense.png?v=1" alt="attack"></div>
-                                <div class="special-creature-stat-value">${creatureData.defence.toFixed()}</div>
-                            </div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_mana.png?v=1" alt="mana"></div>
-                                <div class="special-creature-stat-value">${creatureData.maxmanna.toFixed()}</div>
-                            </div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_shoots.png?v=1" alt="attack"></div>
-                                <div class="special-creature-stat-value">${creatureData.shots.toFixed()}</div>
-                            </div>
-                            <div>
-                                <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_damage.png?v=1" alt="attack"></div>
-                                <div class="special-creature-stat-value">${creatureData.mindam.toFixed()}-${creatureData.maxdam.toFixed()}</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -408,6 +400,40 @@ export default async function leaderEvent() {
 
     function getSpecialCreatureExtraData(creatureData) {
         return `
+                <div class="special-creature-stats">
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_attack.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.attack.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_defense.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.defence.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_hit_points.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.health.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_mana.png?v=1" alt="mana"></div>
+                        <div class="special-creature-stat-value">${creatureData.maxmanna.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_speed.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.speed.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_initiative.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.maxinit}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_shoots.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.shots.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_damage.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.mindam.toFixed()}-${creatureData.maxdam.toFixed()}</div>
+                    </div>
+                </div>
                 <b>Навыки</b>: ${creatureData.skills.map(skill => skill.replace(". ", "").replace(".", "")).join(", ")}.<br>
                 <b>Заклинания</b>: ${creatureData.casts.map((cast, index) => {
             if (creatureData.casts_effects) {
@@ -433,10 +459,17 @@ export default async function leaderEvent() {
     }
 
     function getRecordResultTemplate(record) {
+        let arrow = ""
+        if (record.easier) {
+            arrow = greenArrowSvg
+        }
+        if (record.harder) {
+            arrow = redArrowSvg
+        }
         return `
             <div class="record-result">
                 <div><img src="https://${cdnHost}/i/r/48/gold.png?v=3.23de65" title="Потрачено на воскрешение" alt="gold"><span> ${record.cost}</span></div>
-                <div><a href="/war.php?lt=-1&warid=${record.battle_id}&show_for_all=${record.battle_secret}" target="_blank">Бой</a></div>
+                <div><a href="/war.php?lt=-1&warid=${record.battle_id}&show_for_all=${record.battle_secret}" target="_blank">Бой</a>${arrow}</div>
                 ${record.survived === undefined ? "" : `<div>${record.survived}%</div>`}
             </div>`
     }

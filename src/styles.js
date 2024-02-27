@@ -15,20 +15,27 @@ export function setGlobalStyles() {
                     @media (max-width: 1440px) {
                         
                         .records-container-body{
-                            grid-template-columns: 1fr 4fr !important;
+                            grid-template-columns: 1fr 3fr 3fr !important;
                         }
                         
-                        .records-container-body > div:nth-child(n+5) {
+                        .records-container-body > div:nth-child(n+6) {
                             border-top: unset !important;
                         }
                         
-                        .records-container-body > div:nth-child(5n+6), .records-container-body > div:nth-child(5n+7) {
+                        .records-container-body > div:nth-child(6n+7), .records-container-body > div:nth-child(6n+8) , .records-container-body > div:nth-child(6n+9) {
                             border-top: 2px solid black !important;
                         }
                         
-                        .record-players-creatures, .special-creature, .special-creature-extended {
+                        .record-players-creatures, .record-enemy-creatures, .special-creature {
+                            justify-content: center;
+                        }
+                        
+                        .record-players-creatures, .record-enemy-creatures, .special-creature-extended {
                             grid-column-start: 1;
-                            grid-column-end: 3 !important; 
+                            grid-column-end: 4 !important; 
+                        }
+                        .enemy-text {
+                            position: unset !important;
                         }
                     }
                 
@@ -42,6 +49,7 @@ export function setGlobalStyles() {
                          filter: brightness(125%) drop-shadow(0 0 5px #ffe4b3);
                     }
                     .home_button2{
+                        width: fit-content;
                         padding: 2px 4px;
                         overflow: hidden;
                         text-overflow: ellipsis;
@@ -142,7 +150,19 @@ export function setGlobalStyles() {
                         flex-direction: column;
                         padding: 4px;
                     }
+                    .enemy-text {
+                        display: flex;
+                        align-items: center;
+                        position: absolute;
+                        left: -60px;
+                        top: 20px;
+                    }
         
+                    .record-enemy-creatures {
+                        display: flex;
+                        flex-wrap: nowrap;
+                        position: relative;
+                    }
                     .record-players-creatures {
                         display: flex;
                         flex-wrap: nowrap;
@@ -197,17 +217,18 @@ export function setGlobalStyles() {
                         flex-wrap: unset; 
                         justify-content: unset; 
                         display: grid; 
-                        grid-template-columns: 1fr 4fr 8fr 8fr; 
-                        overflow: auto;
+                        grid-template-columns: 1fr 3fr 2fr 6fr 6fr; 
+                        overflow-x: auto;
+                        overflow-y: hidden;
                         width: 100%;
                         padding: unset;
                     }
                     
-                    .records-container-body > div:nth-child(n+5) {
+                    .records-container-body > div:nth-child(n+6) {
                         border-top: 2px solid black;
                     }
                     
-                    .records-container-body > div:nth-child(5n) {
+                    .records-container-body > div:nth-child(6n) {
                         border-top: unset;
                     }
         
@@ -246,6 +267,10 @@ export function setGlobalStyles() {
                         width: 40px;
                         text-align: center;
                     }
+                    .custom-amount > img {
+                        height: 24px; 
+                        filter: drop-shadow(1px 0 0 black) drop-shadow(0 1px 0 black) drop-shadow(-1px 0 0 black) drop-shadow(0 -1px 0 black);                
+                    }
                     .good-creature {
                         cursor: pointer;
                     }
@@ -271,8 +296,7 @@ export function setGlobalStyles() {
                     }
                     .special-creature-stats {
                         display: flex;
-                        flex-direction: column;
-                        margin-top: 2px;
+                        padding: 4px;
                     }
                     .special-creature-stats > div {
                         display: flex;
@@ -290,11 +314,12 @@ export function setGlobalStyles() {
                     .special-creature-stat-value {
                         font-size: 14px;
                         font-weight: bold;
+                        text-wrap: nowrap;
                     }
                     .special-creature-extended {
                         display: none;
                         grid-column-start: 1;
-                        grid-column-end: 5;
+                        grid-column-end: 6;
                     }
                     .visible{
                         display: block;

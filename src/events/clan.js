@@ -63,7 +63,7 @@ function replaceWithSortableTable(heroesTable) {
         heroData.cl = tds[tdIndex++].innerText - 0
         heroData.description = tds[tdIndex++].innerHTML
         if (tdIndex<tds.length) {
-            heroData.score = tds[tdIndex++].innerText.replaceAll(" ", "").match(/(\d{0,3},?\d{0,3},?\d{0,3})/)[1].replaceAll(",", "") - 0
+            heroData.score = tds[tdIndex++].innerText.replaceAll(" ", "").match(/(\d{0,3},?\d{0,3},?\d{0,3}\.?\d{0,5})/)[1].replaceAll(",", "") - 0
         }
         if (tdIndex === tds.length-1) {
             heroData.attemptsLeft = tds[tdIndex].innerText - 0

@@ -9,6 +9,7 @@ let TOP_CLANS = ["1519", "928", "104", "1597", "1209", "18", "41", "5152", "88",
 function getAllTexts() {
     let texts = new LocalizedTextMap()
     texts.addText(new LocalizedText("top_heroes", "Top heroes", "Лучшие игроки", "Найкращі гравці"))
+    texts.addText(new LocalizedText("top_battles", "Top battles by ", "Лучшие бои по ", "Найкращі бої по "))
     texts.addText(new LocalizedText("top_clans", "Top clans", "Лучшие кланы", "Найкращі клани"))
     texts.addText(new LocalizedText("attempts_left", "Attempts left", "Оставшиеся попытки", "Залишилось спроб"))
     texts.addText(new LocalizedText("progression", "Score progression", "Прогрессия очков", "Прогресія очок"))
@@ -17,6 +18,28 @@ function getAllTexts() {
 }
 
 let allTexts = getAllTexts()
+
+export async function setTopBattles() {
+    let topBattles = await doGet(`getTopBattleScores`)
+    let result = topBattles.map((battle, index) => {
+        return `
+                <div style="display: flex; justify-content: space-between; padding: 1px; font-size: smaller">
+                    <span style="display: inline-block">${index + 1}.</span>
+                    <span style="display: inline-block; text-align: center">
+                        <a href="/clan_info.php?id=${battle["clan_id"]}">
+                        <img style="height: 15px; vertical-align: bottom" src="https://${cdnHost}/i_clans/l_${battle["clan_id"]}.gif?1805" alt=""></a>
+                         
+                        <a href="/pl_info.php?id=${battle["member_id"]}" style="text-decoration: none; font-size: 9px">${battle["member_name"]}</a>
+                         [${battle["member_cl"]}]
+                    </span>
+                    <span style="display: inline-block">${battle["score"]}</span>
+                </div>`
+    }).join("")
+    $(`top_heroes_container`).insertAdjacentHTML("afterend",
+        `<br><div style="display: flex; flex-direction: column" id="top_battles_container">
+        <b style="user-select: none; text-align: center;">${allTexts.get("top_battles")}<img src="https://${cdnHost}/i/adv_ev_silver48.png" style="height: 16px; vertical-align: bottom"></b>${result}</div><br>`)
+}
+
 export async function setLeaderboard(where, position = "afterbegin", withClan = false, showStat = false) {
     window.showProgression = showProgression
     let isLeaderboardExpanded = false
@@ -30,7 +53,7 @@ export async function setLeaderboard(where, position = "afterbegin", withClan = 
                 <div id="chart_area" class="global_container_block" style="display: none"></div>
             `)
     }
-    if (withClan){
+    if (withClan) {
         let topClans = await doGet(`getTopClanScores`)
         let result = topClans.reduce((prev, curr, index) => {
             return prev + getTopClanTemplate(curr, index)
@@ -106,20 +129,40 @@ async function showProgression(id, name) {
                                 </div>
                             `
     let heroData = await doGet(`getDunHeroData?pl_id=${id}`)
+    heroData = heroData.filter((entry, index) => {
+        if (index > 0) {
+            if (entry[1] > heroData[index - 1][1] * 4) {
+                return false
+            }
+        }
+        return true
+    })
+
     const cumulativeSum = (sum => value => sum += value)(0);
 
-    const labels = heroData.map(entry => entry[0] + ` ${entry[1] > 0 ? "+" : ""}${entry[1]}`);
+    const labels = heroData.map((entry, index) =>  `Бой №${index+1}: ${entry[0]} ${entry[1] > 0 ? "+" : ""}${entry[1]}`);
     const data = {
         labels: labels,
         datasets: [
             {
-                label: 'Очки',
+                label: 'Сумма очков',
                 data: heroData.map(entry => entry[1]).map(cumulativeSum),
                 borderColor: "blue",
                 backgroundColor: "rgb(44,73,107)",
                 pointStyle: 'circle',
-                pointRadius: 3,
-                pointHoverRadius: 4
+                pointRadius: 1.5,
+                pointHoverRadius: 2,
+                yAxisID: 'y',
+            },
+            {
+                label: 'Очки за бой',
+                data: heroData.map(entry => entry[1]),
+                borderColor: "green",
+                backgroundColor: "rgb(44,107,69)",
+                pointStyle: 'circle',
+                pointRadius: 1.5,
+                pointHoverRadius: 2,
+                yAxisID: 'y1',
             },
         ]
     };
@@ -145,10 +188,33 @@ async function showProgression(id, name) {
             },
             scales: {
                 x: {
+                    display: false,
                     ticks: {
                         display: false
-                    }
-                }
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    ticks: {
+                        color: 'blue'
+                    },
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    ticks: {
+                        color: 'green'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                },
             },
             interaction: {
                 mode: 'index',
@@ -162,7 +228,7 @@ async function showProgression(id, name) {
 
 export async function setTopClanAttempts(where) {
     let topClanAttempts = await doGet(`getTopClanTotalAttempts`)
-    where.querySelectorAll("tr").forEach(clanElem => {
+    Array.from(where.querySelectorAll("tr")).filter(tr => tr.innerText !== "...").forEach(clanElem => {
         let clanId = clanElem.innerHTML.match(/id=(\d{1,5})/)[1]
         let scoreElem = Array.from(clanElem.querySelectorAll("td")).at(-1)
         let clanAttempts = topClanAttempts[clanId]

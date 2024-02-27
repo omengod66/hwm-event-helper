@@ -1,9 +1,11 @@
 import {$, get} from "../utils/commonUtils";
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
+import {setTimer} from "../utils/eventUtils";
 
 export default function villageEvent() {
     if (/(village_def)/.test(location.href)) {
+        setTimer(document.querySelector(".global_container_block_header"))
         let villageElem = $(`set_mobile_max_width`)
         villageElem.style.flexWrap = "nowrap"
 
