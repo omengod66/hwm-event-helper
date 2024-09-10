@@ -1,7 +1,7 @@
 import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {$, get, groupBy, groupByKey, set, sortByKey} from "../utils/commonUtils";
-import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
@@ -17,6 +17,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("bought", "bought", "куплено", "куплено"))
     texts.addText(new LocalizedText("sold", "sold", "продано", "продано"))
     texts.addText(new LocalizedText("trade_for", "for", "по", "по"))
+    texts.addText(new LocalizedText("hire_all", "Recruit all", "Нанять всех", "Найняти всіх"))
     texts.addText(new LocalizedText("trade_history", "Trade history", "История покупок и продаж", "Історія покупок та продажів"))
     texts.addText(new LocalizedText("show_event_timer", "Show time until the end of the event", "Показывать время до конца ивента", "Показувати час до кінця івента"))
     texts.addText(new LocalizedText("show_top_clan_attempts", "Show remaining attempts for TOP3 clans", "Показывать оставшиеся попытки у ТОП3 кланов", "Показувати спроби, що залишилися, у ТОП3 кланів"))
@@ -34,6 +35,7 @@ export default function hireEvent() {
     if (location.href.includes("naym_event.")) {
         // addFilteringArea()
         // processFilters()
+        removeLeaderboard()
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
         if (get("show_top_clan_attempts", true)) {
             setTopClanAttempts(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("table")).at(-1))
@@ -60,9 +62,9 @@ export default function hireEvent() {
         if (get("show_event_timer", true)) {
             setTimer(document.querySelector(".global_container_block_header"))
         }
-        Array.from(document.querySelectorAll(".hwm_event_block_header")).at(-1).insertAdjacentHTML("beforeend", `
-            <div class="hwm_event_block_miniheader">${allTexts.get("hire_hint")}</div>
-        `)
+        // Array.from(document.querySelectorAll(".hwm_event_block_header")).at(-1).insertAdjacentHTML("beforeend", `
+        //     <div class="hwm_event_block_miniheader">${allTexts.get("hire_hint")}</div>
+        // `)
 
 
         let buy_history = get("buy_history", [])
@@ -80,7 +82,7 @@ export default function hireEvent() {
 
 
         setTotalPrice()
-
+        initHireAll()
         setListeners()
         showBuyHistory()
         setInterval(() => {
@@ -88,8 +90,53 @@ export default function hireEvent() {
                 setListeners()
                 showPriceChange()
                 showBuyHistory()
+                initHireAll()
             }
         }, 100)
+
+        function initHireAll() {
+            let availableSilver = document.querySelector("#ne_set_points_now").innerText.replaceAll(",", "") - 0
+            Array.from(document.querySelectorAll("#ne_set_troops_on_market > .hwm_event_set_stack_block"))
+                .filter(elem => elem.innerHTML.includes("cre_creature"))
+                .forEach((elem, index) => {
+                    elem.style.padding = "unset"
+                    let submit = elem.querySelector("div[id^=ne_set_button] > a")
+                    let newSubmit = elem.querySelector("div[id^=hire_all]")
+                    console.log("here")
+                    if (submit && !newSubmit) {
+                        console.log("here2")
+                        let name = elem.innerHTML.match(/army_info\.php\?name=([a-zA-Z0-9_-]+)/)[1]
+                        let price = parseInt(elem.innerText.match(/(?:Цена|Price): (\d{1,6})/)[1].replaceAll(",", ""))
+                        let maxAmount = elem.querySelector("select > option:last-child").value - 0
+
+                        // let currentAmount = 0
+                        //
+                        // let currentHire = Array.from(document.querySelectorAll("#ne_set_current_army > div"))
+                        //     .filter(elem => elem.innerHTML.includes("cre_creature"))
+                        //     .filter(elem => elem.innerHTML.includes(`=${name}"`))
+                        // if (currentHire.length > 0) {
+                        //     currentAmount = parseInt(currentHire[0].querySelector(".cre_creature").innerText)
+                        // }
+
+                        let possibleAmount = maxAmount/* - currentAmount*/
+                        possibleAmount = Math.min(Math.floor(availableSilver / price), possibleAmount)
+
+                        submit.parentElement.insertAdjacentHTML("afterend", `
+                            <div id="hire_all_${index}" class="home_button2 btn_hover2" onclick="document.getElementById('ne_set_select_'+${index+1}).value = ${possibleAmount}; ne_set_js_send_buy_mid('${name}', ${index+1});return false;">
+                                ${allTexts.get("hire_all")}
+                            </div>
+                        `)
+
+                        submit.parentElement.style.margin = "unset"
+                        submit.parentElement.style.marginTop = "unset"
+                        submit.parentElement.parentElement.style.width = "unset"
+                        submit.parentElement.parentElement.style.display = "flex"
+                        submit.parentElement.parentElement.previousElementSibling.style.display = "inline-block"
+                        submit.parentElement.parentElement.parentElement.style.margin = "unset"
+                        submit.parentElement.parentElement.parentElement.style.width = "unset"
+                    }
+                })
+        }
 
         function drawChart(prices, index, elem) {
             elem.insertAdjacentHTML("afterend", `
@@ -119,7 +166,7 @@ export default function hireEvent() {
                 );
             }
 
-            let date = new Date(1700802001000)
+            let date = new Date(1725499234000)
             const labels = prices.map(() => {
                 let label = formatDate(date)
                 date.setHours(date.getHours() + 1)
@@ -197,7 +244,7 @@ export default function hireEvent() {
                     } else if (prices[prices.length - 1] - 0 < prices[prices.length - 2] - 0) {
                         elem.style.background = "#9eff98"
                     }
-                    priceElem.insertAdjacentHTML("beforeend", ` (${Math.max(Math.min(Math.round(prices.at(-1) / prices[0] * 100), 115), 85)}%)`)
+                    priceElem.insertAdjacentHTML("beforeend", ` (${Math.round(prices.at(-1) / prices[0] * 100)}%)`)
                     Array.from(elem.querySelectorAll('input[type="submit"]'))
                         .forEach(input => {
                             input.classList.add("btn_hover2", "home_button2")

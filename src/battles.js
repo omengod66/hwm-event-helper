@@ -19,6 +19,7 @@ import {fav_icon, greenArrowSvg, not_fav_icon} from "./utils/icons";
 function getAllTexts() {
     let texts = new LocalizedTextMap()
     texts.addText(new LocalizedText("sent", "Sent", "Отправлено", "Надіслано"))
+    texts.addText(new LocalizedText("stage", "Stage", "Этап", "Етап"))
     texts.addText(new LocalizedText("examples", "Battle examples", "Примеры боёв", "Приклади боїв"))
     texts.addText(new LocalizedText("favourites", "Аavourites", "Избранное", "Відібране"))
     texts.addText(new LocalizedText("cl", "CL", "БУ", "БР"))
@@ -78,8 +79,11 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     let creaturesInfo = get("eventCreaturesInfo", {})
     let currentSilver = 0;
     try {
-        currentSilver = 10000 + parseInt(document.body.innerText.match(/(Добыто серебра|Silver gained): (\d{0,3},?\d{1,3})/)[2].replace(",", ""))
+        currentSilver = 10000 + parseInt(document.body.innerText.match(/(Добыто серебра|Silver gained): (\d{0,3},?\d{0,3},?\d{1,3})/)[2].replaceAll(",", ""))
     } catch (e) {
+        if (location.href.includes("adventure_event")) {
+            currentSilver = Number.MAX_VALUE
+        }
     }
 
     document.body.insertAdjacentHTML("afterbegin", `<style>.hwm_event_example_block {
@@ -110,14 +114,36 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 if (battles.AFS.length === 0 && !lost) {
                     getEventBattles(target, from.replace("Battles", "FailedBattles"), callback, true)
                 } else {
-                    where.insertAdjacentHTML("beforeend", `<div style="text-align: center"><b>${allTexts.get("hwmevents_rogues")}</b></div>` + getAFSEventBattlesTemplate(lost, battles))
+                    let text = allTexts.get("hwmevents_rogues")
+                    let playerBattlesEndpoint = "getRoguesPlayerBattles"
+                    if (location.href.includes("adventure_event")) {
+                        text = allTexts.get("hwmevents")
+                        playerBattlesEndpoint = "getFFAPlayerBattles"
+                    }
+                    let currentLevel = getCurrentLevel()
+                    let controls = `
+                    <div style="display: flex; justify-content: center; align-items: center">
+                        <div class="home_button2 btn_hover2" onclick="location.href='${(() => {
+                            let params = new URLSearchParams(window.location.search)
+                            params.set("sel_level", currentLevel-1)
+                            return location.pathname + "?" + params.toString()
+                        })()}'">-1</div>
+                        <div> ${allTexts.get("stage")}: <b>${currentLevel}</b> </div>
+                        <div class="home_button2 btn_hover2" onclick="location.href='${(() => {
+                            let params = new URLSearchParams(window.location.search)
+                            params.set("sel_level", currentLevel-0+1)
+                            return location.pathname + "?" + params.toString()
+                        })()}'">+1</div>
+                    </div>
+                    `
+                    where.insertAdjacentHTML("beforeend", `<div style="text-align: center"><b>${text}</b></div>${controls}` + getAFSEventBattlesTemplate(lost, battles))
                     $("search_nickname").addEventListener("keypress", (e) => {
                         if (e.key === "Enter") {
                             $("process_search").click()
                         }
                     })
                     $("process_search").addEventListener("click", async () => {
-                        let player_battles = await doGet(`getRoguesPlayerBattles?nickname=${encodeURIComponent($("search_nickname").value.trim())}&token=${get("hwm_events_token", "")}`)
+                        let player_battles = await doGet(`${playerBattlesEndpoint}?nickname=${encodeURIComponent($("search_nickname").value.trim())}&token=${get("hwm_events_token", "")}`)
                         $("player_battles").innerHTML = groupBy(sortByKey(player_battles["AFS"], "wave", -1), "wave")
                             .map(currentWaveList => sortByKey(currentWaveList, "battle_id", -1))
                             .flatMap(currentWaveList => currentWaveList)
@@ -236,7 +262,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     function getCreaturesHTML(battle, index) {
-        if (currentSilver === 0 || !("creatures" in battle) || !location.href.includes("reaping_event") || Object.keys(creaturesInfo).length === 0) {
+        if (currentSilver === 0 || !("creatures" in battle) || (!location.href.includes("reaping_event") && !location.href.includes("adventure_event")) || Object.keys(creaturesInfo).length === 0) {
             return ""
         }
 
@@ -261,13 +287,14 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         <div style="width: 80%;display: flex;justify-content: space-between;">
         <div class="record-player-creatures" id="creatures-${index}">
             <div id="creatures-${index}-apply" class="creatures-apply">
-                ${totalPrice <= currentSilver ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >${allTexts.get("hire")}</div>` : ""}
+                ${totalPrice <= currentSilver && currentSilver !== Number.MAX_VALUE ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >${allTexts.get("hire")}</div>` : ""}
+                ${currentSilver !== Number.MAX_VALUE ? `
                 <div id="creatures-${index}-leadership" class="player-leadership">
                     <img height="24" src="https://${cdnHost}/i/adv_ev_silver48.png" alt="">
                     <span id="leadership-number-${index}" style="color: ${totalPrice <= currentSilver ? "green" : "red"}">
                         ${totalPrice}
                     </span>
-                </div>
+                </div>` : ""}
             </div>
             <div id="creatures-${index}-creatures" class="player-creatures-row">${playerCreaturesHTML}</div>
         </div>
