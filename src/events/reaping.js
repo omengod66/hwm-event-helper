@@ -1,5 +1,5 @@
 import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
-import {get, set} from "../utils/commonUtils";
+import {get, my_sign, set} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
 import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
@@ -11,6 +11,7 @@ function getAllTexts() {
     texts.addText(new LocalizedText("auto_send_reaping_event", "Send battles from the event to the service automatically", "Отправлять бои из ивента в сервис автоматически", "Відправляти бої з івента у сервіс автоматично"))
     texts.addText(new LocalizedText("only_clan_visibility", "My battles are only available to the clan", "Мои бои доступны только для клана", "Мої бої доступні лише для клану"))
     texts.addText(new LocalizedText("collapse_event_desc", "Always collapse fight descriptions", "Всегда сворачивать описания боев", "Завжди згортати описи боїв"))
+    texts.addText(new LocalizedText("hire_all", "Recruit all", "Нанять всех", "Найняти всіх"))
     texts.addText(new LocalizedText("hide_rogues_event_enemies", "Show price statistics", "Показывать статистику цен", "Показувати статистику цін"))
     texts.addText(new LocalizedText("bought", "bought", "куплено", "куплено"))
     texts.addText(new LocalizedText("sold", "sold", "продано", "продано"))
@@ -29,6 +30,42 @@ function getAllTexts() {
 let allTexts = getAllTexts()
 
 export default async function reapingEvent() {
+    if (location.href.includes("reaping_event_set.")) {
+        function initHireAll() {
+            let availableSilver = document.querySelector("#ne_set_points_now").innerText.replaceAll(",", "") - 0
+            Array.from(document.querySelectorAll("#ne_set_troops_on_market > .hwm_event_set_stack_block"))
+                .filter(elem => elem.innerHTML.includes("cre_creature"))
+                .forEach((elem, index) => {
+                    let submit = elem.querySelector("div[id^=ne_set_button] > a")
+                    let newSubmit = elem.querySelector("div[id^=hire_all]")
+                    if (submit && !newSubmit) {
+                        let name = elem.innerHTML.match(/army_info\.php\?name=([a-zA-Z0-9_-]+)/)[1]
+                        let price = parseInt(elem.innerText.match(/(?:Цена|Price): (\d{1,6})/)[1].replaceAll(",", ""))
+                        let maxAmount = elem.querySelector("select > option:last-child").value - 0
+
+                        let currentAmount = 0
+
+                        let currentHire = Array.from(document.querySelectorAll("#ne_set_current_army > div"))
+                            .filter(elem => elem.innerHTML.includes("cre_creature"))
+                            .filter(elem => elem.innerHTML.includes(`=${name}"`))
+                        if (currentHire.length > 0) {
+                            currentAmount = parseInt(currentHire[0].querySelector(".cre_creature").innerText)
+                        }
+
+                        let possibleAmount = maxAmount - currentAmount
+                        possibleAmount = Math.min(Math.floor(availableSilver / price), possibleAmount)
+
+                        submit.parentElement.insertAdjacentHTML("afterend", `
+                    <div id="hire_all_${index}" class="home_button2 btn_hover2" onclick="document.getElementById('ne_set_select_'+${index+1}).value = ${possibleAmount}; ne_set_js_send_buy_mid('${name}', ${index+1});return false;">
+                        ${allTexts.get("hire_all")}
+                    </div>
+                    `)
+                    }
+                })
+        }
+        setInterval(initHireAll, 50)
+    }
+
     if (location.href.includes("reaping_event.")) {
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
         if (get("show_top_clan_attempts", true)) {
@@ -67,7 +104,7 @@ export default async function reapingEvent() {
         creatureBlocks.forEach(block => {
             let creaturePriceMatch = block.innerHTML.match(/silver48\.png'\)"><b>(\d{0,3},?\d{0,3})/)
             if (creaturePriceMatch) {
-                let price = creaturePriceMatch[1].replace(",", "")-0
+                let price = creaturePriceMatch[1].replace(",", "") - 0
                 let portrait = block.innerHTML.match(/portraits\/([a-zA-Z0-9_-]+)p33/)[1]
                 let id = block.querySelector("a").href.split("=")[1]
                 creaturesInfo[portrait] = [id, price]
@@ -75,6 +112,7 @@ export default async function reapingEvent() {
         })
         set("eventCreaturesInfo", creaturesInfo)
     }
+
     function interceptButtons() {
         let buttons = Array.from(document.querySelectorAll('input[id^=ne_attack_button]'))
         if (buttons.length === 2) {

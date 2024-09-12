@@ -38,7 +38,7 @@ export function sortByKey(array, key, asc = 1) {
     return array.sort((a, b) => {
         let x = a[key];
         let y = b[key];
-        return ((x < y) ? -1 * asc : ((x > y) ? 1 * asc : 0));
+        return ((x < y) ? -1 * asc : ((x > y) ? asc : 0));
     });
 }
 

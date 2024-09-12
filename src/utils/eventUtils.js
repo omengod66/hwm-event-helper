@@ -32,8 +32,15 @@ export function getCurrentLevel() {
     if (match && match.length > 0) {
         return match[2]
     }
+    match = document.body.innerText.match(/(Цель №|Target №)(\d{1,3})/)
+    if (match && match.length > 0) {
+        return match[2]
+    }
+    if (document.querySelector(".CheckpointCurrent.btn_highlight")) {
+        return document.querySelector(".CheckpointCurrent.btn_highlight").innerText.match(/\d{1,3}/)[0];
+    }
     if (document.getElementsByClassName("CheckpointCurrent").length > 0) {
-        return document.getElementsByClassName("CheckpointCurrent")[0].innerHTML.match(/\d{1,3}/)[0];
+        return document.getElementsByClassName("CheckpointCurrent")[0].innerText.match(/\d{1,3}/)[0];
     }
     return "100";
 }
@@ -58,7 +65,7 @@ export function setTimer(where) {
     where.style.justifyContent = "center"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
-    let countDownDate = new Date(1709672400000).getTime();
+    let countDownDate = new Date(1726520401000).getTime();
     function process() {
         let now = new Date().getTime();
         let distance = countDownDate - now;
@@ -81,4 +88,13 @@ export function setTimer(where) {
     }
     let timer = setInterval(process, 1000);
     process()
+}
+
+export function removeLeaderboard() {
+    let centers = Array.from(document.querySelectorAll("center")).filter(elem => elem.innerText.length < 100 && (elem.innerText.includes("Общий рейтинг") || elem.innerText.includes("General rating")))
+    if (centers.length > 0) {
+        let center = centers[0]
+        center.nextElementSibling.remove()
+        center.remove()
+    }
 }

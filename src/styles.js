@@ -445,6 +445,14 @@ export function setGlobalStyles() {
                         text-align: right;
                         width: 50px
                     }
+                    
+                    .leaderboard-hero-record {
+                        display: flex; 
+                        justify-content: space-between; 
+                        padding: 2px; 
+                        font-size: smaller;
+                        margin: 1px;
+                    }
                 </style>
             `)
 }

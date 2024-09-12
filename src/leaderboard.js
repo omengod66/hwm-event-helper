@@ -40,17 +40,21 @@ export async function setTopBattles() {
         <b style="user-select: none; text-align: center;">${allTexts.get("top_battles")}<img src="https://${cdnHost}/i/adv_ev_silver48.png" style="height: 16px; vertical-align: bottom"></b>${result}</div><br>`)
 }
 
-export async function setLeaderboard(where, position = "afterbegin", withClan = false, showStat = false) {
+export async function setLeaderboard(where, position = "afterbegin", withClan = false, showStat = false, showStatWhere = document.querySelectorAll(".global_container_block")[1]) {
     window.showProgression = showProgression
     let isLeaderboardExpanded = false
     let topHeroes = await doGet(`getTopScoresV2`)
     where.insertAdjacentHTML(position,
-        `<div style="display: flex; flex-direction: column" id="top_heroes_container"></div><br>`)
+        `<div style="display: flex; flex-direction: column; flex: 1 1 0;" id="top_heroes_container"></div>`)
     resetLeaderboard(showStat)
     if (showStat) {
-        document.querySelectorAll(".global_container_block")[1]
+        let newScript = document.createElement('script');
+        newScript.setAttribute('src', 'https://cdn.jsdelivr.net/npm/chart.js');
+        document.head.appendChild(newScript);
+
+        showStatWhere
             .insertAdjacentHTML("afterend", `
-                <div id="chart_area" class="global_container_block" style="display: none"></div>
+                <div id="chart_area" class="global_container_block" style="display: none; width: 100%"></div>
             `)
     }
     if (withClan) {
@@ -61,7 +65,7 @@ export async function setLeaderboard(where, position = "afterbegin", withClan = 
         where.insertAdjacentHTML(position,
             `<div style="display: flex; flex-direction: column" id="top_clans_container">
             <b style="user-select: none; text-align: center;">${allTexts.get("top_clans")}</b>${result}
-            </div><br>`)
+            </div>`)
     }
 
     function resetLeaderboard(showStat) {
@@ -91,7 +95,7 @@ export async function setLeaderboard(where, position = "afterbegin", withClan = 
             scoreElem = `<b style="font-size: 10px; text-decoration: underline; cursor: pointer" onclick="showProgression(${hero["member_id"]}, '${hero["member_name"]}')">${hero["member_score"]}</b>`
         }
         return `
-                <div style="display: flex; justify-content: space-between; padding: 1px; font-size: smaller">
+                <div class="leaderboard-hero-record">
                     <span style="display: inline-block">${index + 1}.</span>
                     <span style="display: inline-block; text-align: center">
                         <a href="/clan_info.php?id=${hero["clan_id"]}">
@@ -123,15 +127,26 @@ async function showProgression(id, name) {
     let chartArea = $(`chart_area`)
     chartArea.style.display = "flex"
     chartArea.innerHTML = `
-                                <div style="height: 165px; overflow: hidden">
+                                <div style="height: 165px; overflow: hidden; width: 100%">
                                 <div>${allTexts.get("progression")} <b>${name}</b></div>
                                     <canvas id="chart${id}" style="width: 100%; height: 150px"></canvas>
                                 </div>
                             `
     let heroData = await doGet(`getDunHeroData?pl_id=${id}`)
-    heroData = heroData.filter((entry, index) => {
+    console.log("here")
+    let newData = []
+    for (let i = 0; i < heroData.length; i++) {
+        if (i > 0) {
+            if (heroData[i][1] + newData.at(-1)[1] === 0) {
+                newData.pop()
+                continue
+            }
+        }
+        newData.push(heroData[i])
+    }
+    heroData = newData.filter((entry, index) => {
         if (index > 0) {
-            if (entry[1] > heroData[index - 1][1] * 4) {
+            if (entry[1] > newData[index - 1][1] * 4) {
                 return false
             }
         }

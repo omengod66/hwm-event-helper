@@ -236,10 +236,6 @@ export default async function pirateEvent() {
             setTimer(Array.from(document.querySelectorAll(".global_container_block_header")).at(1))
         }
         setTopBattles()
-
-        let newScript = document.createElement('script');
-        newScript.setAttribute('src', 'https://cdn.jsdelivr.net/npm/chart.js');
-        document.head.appendChild(newScript);
     }
 
     if (location.href.includes("pirate_self_event_set")) {

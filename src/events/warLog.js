@@ -23,6 +23,7 @@ export default function processBattleLogPage() {
                 ((tag.innerText.includes("Враги экспедиции") || tag.innerText.includes("Enemies of the expedition")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
                 || ((tag.innerText.includes("Противник Армии Тьмы") || tag.innerText.includes("Opponent of the Army of Darkness")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 50)
                 || ((tag.innerText.includes("Контрабандисты") || tag.innerText.includes("Smugglers")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 70)
+                || ((tag.innerText.includes("Враги орды") || tag.innerText.includes("Enemies of the horde")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 10)
                 || ((tag.innerText.includes("Бандиты пустошей") || tag.innerText.includes("Wasteland bandits")) && tag.innerText.match(/\((\d{1,3})/)[1] - 0 > 30)
             )
             .forEach((tag, index) => {

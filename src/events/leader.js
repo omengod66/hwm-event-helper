@@ -1,6 +1,6 @@
 import {$, allFactions, cdnHost, findAll, get, heroCreatures, magicSpells, mode, set} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
-import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {setLeaderboard} from "../leaderboard";
 import {doGet, doPost} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
@@ -21,7 +21,11 @@ export default async function leaderEvent() {
     window.replaceCellListener = replaceCellListener
     window.removeOverlay = removeOverlay
 
+
+
     if (/(leader_rogues|leader_winter)/.test(location.href)) {
+        removeLeaderboard()
+
         if (get("show_event_timer", true)) {
             setTimer(document.querySelector(".global_container_block_header"))
         }
