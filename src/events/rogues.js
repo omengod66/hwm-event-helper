@@ -102,23 +102,10 @@ export default function hireEvent() {
                     elem.style.padding = "unset"
                     let submit = elem.querySelector("div[id^=ne_set_button] > a")
                     let newSubmit = elem.querySelector("div[id^=hire_all]")
-                    console.log("here")
                     if (submit && !newSubmit) {
-                        console.log("here2")
                         let name = elem.innerHTML.match(/army_info\.php\?name=([a-zA-Z0-9_-]+)/)[1]
                         let price = parseInt(elem.innerText.match(/(?:Цена|Price): (\d{1,6})/)[1].replaceAll(",", ""))
-                        let maxAmount = elem.querySelector("select > option:last-child").value - 0
-
-                        // let currentAmount = 0
-                        //
-                        // let currentHire = Array.from(document.querySelectorAll("#ne_set_current_army > div"))
-                        //     .filter(elem => elem.innerHTML.includes("cre_creature"))
-                        //     .filter(elem => elem.innerHTML.includes(`=${name}"`))
-                        // if (currentHire.length > 0) {
-                        //     currentAmount = parseInt(currentHire[0].querySelector(".cre_creature").innerText)
-                        // }
-
-                        let possibleAmount = maxAmount/* - currentAmount*/
+                        let possibleAmount = elem.querySelector("select > option:last-child").value - 0
                         possibleAmount = Math.min(Math.floor(availableSilver / price), possibleAmount)
 
                         submit.parentElement.insertAdjacentHTML("afterend", `

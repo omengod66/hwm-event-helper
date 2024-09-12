@@ -133,7 +133,6 @@ async function showProgression(id, name) {
                                 </div>
                             `
     let heroData = await doGet(`getDunHeroData?pl_id=${id}`)
-    console.log("here")
     let newData = []
     for (let i = 0; i < heroData.length; i++) {
         if (i > 0) {

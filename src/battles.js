@@ -262,7 +262,10 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     function getCreaturesHTML(battle, index) {
-        if (currentSilver === 0 || !("creatures" in battle) || (!location.href.includes("reaping_event") && !location.href.includes("adventure_event")) || Object.keys(creaturesInfo).length === 0) {
+        if (currentSilver === 0
+            || !("creatures" in battle)
+            || (!location.href.includes("reaping_event") && !location.href.includes("adventure_event") && !location.href.includes("naym_event"))
+            || Object.keys(creaturesInfo).length === 0) {
             return ""
         }
 
@@ -283,11 +286,10 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 playerCreaturesHTML += `<div id="creature-${index}-${cellId}">${getNewCreatureIcon(creaturePortrait, creatureAmount, "good-creature")}</div>`
             })
 
-        return `
-        <div style="width: 80%;display: flex;justify-content: space-between;">
-        <div class="record-player-creatures" id="creatures-${index}">
-            <div id="creatures-${index}-apply" class="creatures-apply">
-                ${totalPrice <= currentSilver && currentSilver !== Number.MAX_VALUE ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >${allTexts.get("hire")}</div>` : ""}
+        let hireArea = location.href.includes("naym_event") ? "": `
+        <div id="creatures-${index}-apply" class="creatures-apply">
+                ${totalPrice <= currentSilver && currentSilver !== Number.MAX_VALUE
+            ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >${allTexts.get("hire")}</div>` : ""}
                 ${currentSilver !== Number.MAX_VALUE ? `
                 <div id="creatures-${index}-leadership" class="player-leadership">
                     <img height="24" src="https://${cdnHost}/i/adv_ev_silver48.png" alt="">
@@ -296,6 +298,12 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                     </span>
                 </div>` : ""}
             </div>
+        `
+
+        return `
+        <div style="width: 80%;display: flex;justify-content: space-between;">
+        <div class="record-player-creatures" id="creatures-${index}">
+            ${hireArea}
             <div id="creatures-${index}-creatures" class="player-creatures-row">${playerCreaturesHTML}</div>
         </div>
         </div>
