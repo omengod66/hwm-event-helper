@@ -12,23 +12,86 @@ export default async function leaderEvent() {
 
     let isEvent = false
     let lg_lvl = parseInt(get('hero_leader_lvl', 10));
+    let originalBattles = []
     let battles = [];
     let isLostBattles = false;
 
     window.sendApplyArmy = sendApplyArmy
     window.saveFav = saveFav
     window.showSpecialCreatureData = showSpecialCreatureData
-    window.replaceCellListener = replaceCellListener
-    window.removeOverlay = removeOverlay
 
 
+    if (/(lg_event)/.test(location.href)) {
+        removeLeaderboard()
+        setTimer(document.querySelectorAll(".global_container_block_header")[1])
+        let leaderBoardTarget = Array.from(document.querySelectorAll(".frac_event_stat center")).at(-1)
+        setLeaderboard(leaderBoardTarget, "beforebegin")
+
+        let enemiesContainer = document.querySelector(".frac_enemy_block").parentElement
+        enemiesContainer.style.flexDirection = "column"
+        if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {
+        } else {
+            $("hwm_no_zoom").style.width = "unset"
+            $("hwm_no_zoom").style.maxWidth = "1280px"
+        }
+
+        let settingsContainer = Array.from(document.querySelectorAll(".global_container_block_header.ev_header")).at(-1)
+
+        eventHelperSettings(settingsContainer, (container) => {
+            setSettings("auto_send_event_lg", "Отправлять бои из ГЛ ивента в сервис автоматически", container)
+            setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
+            setSettings("lg_show_available", "Отображать только доступные наборы", container, false)
+            setSettings("lg_hide_duplicates", "Скрывать дубликаты наборов", container, false)
+            setSettings("hide_faction_event_enemies", "Показывать противников только сложных противников", container, false)
+        }, "afterend")
+
+        if (get("hide_faction_event_enemies", false)) {
+            Array.from(enemiesContainer.children).slice(1).forEach(elem => elem.remove())
+        }
+
+        Array.from(enemiesContainer.children).forEach((enemy, index) => {
+            enemy.insertAdjacentHTML("beforeend", `
+                <div id="find_examples_${index}" class="home_button2 btn_hover2" style="align-self: center; margin: 4px">Найти проходки</div>
+            `)
+            $(`find_examples_${index}`).addEventListener("click", (e) => {
+                if ($("main-data")) {
+                    $("main-data").remove()
+                }
+                let extra = new Map()
+
+                let enemy_hero = false
+                let creatures = Array.from(enemy.querySelectorAll(".cre_creature"))
+                let creaturesMap = {}
+                creatures.forEach(creature => {
+                    let portrait = creature.innerHTML.match(/portraits\/(.*)p33/)[1]
+                    let amountContainer = creature.querySelector(".cre_amount48")
+                    if (amountContainer) {
+                        let amount = amountContainer.innerText - 0
+                        if (creaturesMap.hasOwnProperty(portrait)) {
+                            creaturesMap[portrait] += amount
+                        } else {
+                            creaturesMap[portrait] = amount
+                        }
+                    } else {
+                        enemy_hero = true
+                    }
+                })
+
+
+                extra.set("creatures", creaturesMap)
+                extra.set("enemy_hero", enemy_hero)
+                extra.set("wave", document.body.innerText.match(/Задание: (\d{1,3})/)[1])
+
+                setLoading(e.target.parentElement)
+                getResources(getWaveInfo, createLeaderTemplate, e.target.parentElement, extra)
+                e.target.remove()
+            })
+        })
+    }
 
     if (/(leader_rogues|leader_winter)/.test(location.href)) {
         removeLeaderboard()
-
-        if (get("show_event_timer", true)) {
-            setTimer(document.querySelector(".global_container_block_header"))
-        }
+        setTimer(document.querySelector(".global_container_block_header"))
 
         isEvent = true
         if (document.body.innerHTML.includes("leader_rogues.php?action=cancel_merc")) {
@@ -110,42 +173,45 @@ export default async function leaderEvent() {
         //createWelcomeTemplate()
         lg_lvl = document.body.innerHTML.match(/lev=(\d{1,2})/)[1] - 0
         set("hero_leader_lvl", lg_lvl)
-        eventHelperSettings(Array.from(document.querySelectorAll('table[class="wb"]')).slice(-1)[0], (container) => {
+        eventHelperSettings(Array.from(document.querySelectorAll(`.leader_ramka`)).at(-1), (container) => {
             setSettings("auto_send_lg", "Отправлять бои с опасными бандитами в сервис автоматически", container)
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("lg_show_available", "Отображать только доступные наборы", container, false)
             setSettings("lg_hide_duplicates", "Скрывать дубликаты наборов", container, false)
         }, "afterend")
         if (!document.body.innerText.includes("Опасная цель устранена")) {
-            setLoading(Array.from(document.querySelectorAll(`td[valign="top"][align="left"]`)).slice(-1)[0])
-            getResources(getTodayBandits, createBanditsTemplate, Array.from(document.querySelectorAll(`td[valign="top"][align="left"]`)).slice(-1)[0])
+            setLoading(Array.from(document.querySelectorAll(`.leader_ramka`)).at(-1))
+            getResources(getTodayBandits, createBanditsTemplate, Array.from(document.querySelectorAll(`.leader_ramka`)).at(-1))
         }
     }
 
     function createBanditsTemplate() {
         return `
-                    <div class="wrapper">
-                        <div class="records-container-body" id="main-data"></div>
-                    </div>
-                `
+            <div class="wrapper">
+                <div class="records-container-body" id="main-data"></div>
+            </div>
+        `
     }
 
-    function getResources(getExamples, showExamples, target) {
-        return Promise.all([getHeroCreatures(), getExamples()]).then(() => {
+    function getResources(getExamples, showExamples, target, extraData = null) {
+        return Promise.all([getHeroCreatures(), getExamples(extraData)]).then(() => {
             setExampleBattles(showExamples(), target)
         })
     }
 
     function setLoading(where = document.body) {
         where.insertAdjacentHTML("beforeend", `
-                    <div style="display: flex; justify-content: center;"  id="loading" >
-                        <img style="margin-top: 20px" src="https://i.imgur.com/4RrPm82.gif" width="400" alt="">
-                    </div>`)
+            <div style="display: flex; justify-content: center;"  id="loading" >
+                <img style="margin-top: 20px" src="https://i.imgur.com/4RrPm82.gif" width="400" alt="">
+            </div>
+        `)
     }
 
     async function getHeroCreatures() {
-        let doc = await doGet('/leader_army.php', true)
-        processLeaderArmyResponse(doc)
+        if (Object.entries(heroCreatures).length === 0) {
+            let doc = await doGet('/leader_army.php', true)
+            processLeaderArmyResponse(doc)
+        }
     }
 
     function processLeaderArmyResponse(doc) {
@@ -176,7 +242,83 @@ export default async function leaderEvent() {
         })
     }
 
-    async function getWaveInfo() {
+    async function getWaveInfo(extraData = null) {
+        if (extraData) {
+            if (originalBattles.length === 0) {
+                originalBattles = await doGet(`getEventLeaderBattles?wave=${extraData.get("wave")}&token=${get("hwm_events_token", "")}`)
+                originalBattles.sort((a, b) => {
+                    a = parseFloat(a.cost)
+                    b = parseFloat(b.cost)
+                    if (a < 0 || b < 0) {
+                        return b - a
+                    } else {
+                        return a - b
+                    }
+                })
+            }
+
+            let creaturesKey = Object.entries(extraData.get("creatures")).map(([k, v]) => {
+                return `${k}~${v}`
+            })
+                .sort((a, b) => b.localeCompare(a))
+                .join("|")
+
+
+            battles = originalBattles.filter(battle => {
+                let battle_key = Object.entries(battle.enemy_creatures).map(([k, v]) => {
+                    return `${k}~${v}`
+                })
+                    .sort((a, b) => b.localeCompare(a))
+                    .join("|")
+
+                return battle_key === creaturesKey
+            })
+            if (battles.length > 0) {
+                return
+            }
+
+            // let relaxed_key = Object.entries(extraData.get("creatures")).map(([k, v]) => {
+            //     return `${k}`
+            // })
+            //     .sort((a, b) => b.localeCompare(a))
+            //     .join("|")
+            // battles = originalBattles.filter(battle => {
+            //     let battle_key = Object.entries(battle.enemy_creatures).map(([k, v]) => {
+            //         return `${k}`
+            //     })
+            //         .sort((a, b) => b.localeCompare(a))
+            //         .join("|")
+            //
+            //     return battle_key === relaxed_key && ("enemy_hero" in battle && extraData.get("enemy_hero") || extraData.get("enemy_hero") === false)
+            // })
+            // if (battles.length > 0) {
+            //     return
+            // }
+
+            let targetHits = Math.floor(Object.entries(extraData.get("creatures")).length/2) + 1
+
+            battles = originalBattles.filter(battle => {
+                if ("enemy_hero" in battle && extraData.get("enemy_hero") || extraData.get("enemy_hero") === false) {
+                    let hits = 0
+                    for (const [cre, amount] of Object.entries(extraData.get("creatures"))) {
+                        if (cre in battle.enemy_creatures) {
+                            hits++
+                        }
+                    }
+                    if (hits >= targetHits) {
+                        return true
+                    }
+                }
+                return false
+            })
+            if (battles.length > 0) {
+                return
+            }
+
+
+            battles = []
+            return
+        }
         battles = await doGet(`getEventLeaderBattles?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
         if (battles.length > 0) {
             battles.sort((a, b) => {
@@ -194,7 +336,7 @@ export default async function leaderEvent() {
         }
     }
 
-    async function getTodayBandits() {
+    async function getTodayBandits(extraData = null) {
         battles = await doGet(`getDbBattles?lg_lvl=${lg_lvl}&token=${get("hwm_events_token", "")}`)
         battles.sort((a, b) => parseFloat(b.survived) - parseFloat(a.survived))
     }
@@ -479,94 +621,6 @@ export default async function leaderEvent() {
     }
 
 
-    function replaceCellListener(rowDataId, recordId, playerId, cellId) {
-        let rowData = rowDatas[rowDataId]
-        setSelectNewCreatureTemplate(rowData, recordId, playerId, cellId)
-    }
-
-    function setSelectNewCreatureTemplate(rowData, recordId, playerId, cellId) {
-        let replaceCreatureTarget = $(`replace-creature-${recordId}-${playerId}-${cellId}`).parentElement
-        let newCreatureTemplate = `
-               <div style="position: absolute; width: 100%; height: ${getScrollHeight() + 500}px; background: rgba(0,0,0,0.22); z-index: 1000000" onclick="removeOverlay()">
-                   <div id="select-new-creature" style="position: absolute; background: #608FBF; border: 3px solid cyan;  width: 300px; height: 400px; z-index: 4; display: flex; flex-direction: column" onclick="event.stopPropagation()">
-                        <div id="select-new-creature-faction" style="display: flex; flex-direction: row; flex-wrap: wrap"></div>
-                        <div id="new-creatures" style="overflow-y: auto; display: flex; flex-direction: column"></div>
-                    </div>
-               </div>`
-        let android = $(`android_container`)
-        let container = android ? android : document.body
-        container.insertAdjacentHTML('afterbegin', newCreatureTemplate)
-        let newCreatureElement = $(`select-new-creature`)
-        newCreatureElement.style.left = replaceCreatureTarget.offsetLeft + 60
-        newCreatureElement.style.top = replaceCreatureTarget.offsetTop
-        fillNewCreatures(-1, rowData, recordId, playerId, cellId)
-        allFactions.forEach(faction => {
-            $(`select-new-creature-faction`).insertAdjacentHTML('beforeend', getHTMLFactionSelect(faction))
-            $(`faction-select${faction[0]}`).addEventListener('click', () => {
-                $(`new-creatures`).innerHTML = ''
-                fillNewCreatures(faction[0], rowData, recordId, playerId, cellId)
-            })
-        })
-    }
-
-    function fillNewCreatures(constraint, rowData, recordId, playerId, cellId) {
-        let remainingLeadership = getRemainingLeadership(rowData, cellId)
-        Object
-            .entries(heroCreatures)
-            .forEach(([key, value], index) => {
-                if (!checkExistingInRowData(key, rowData) && (constraint === -1 ? true : value['race'] - 0 === constraint)) {
-                    let newAmount = Math.min(Math.floor(Math.min(remainingLeadership, (10 + lg_lvl) * 400) / (value['cost'] - 0)), value['count'] - 0)
-                    if (newAmount > 0) {
-                        $('new-creatures').insertAdjacentHTML('beforeend', `
-                                <div id="new-creature-${index}" style="display: flex; flex-direction: row;">
-                                    ${getNewCreatureIcon(key, newAmount)}
-                                    <div style="margin: auto">
-                                        <p style="text-decoration: underline; cursor: pointer">${value['name']}</p>
-                                    </div>
-                                </div>`)
-                        $(`new-creature-${index}`).addEventListener('click', () => {
-                            let replaceTarget = $(`creature-${recordId}-${playerId}-${cellId}`)
-                            replaceTarget.innerHTML = getNewCreatureIcon(key, newAmount)
-                            rowData[cellId] = [key, newAmount, true]
-                            setLeaderShip(recordId, playerId, rowData)
-                            removeOverlay()
-                        })
-                    }
-                }
-            })
-    }
-
-    function getHTMLFactionSelect(faction) {
-        let factionSelectBody
-        if (faction[0] === -1) {
-            factionSelectBody = `<b>All</b>`
-        } else {
-            factionSelectBody = `<img src="https://${cdnHost}/i/f/${faction[2]}" alt="${faction[1]}" title="${faction[1]}" style="width: 30px; height: 30px">`
-        }
-        return `
-            <div id="faction-select${faction[0]}" style="justify-content: center; display: flex; align-items: center; width: 50px; height: 50px; cursor: pointer">
-                ${factionSelectBody}
-            </div>
-            `
-    }
-
-    function checkExistingInRowData(name, rowData) {
-        let isExist = false
-        rowData.forEach(cre => {
-            if (name === cre[0]) {
-                isExist = true
-            }
-        })
-        return isExist
-    }
-
-    function setLeaderShip(recordId, playerId, rowData) {
-        let allPresent = isAllPresent(rowData)
-        $(`creatures-${recordId}-${playerId}-apply-button`).innerText = "Набрать"
-        $(`creatures-${recordId}-${playerId}-leadership`).innerHTML =
-            getRecordPlayerLeadershipTemplate(recordId, playerId, getLeadership(rowData), allPresent)
-    }
-
     function getRecordPlayerLeadershipTemplate(recordId, playerId, leadership, allPresent) {
         return `
                 <img height="24" src="https://${cdnHost}/i/icons/attr_leadership.png?v=1" alt="" title="Лидерство сборки">
@@ -581,14 +635,6 @@ export default async function leaderEvent() {
         }, 0)
     }
 
-    function getRemainingLeadership(rowData, cellId) {
-        return (10 + lg_lvl) * 1000
-            - getLeadership(rowData)
-            + (rowData[cellId][1] - 0)
-            * (heroCreatures.hasOwnProperty(rowData[cellId][0]) && heroCreatures[rowData[cellId][0]]['count'] >= rowData[cellId][1] - 0
-                ? heroCreatures[rowData[cellId][0]]['cost'] - 0
-                : 0)
-    }
 
     async function sendApplyArmy(rowDataId) {
         await doPost(`/leader_army_apply.php${isEvent ? "?from_event=1" : ""}`, getApplyArmyForm(rowDatas[rowDataId]), true)
@@ -605,7 +651,4 @@ export default async function leaderEvent() {
         return formData
     }
 
-    function removeOverlay() {
-        $(`select-new-creature`).parentElement.remove()
-    }
 }

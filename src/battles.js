@@ -264,8 +264,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     function getCreaturesHTML(battle, index) {
         if (currentSilver === 0
             || !("creatures" in battle)
-            || (!location.href.includes("reaping_event") && !location.href.includes("adventure_event") && !location.href.includes("naym_event"))
-            || Object.keys(creaturesInfo).length === 0) {
+            || (!location.href.includes("reaping_event") && !location.href.includes("adventure_event") && !location.href.includes("naym_event"))) {
             return ""
         }
 

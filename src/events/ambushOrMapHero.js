@@ -1,5 +1,5 @@
 import {$, get, pl_id, set} from "../utils/commonUtils";
-import {collapseEventDesc, getCurrentLevel, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
 import {doGet} from "../utils/networkUtils";
@@ -25,6 +25,7 @@ let allTexts = getAllTexts()
 export default async function thiefEvent() {
     if (/(ambush_single_event|map_hero_event)/.test(location.href)) {
         if (/map_hero_event/.test(location.href)) {
+            removeLeaderboard()
             if (typeof hwm_mobile_view === "undefined") {
                 let elem = document.querySelector(".event_result_attack")
                 elem.style.flexDirection = "row-reverse"
@@ -89,7 +90,7 @@ export default async function thiefEvent() {
                 creatureInfo.amount = creature.getElementsByClassName('cre_amount72')[0].innerText
                 creaturesData.push(creatureInfo)
             })
-            let creaturesMultiplier = Array.from(document.querySelectorAll("div.show_hint")).at(-1).querySelector("div > div:nth-child(2) > b").innerText
+            let creaturesMultiplier = document.querySelector('img[src$="/i/kstat4.gif"]').parentElement.nextElementSibling.firstElementChild.innerText
             creaturesMultiplier = creaturesMultiplier.match(/\d{1,3}/)[0] - 0
 
             document.querySelector("#map_event_stats").insertAdjacentHTML("beforeend", `
