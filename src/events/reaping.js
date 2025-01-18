@@ -1,5 +1,5 @@
-import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
-import {get, my_sign, set} from "../utils/commonUtils";
+import {setLeaderboard} from "../leaderboard";
+import {get, set} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
 import {collapseEventDesc, getCurrentLevel, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
@@ -68,22 +68,16 @@ export default async function reapingEvent() {
 
     if (location.href.includes("reaping_event.")) {
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
-        if (get("show_top_clan_attempts", true)) {
-            setTopClanAttempts(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("table")).at(-1))
-        }
+
         eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
             setSettings("auto_send_reaping_event", allTexts.get("auto_send_reaping_event"), container)
             setSettings("only_clan_visibility", allTexts.get("only_clan_visibility"), container, false)
             setSettings("collapse_event_desc", allTexts.get("collapse_event_desc"), container, false)
             setSettings("hide_rogues_event_enemies", allTexts.get("hide_rogues_event_enemies"), container)
-            setSettings("show_top_clan_attempts", allTexts.get("show_top_clan_attempts"), container)
-            setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
             setSettings("hide_easy_examples", allTexts.get("hide_easy_examples"), container, false)
         }, "afterbegin")
         set("eh_current_level", null)
-        if (get("show_event_timer", true)) {
-            setTimer(document.querySelector(".global_container_block_header"))
-        }
+        setTimer(document.querySelector(".global_container_block_header"))
         collapseEventDesc()
         setClickableLevels()
         getEventBattles(Array.from(document.querySelectorAll(".global_container_block")).at(-2), "getRoguesEventBattles", 1)

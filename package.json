@@ -5,7 +5,7 @@
   "source": "src/index.js",
   "main": "build/EventHelperV2.user.js",
   "devDependencies": {
-    "parcel": "latest"
+    "parcel": "2.12.0"
   },
   "scripts": {
     "watch": "parcel watch",

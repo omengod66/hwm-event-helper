@@ -1,4 +1,4 @@
-import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
+import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {$, get, groupBy, groupByKey, set, sortByKey} from "../utils/commonUtils";
 import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
@@ -13,7 +13,6 @@ function getAllTexts() {
     texts.addText(new LocalizedText("only_clan_visibility", "My battles are only available to the clan", "Мои бои доступны только для клана", "Мої бої доступні лише для клану"))
     texts.addText(new LocalizedText("collapse_event_desc", "Always collapse fight descriptions", "Всегда сворачивать описания боев", "Завжди згортати описи боїв"))
     texts.addText(new LocalizedText("hide_rogues_event_enemies", "Show price statistics", "Показывать статистику цен", "Показувати статистику цін"))
-    texts.addText(new LocalizedText("return_to_prev_level", "Return to an unfinished level", "Возвращать на незавершенный уровень", "Повертати на незавершений рівень"))
     texts.addText(new LocalizedText("bought", "bought", "куплено", "куплено"))
     texts.addText(new LocalizedText("sold", "sold", "продано", "продано"))
     texts.addText(new LocalizedText("trade_for", "for", "по", "по"))
@@ -37,16 +36,12 @@ export default function hireEvent() {
         // processFilters()
         removeLeaderboard()
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
-        if (get("show_top_clan_attempts", true)) {
-            setTopClanAttempts(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("table")).at(-1))
-        }
+
         eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
             setSettings("auto_send_rogues_event", allTexts.get("auto_send_rogues_event"), container)
             setSettings("only_clan_visibility", allTexts.get("only_clan_visibility"), container, false)
             setSettings("collapse_event_desc", allTexts.get("collapse_event_desc"), container, false)
             setSettings("hide_rogues_event_enemies", allTexts.get("hide_rogues_event_enemies"), container)
-            setSettings("return_to_prev_level", allTexts.get("return_to_prev_level"), container, false)
-            setSettings("show_top_clan_attempts", allTexts.get("show_top_clan_attempts"), container)
             setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
         }, "afterbegin")
         set("eh_current_level", null)
@@ -102,23 +97,10 @@ export default function hireEvent() {
                     elem.style.padding = "unset"
                     let submit = elem.querySelector("div[id^=ne_set_button] > a")
                     let newSubmit = elem.querySelector("div[id^=hire_all]")
-                    console.log("here")
                     if (submit && !newSubmit) {
-                        console.log("here2")
                         let name = elem.innerHTML.match(/army_info\.php\?name=([a-zA-Z0-9_-]+)/)[1]
                         let price = parseInt(elem.innerText.match(/(?:Цена|Price): (\d{1,6})/)[1].replaceAll(",", ""))
-                        let maxAmount = elem.querySelector("select > option:last-child").value - 0
-
-                        // let currentAmount = 0
-                        //
-                        // let currentHire = Array.from(document.querySelectorAll("#ne_set_current_army > div"))
-                        //     .filter(elem => elem.innerHTML.includes("cre_creature"))
-                        //     .filter(elem => elem.innerHTML.includes(`=${name}"`))
-                        // if (currentHire.length > 0) {
-                        //     currentAmount = parseInt(currentHire[0].querySelector(".cre_creature").innerText)
-                        // }
-
-                        let possibleAmount = maxAmount/* - currentAmount*/
+                        let possibleAmount = elem.querySelector("select > option:last-child").value - 0
                         possibleAmount = Math.min(Math.floor(availableSilver / price), possibleAmount)
 
                         submit.parentElement.insertAdjacentHTML("afterend", `

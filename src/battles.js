@@ -15,6 +15,7 @@ import {getCurrentLevel} from "./utils/eventUtils";
 import {getNewCreatureIcon, getSpoiler} from "./templates";
 import {LocalizedText, LocalizedTextMap} from "./utils/localizationUtils";
 import {fav_icon, greenArrowSvg, not_fav_icon} from "./utils/icons";
+import {getSpecialCreatureExtraData, getSpecialCreatureTemplate, showSpecialCreatureData} from "./events/leader";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -37,14 +38,14 @@ function getAllTexts() {
     texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
     texts.addText(new LocalizedText("hire", "Hire", "Набрать", "Найняти"))
     texts.addText(new LocalizedText("hwmevents",
-        `Website with examples <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Share with friends!`,
-        `Проходки есть и на сайте <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поделись с другом!`,
-        `Приклади також є і на сайті <a href="https://hwm.events/ffa" target="_blank">https://hwm.events/ffa</a> Поділися з друзями!`))
+        `Website with examples <a href="https://hwm.achepta.com/ffa" target="_blank">https://hwm.achepta.com/ffa</a> Share with friends!`,
+        `Проходки есть и на сайте <a href="https://hwm.achepta.com/ffa" target="_blank">https://hwm.achepta.com/ffa</a> Поделись с другом!`,
+        `Приклади також є і на сайті <a href="https://hwm.achepta.com/ffa" target="_blank">https://hwm.achepta.com/ffa</a> Поділися з друзями!`))
 
     texts.addText(new LocalizedText("hwmevents_rogues",
-        `Website with examples <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/rogues</a> Share with friends!`,
-        `Проходки есть и на сайте <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/rogues</a> Поделись с другом!`,
-        `Приклади також є і на сайті <a href="https://hwm.events/rogues" target="_blank">https://hwm.events/rogues</a> Поділися з друзями!`))
+        `Website with examples <a href="https://hwm.achepta.com/rogues" target="_blank">https://hwm.achepta.com/rogues</a> Share with friends!`,
+        `Проходки есть и на сайте <a href="https://hwm.achepta.com/rogues" target="_blank">https://hwm.achepta.com/rogues</a> Поделись с другом!`,
+        `Приклади також є і на сайті <a href="https://hwm.achepta.com/rogues" target="_blank">https://hwm.achepta.com/rogues</a> Поділися з друзями!`))
 
     return texts
 }
@@ -102,6 +103,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         background-color: #fffef9;
         box-shadow: inset 0 0 0 1px #b19673, 0 2px 2px rgb(0 0 0 / 25%);
     }</style>`)
+    console.log(getCurrentLevel())
     let battles = await doGet(`${from}?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
     processEventBattles(target, battles)
 
@@ -236,7 +238,8 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
         let my_lvl_battles = battles.filter(battle => battle["hero_lvl"] === pl_lvl)
         result += ffaBattlesToHTML(my_lvl_battles)
 
-        result += `<div style="text-align: center;"><h4>${allTexts.get("another_cl")}</h4><h6>${allTexts.get("another_cl_army")}</h6></div>`
+        //<h6>${allTexts.get("another_cl_army")}</h6>
+        result += `<div style="text-align: center;"><h4>${allTexts.get("another_cl")}</h4></div>`
         let not_my_lvl_battles = battles.filter(battle => battle["hero_lvl"] !== pl_lvl)
         let cl_buckets = {}
         not_my_lvl_battles.forEach(battle => {
@@ -262,16 +265,84 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     function getCreaturesHTML(battle, index) {
-        if (currentSilver === 0 || !("creatures" in battle) || (!location.href.includes("reaping_event") && !location.href.includes("adventure_event")) || Object.keys(creaturesInfo).length === 0) {
-            return ""
+        if (currentSilver === 0
+            || !("creatures" in battle)
+            || (!location.href.includes("reaping_event") && !location.href.includes("adventure_event") && !location.href.includes("naym_event"))) {
+            return [0, ""]
         }
 
         let creatures = battle.creatures[0]
         let totalPrice;
         try {
-            totalPrice = Object.entries(creatures).reduce((prev, [portrait, amount]) => {
-                return prev + creaturesInfo[portrait][1] * amount
-            }, 0)
+            if (document.body.innerText.includes("Путь Хана") || document.body.innerText.includes("Khan's Path")) {
+                totalPrice = Object.entries(creatures).reduce((prev, [portrait, amount]) => {
+                    let creaturePrice = 0
+                    switch (portrait) {
+                        case "goblinusani": {
+                            creaturePrice = 42
+                            break
+                        }
+                        case "witchdoctorani": {
+                            creaturePrice = 42
+                            break
+                        }
+                        case "fcentaurani": {
+                            creaturePrice = 121
+                            break
+                        }
+                        case "mcentaurani": {
+                            creaturePrice = 121
+                            break
+                        }
+                        case "warriorani": {
+                            creaturePrice = 190
+                            break
+                        }
+                        case "warmongani": {
+                            creaturePrice = 190
+                            break
+                        }
+                        case "shamanessani": {
+                            creaturePrice = 490
+                            break
+                        }
+                        case "eadaughterani": {
+                            creaturePrice = 490
+                            break
+                        }
+                        case "slayerani": {
+                            creaturePrice = 695
+                            break
+                        }
+                        case "chieftainani": {
+                            creaturePrice = 695
+                            break
+                        }
+                        case "wyvernani": {
+                            creaturePrice = 1900
+                            break
+                        }
+                        case "paokaiani": {
+                            creaturePrice = 1900
+                            break
+                        }
+                        case "cyclopusani": {
+                            creaturePrice = 3900
+                            break
+                        }
+                        case "bloodeyecycani": {
+                            creaturePrice = 3900
+                            break
+                        }
+
+                    }
+                    return prev + creaturePrice * amount
+                }, 0)
+            } else {
+                totalPrice = Object.entries(creatures).reduce((prev, [portrait, amount]) => {
+                    return prev + creaturesInfo[portrait][1] * amount
+                }, 0)
+            }
         } catch (e) {
             totalPrice = 999999
         }
@@ -283,23 +354,43 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 playerCreaturesHTML += `<div id="creature-${index}-${cellId}">${getNewCreatureIcon(creaturePortrait, creatureAmount, "good-creature")}</div>`
             })
 
-        return `
+        let hireArea = ""
+        if (location.href.includes("naym_event")) {
+               hireArea =  `
+                <div id="creatures-${index}-apply" class="creatures-apply">
+                        ${totalPrice <= currentSilver && currentSilver !== Number.MAX_VALUE
+                           ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >${allTexts.get("hire")}</div>` : ""}
+                        ${currentSilver !== Number.MAX_VALUE ? `
+                        <div id="creatures-${index}-leadership" class="player-leadership">
+                            <img height="24" src="https://${cdnHost}/i/adv_ev_silver48.png" alt="">
+                            <span id="leadership-number-${index}" style="color: ${totalPrice <= currentSilver ? "green" : "red"}">
+                                ${totalPrice}
+                            </span>
+                        </div>` : ""}
+                    </div>
+                `
+        }
+        if (document.body.innerText.includes("Путь Хана") || document.body.innerText.includes("Khan's Path")) {
+            hireArea =  `
+                <div id="creatures-${index}-apply" class="creatures-apply">
+                     <div id="creatures-${index}-leadership" class="player-leadership">
+                            <img height="24" src="https://${cdnHost}/i/adv_ev_silver48.png" alt="">
+                            <span id="leadership-number-${index}" style="color: ${totalPrice <= currentSilver ? "green" : "red"}">
+                                ${totalPrice}
+                            </span>
+                        </div>
+                    </div>
+                `
+        }
+
+        return [totalPrice,`
         <div style="width: 80%;display: flex;justify-content: space-between;">
-        <div class="record-player-creatures" id="creatures-${index}">
-            <div id="creatures-${index}-apply" class="creatures-apply">
-                ${totalPrice <= currentSilver && currentSilver !== Number.MAX_VALUE ? `<div id="creatures-${index}-apply-button" class="home_button2 btn_hover2" onclick="sendApplyArmy('${battle.battle_id}')" >${allTexts.get("hire")}</div>` : ""}
-                ${currentSilver !== Number.MAX_VALUE ? `
-                <div id="creatures-${index}-leadership" class="player-leadership">
-                    <img height="24" src="https://${cdnHost}/i/adv_ev_silver48.png" alt="">
-                    <span id="leadership-number-${index}" style="color: ${totalPrice <= currentSilver ? "green" : "red"}">
-                        ${totalPrice}
-                    </span>
-                </div>` : ""}
+            <div class="record-player-creatures" id="creatures-${index}">
+                ${hireArea}
+                <div id="creatures-${index}-creatures" class="player-creatures-row">${playerCreaturesHTML}</div>
             </div>
-            <div id="creatures-${index}-creatures" class="player-creatures-row">${playerCreaturesHTML}</div>
         </div>
-        </div>
-        `
+        `]
     }
 
     let applyingArmy = false;
@@ -392,12 +483,13 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
     }
 
     function ffaBattlesToHTML(battles) {
+        window.showSpecialCreatureData = showSpecialCreatureData
         if (battles.length > 0) {
             battles.sort((a, b) => a.nickname.localeCompare(b.nickname))
-            return groupBy(battles, "nickname").reduce((prev, curr, index) => {
-                let creatures = getCreaturesHTML(curr[0], index)
+            return groupBy(battles, "nickname").map((curr, index) => {
+                let [totalPrice, creatures] = getCreaturesHTML(curr[0], index)
                 let isFav = favourites.includes(curr[0].nickname)
-                return prev + `
+                return [totalPrice, `
                     <div class="hwm_event_example_block">
                         <div style="width: 80%;display: flex;justify-content: space-between;">
                             <div style="display: flex">
@@ -415,10 +507,17 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 }, "")}
                             </div>
                         </div>
+                        ${curr[0].special_creature ? getSpecialCreatureTemplate(curr[0].special_creature, curr[0].battle_id) : `<div class="special-creature"></div>`}
                         ${creatures}
+                        <div class="special-creature-extended" id="special-creature-extended-${curr[0].battle_id}">
+                            ${curr[0].special_creature ? getSpecialCreatureExtraData(curr[0].special_creature) : ""}
+                        </div>
                     </div>
-                            `
-            }, "")
+                            `]
+            })
+                .sort((a, b) => a[0] - b[0])
+                .map(elem => elem[1])
+                .join("")
         } else {
             return `<div style="text-align: center;"><h5>${allTexts.get("empty")}</h5></div>`
         }

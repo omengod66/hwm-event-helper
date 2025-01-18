@@ -1,7 +1,7 @@
 import {$, get, pl_id, set} from "../utils/commonUtils";
-import {collapseEventDesc, getCurrentLevel, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
-import {setLeaderboard, setTopClanAttempts} from "../leaderboard";
+import {setLeaderboard} from "../leaderboard";
 import {doGet} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
 import {eventHelperSettings, setSettings} from "../settings";
@@ -12,7 +12,6 @@ function getAllTexts() {
     texts.addText(new LocalizedText("auto_send_ffa_event", "Send battles from the FFA event to the service automatically", "Отправлять бои из КБО ивента в сервис автоматически", "Відправляти бої з КБО Івенту в сервіс автоматично"))
     texts.addText(new LocalizedText("only_clan_visibility", "My battles are only available to the clan", "Мои бои доступны только для клана", "Мої бої доступні лише для клану"))
     texts.addText(new LocalizedText("collapse_event_desc", "Always collapse battle descriptions", "Всегда сворачивать описания боев", "Завжди згортати описи боїв"))
-    texts.addText(new LocalizedText("return_to_prev_level", "Return to an unfinished level", "Возвращать на незавершенный уровень", "Повертати на незавершений рівень"))
     texts.addText(new LocalizedText("show_creature_calculator", "Show recruit count calculator", "Показывать калькулятор численности", "Показувати калькулятор чисельності"))
     texts.addText(new LocalizedText("hide_easy_examples", "Hide easier examples", "Скрывать облегченные проходки", "Приховувати полегшені проходки"))
     texts.addText(new LocalizedText("current_amount", "Current number of creatures + ", "Текущее количество существ + ", "Поточна кількість істот + "))
@@ -23,7 +22,8 @@ let allTexts = getAllTexts()
 
 
 export default async function thiefEvent() {
-    if (/(ambush_single_event|map_hero_event)/.test(location.href)) {
+    if (/(ambush_single_event|ambush_event|map_hero_event)/.test(location.href)) {
+        removeLeaderboard()
         if (/map_hero_event/.test(location.href)) {
             if (typeof hwm_mobile_view === "undefined") {
                 let elem = document.querySelector(".event_result_attack")
@@ -46,13 +46,12 @@ export default async function thiefEvent() {
             }
         }
 
-        eventHelperSettings(document.querySelector("#map_event_stats"), (container) => {
+        eventHelperSettings(document.querySelector("#event_map"), (container) => {
             setSettings("auto_send_ffa_event", allTexts.get("auto_send_ffa_event"), container)
             setSettings("only_clan_visibility", allTexts.get("only_clan_visibility"), container, false)
-            setSettings("collapse_event_desc",  allTexts.get("collapse_event_desc"), container, false)
-            setSettings("return_to_prev_level",  allTexts.get("return_to_prev_level"), container, false)
-            setSettings("hide_easy_examples",  allTexts.get("hide_easy_examples"), container, false)
-            setSettings("show_creature_calculator",  allTexts.get("show_creature_calculator"), container)
+            setSettings("collapse_event_desc", allTexts.get("collapse_event_desc"), container, false)
+            setSettings("hide_easy_examples", allTexts.get("hide_easy_examples"), container, false)
+            setSettings("show_creature_calculator", allTexts.get("show_creature_calculator"), container)
         }, "afterbegin")
 
         set("eh_current_level", null)
@@ -62,7 +61,13 @@ export default async function thiefEvent() {
         document.querySelector(".new_event_map").insertAdjacentHTML("afterend", `<div id="battle_examples"></div>`)
         getEventBattles($(`battle_examples`))
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).children[0].getElementsByTagName("center")).at(-1))
-        showCalculator()
+        if (!location.href.includes("ambush_event")) {
+            showCalculator()
+        } else {
+            document.querySelector('a[href^="army_info.php?name=fahila"]').insertAdjacentHTML("afterend", `
+             <a href="${location.href.includes("lordswm") ? "https://daily.lordswm.com/event/pet" : "https://daily.heroeswm.ru/event/pet"}" target="_blank">Статистика покемонов</a>
+            `)
+        }
     }
 
     function interceptButtons() {
@@ -70,7 +75,7 @@ export default async function thiefEvent() {
         let available = buttons.filter(x => !x.disabled).length
         buttons.forEach((button, index) => {
             button.addEventListener("mousedown", () => {
-                set("event_battle_side", (button.parentElement.querySelector("[name='variant']").value-1) % 2)
+                set("event_battle_side", (button.parentElement.querySelector("[name='variant']").value - 1) % 2)
                 set("eh_current_level", [getCurrentLevel(), available])
             })
         })
@@ -89,7 +94,7 @@ export default async function thiefEvent() {
                 creatureInfo.amount = creature.getElementsByClassName('cre_amount72')[0].innerText
                 creaturesData.push(creatureInfo)
             })
-            let creaturesMultiplier = Array.from(document.querySelectorAll("div.show_hint")).at(-1).querySelector("div > div:nth-child(2) > b").innerText
+            let creaturesMultiplier = document.querySelector('img[src$="/i/kstat4.gif"]').parentElement.nextElementSibling.firstElementChild.innerText
             creaturesMultiplier = creaturesMultiplier.match(/\d{1,3}/)[0] - 0
 
             document.querySelector("#map_event_stats").insertAdjacentHTML("beforeend", `

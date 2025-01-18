@@ -1,4 +1,5 @@
-const HWM_EVENTS_SERVER = "https://hwm.events"
+const HWM_EVENTS_SERVER = "https://hwm.achepta.com"
+const DAILY_SERVER = "https://daily.lordswm.com/api"
 
 function doRequest(url, method, body, html) {
     return new Promise((resolve => {
@@ -8,7 +9,13 @@ function doRequest(url, method, body, html) {
             http.overrideMimeType("text/html; charset=windows-1251");
             http.open(method, url, true)
         } else {
+            if (url.includes(".php")) {
+                http.open(method, `${DAILY_SERVER}/${url}`, true)
+
+            } else {
+
             http.open(method, `${HWM_EVENTS_SERVER}/${url}`, true)
+            }
         }
         http.send(body);
         http.onreadystatechange = function () {

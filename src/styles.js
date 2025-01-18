@@ -15,7 +15,7 @@ export function setGlobalStyles() {
                     @media (max-width: 1440px) {
                         
                         .records-container-body{
-                            grid-template-columns: 1fr 3fr 3fr !important;
+                            grid-template-columns: repeat(3, auto) !important;
                         }
                         
                         .records-container-body > div:nth-child(n+6) {
@@ -217,7 +217,7 @@ export function setGlobalStyles() {
                         flex-wrap: unset; 
                         justify-content: unset; 
                         display: grid; 
-                        grid-template-columns: 1fr 3fr 2fr 6fr 6fr; 
+                        grid-template-columns: repeat(5, auto); 
                         overflow-x: auto;
                         overflow-y: hidden;
                         width: 100%;

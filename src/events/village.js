@@ -27,7 +27,7 @@ export default function villageEvent() {
         setLeaderboard(document.querySelector('#global_table_div3'), "beforebegin")
         eventHelperSettings(document.querySelector('#global_table_div4'), (container) => {
             setSettings("village_custom_ins", `Возможность автоматической расстановки 
-                        <img src="https://hwm.events/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
+                        <img src="https://hwm.achepta.com/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
                         (будет работать после "закрепления" крестьян башнями)
                     `, container, false)
             setSettings("village_remove_confirm", `Убрать подтверждение постройки/улучшений`, container)

@@ -43,7 +43,7 @@ export async function setTopBattles() {
 export async function setLeaderboard(where, position = "afterbegin", withClan = false, showStat = false, showStatWhere = document.querySelectorAll(".global_container_block")[1]) {
     window.showProgression = showProgression
     let isLeaderboardExpanded = false
-    let topHeroes = await doGet(`getTopScoresV2`)
+    let topHeroes = await doGet(`rating.php`)
     where.insertAdjacentHTML(position,
         `<div style="display: flex; flex-direction: column; flex: 1 1 0;" id="top_heroes_container"></div>`)
     resetLeaderboard(showStat)
@@ -133,7 +133,6 @@ async function showProgression(id, name) {
                                 </div>
                             `
     let heroData = await doGet(`getDunHeroData?pl_id=${id}`)
-    console.log("here")
     let newData = []
     for (let i = 0; i < heroData.length; i++) {
         if (i > 0) {
@@ -239,18 +238,4 @@ async function showProgression(id, name) {
     };
     const ctx = document.getElementById(`chart${id}`).getContext('2d');
     const myChart = new Chart(ctx, config)
-}
-
-export async function setTopClanAttempts(where) {
-    let topClanAttempts = await doGet(`getTopClanTotalAttempts`)
-    Array.from(where.querySelectorAll("tr")).filter(tr => tr.innerText !== "...").forEach(clanElem => {
-        let clanId = clanElem.innerHTML.match(/id=(\d{1,5})/)[1]
-        let scoreElem = Array.from(clanElem.querySelectorAll("td")).at(-1)
-        let clanAttempts = topClanAttempts[clanId]
-        if (clanAttempts) {
-            scoreElem.insertAdjacentHTML("beforeend", `
-                <span title="Оставшиеся попытки" style="cursor: help; font-size: 5pt">(${clanAttempts})</span>
-            `)
-        }
-    })
 }

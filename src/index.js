@@ -1,5 +1,5 @@
 import {doGet} from "./utils/networkUtils";
-import {my_sign, pl_id, pl_lvl, set} from "./utils/commonUtils";
+import {get, my_sign, pl_id, pl_lvl, set} from "./utils/commonUtils";
 import {setGlobalStyles} from "./styles";
 import leaderEvent from "./events/leader";
 import adventureEvent from "./events/adventure";
@@ -21,6 +21,11 @@ import roguesLikeEvent from "./events/roguesLike";
 import clanPage from "./events/clan";
 import reapingEvent from "./events/reaping";
 
+
+if (get("EventHelperVersion", "16.0.4") < "16.0.5") {
+    window.open("https://daily.lordswm.com/scripts/code/EventHelper.user.js")
+    return
+}
 
 async function setup() {
     if (!pl_lvl) {

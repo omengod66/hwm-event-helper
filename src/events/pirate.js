@@ -1,9 +1,9 @@
 import {$, arrayToMapByKey, findAll, get, groupByKey, my_sign, set, sortByKey} from "../utils/commonUtils";
-import {setLeaderboard, setTopBattles, setTopClanAttempts} from "../leaderboard";
+import {setLeaderboard, setTopBattles} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {doGet, doPost} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
-import {setTimer} from "../utils/eventUtils";
+import {removeLeaderboard, setTimer} from "../utils/eventUtils";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -32,6 +32,9 @@ let allTexts = getAllTexts()
 
 export default async function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
+        removeLeaderboard()
+        let leaderBoardTarget = Array.from(document.querySelectorAll("#tableDiv center")).at(-1)
+        setLeaderboard(leaderBoardTarget, "beforebegin")
         document.querySelector(".pirate_event_blocks").style.width = "100%"
         document.querySelector("#set_mobile_max_width").style.justifyContent = "center"
         document.querySelector(".global_inside_shadow.pirate_event_picture").remove()
@@ -60,9 +63,7 @@ export default async function pirateEvent() {
             }
         }
 
-        if (get("show_event_timer", true)) {
-            setTimer(document.querySelector(".global_container_block_header"))
-        }
+        setTimer(document.querySelector(".global_container_block_header"))
 
         let tableDiv = document.querySelectorAll("#tableDiv")[2]
         let trs = tableDiv.querySelector("table > tbody").childNodes;
@@ -84,19 +85,17 @@ export default async function pirateEvent() {
         items = sortByKey(items, "opt_price", -1);
         let template = getPirateEventTemplate(items);
         let target_td = document.querySelectorAll("#tableDiv")[2];
-        if (get("sort_products", true)) {
-            target_td.removeChild(target_td.childNodes[0]);
-            target_td.insertAdjacentHTML("beforeend", template);
-        }
+        target_td.removeChild(target_td.childNodes[0]);
+        target_td.insertAdjacentHTML("beforeend", template);
 
         let tonns = findAll(/[- ](\d{1,3}) [tт]\.\n[a-zA-Zа-яА-Я]+: (\d{1,3}) [tт]/, document.querySelectorAll("#tableDiv")[0].querySelector(" table > tbody > tr:nth-child(2) > td").innerText)
         let maxCapacity = tonns[0][1] - 0
         let currentCapacity = tonns[0][2] - 0
-        if (currentCapacity === 0 && get("show_autofill_options", true)) {
+        if (currentCapacity === 0) {
             target_td.insertAdjacentHTML("beforeend", `
                 <div id="fill_container">
                     <div id="fill_result" style="display: none; flex-direction: column; align-items: center">
-                        <div><img src="https://hwm.events/img/shiploading.gif" width="300"></div>
+                        <div><img src="https://hwm.achepta.com/img/shiploading.gif" width="300"></div>
                         <div><p><b>${allTexts.get("fill_process")}</b></p></div>
                     </div>
                     <div id="fill_options" style="display: flex; flex-direction: column; align-items: center">
@@ -136,9 +135,6 @@ export default async function pirateEvent() {
 
         eventHelperSettings(target_td, (container) => {
             setSettings("auto_return_after_battle", allTexts.get("auto_return_after_battle"), container)
-            setSettings("show_autofill_options", allTexts.get("show_autofill_options"), container)
-            setSettings("sort_products", allTexts.get("sort_products"), container)
-            setSettings("show_event_timer", allTexts.get("show_event_timer"), container)
             setSettings("show_ship_available_alert", allTexts.get("show_ship_available_alert"), container)
         })
     }
@@ -232,9 +228,7 @@ export default async function pirateEvent() {
             false,
             true)
 
-        if (get("show_event_timer", true)) {
-            setTimer(Array.from(document.querySelectorAll(".global_container_block_header")).at(1))
-        }
+        setTimer(Array.from(document.querySelectorAll(".global_container_block_header")).at(1))
         setTopBattles()
     }
 
