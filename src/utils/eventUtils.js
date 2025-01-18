@@ -20,6 +20,9 @@ export function collapseEventDesc() {
             && (document.querySelector("#event_desc_block") !== null && document.querySelector("#event_desc_block").style.display !== "none")) {
             document.querySelector(".event_desc_open_btn").click()
         }
+        if (document.querySelector(".event_desc_block_outside.event_desc_border ")) {
+            document.querySelector(".event_desc_open_btn").click()
+        }
     }
 }
 
@@ -41,6 +44,9 @@ export function getCurrentLevel() {
     }
     if (document.getElementsByClassName("CheckpointCurrent").length > 0) {
         return document.getElementsByClassName("CheckpointCurrent")[0].innerText.match(/\d{1,3}/)[0];
+    }
+    if (document.getElementsByClassName("Checkpoints_span").length > 0) {
+        return Array.from(document.getElementsByClassName("Checkpoints_span")).at(-1).innerText.match(/\d{1,3}/)[0];
     }
     return "100";
 }
@@ -65,7 +71,7 @@ export function setTimer(where) {
     where.style.justifyContent = "center"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
-    let countDownDate = new Date(1728853201000).getTime();
+    let countDownDate = new Date(1735506000000).getTime();
     function process() {
         let now = new Date().getTime();
         let distance = countDownDate - now;

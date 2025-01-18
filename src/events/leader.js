@@ -1,4 +1,15 @@
-import {$, allFactions, cdnHost, findAll, get, heroCreatures, magicSpells, mode, set} from "../utils/commonUtils";
+import {
+    $,
+    allFactions,
+    cdnHost,
+    findAll,
+    get,
+    heroCreatures,
+    magicSpells,
+    mode,
+    my_sign,
+    set
+} from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
 import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {setLeaderboard} from "../leaderboard";
@@ -22,7 +33,9 @@ export default async function leaderEvent() {
 
 
     if (/(lg_event)/.test(location.href)) {
+        isEvent = true
         removeLeaderboard()
+        collapseEventDesc()
         setTimer(document.querySelectorAll(".global_container_block_header")[1])
         let leaderBoardTarget = Array.from(document.querySelectorAll(".frac_event_stat center")).at(-1)
         setLeaderboard(leaderBoardTarget, "beforebegin")
@@ -42,7 +55,8 @@ export default async function leaderEvent() {
             setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("lg_show_available", "Отображать только доступные наборы", container, false)
             setSettings("lg_hide_duplicates", "Скрывать дубликаты наборов", container, false)
-            setSettings("hide_faction_event_enemies", "Показывать противников только сложных противников", container, false)
+            setSettings("hide_faction_event_enemies", "Показывать только сложных противников", container, false)
+            setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
         }, "afterend")
 
         if (get("hide_faction_event_enemies", false)) {
@@ -59,9 +73,14 @@ export default async function leaderEvent() {
                 }
                 let extra = new Map()
 
-                let enemy_hero = false
+                let enemy_hero = /(Combat level|Боевой уровень)/.test(enemy.innerText)
                 let creatures = Array.from(enemy.querySelectorAll(".cre_creature"))
+
+                // обычные существа
                 let creaturesMap = {}
+
+                //палатки
+                let creGenerator = {}
                 creatures.forEach(creature => {
                     let portrait = creature.innerHTML.match(/portraits\/(.*)p33/)[1]
                     let amountContainer = creature.querySelector(".cre_amount48")
@@ -72,15 +91,22 @@ export default async function leaderEvent() {
                         } else {
                             creaturesMap[portrait] = amount
                         }
-                    } else {
-                        enemy_hero = true
                     }
+                    if (/(brevno|hellgate|derevo|witchhouse|house|sbor|imper|cmajak|lamp|logovo|grob|vdutl|sknor|sarkofag|sklep|yurt|elspawn|fabrik|gnh)/.test(portrait)) {
+                        if (creGenerator.hasOwnProperty(portrait)) {
+                            creGenerator[portrait] += 1
+                        } else {
+                            creGenerator[portrait] = 1
+                        }
+                    }
+
                 })
 
 
-                extra.set("creatures", creaturesMap)
+                extra.set("creatures", Object.entries(creGenerator).length > 0 ? creGenerator : creaturesMap)
                 extra.set("enemy_hero", enemy_hero)
-                extra.set("wave", document.body.innerText.match(/Задание: (\d{1,3})/)[1])
+                extra.set("wave", document.body.innerText.match(/(Задание|Task): (\d{1,3})/)[2])
+                extra.set("enemy", enemy.innerText.match(/(Враг|Enemy) #(\d{1,2})/)[1])
 
                 setLoading(e.target.parentElement)
                 getResources(getWaveInfo, createLeaderTemplate, e.target.parentElement, extra)
@@ -175,7 +201,6 @@ export default async function leaderEvent() {
         set("hero_leader_lvl", lg_lvl)
         eventHelperSettings(Array.from(document.querySelectorAll(`.leader_ramka`)).at(-1), (container) => {
             setSettings("auto_send_lg", "Отправлять бои с опасными бандитами в сервис автоматически", container)
-            setSettings("only_clan_visibility", "Мои бои доступны только для клана", container, false)
             setSettings("lg_show_available", "Отображать только доступные наборы", container, false)
             setSettings("lg_hide_duplicates", "Скрывать дубликаты наборов", container, false)
         }, "afterend")
@@ -215,29 +240,22 @@ export default async function leaderEvent() {
     }
 
     function processLeaderArmyResponse(doc) {
-        let bodyHTML = doc
-            .body
-            .innerHTML
-            .toString()
+        let script = Array.from(doc.body.getElementsByTagName("script")).filter(scr => scr.innerHTML.includes("obj[1] = {"))[0]
 
-        let matchesId = findAll(/obj\[\d{1,3}]\['monster_id'] = '([a-z0-9_-]+)'/g, bodyHTML)
-        let matchesCount = findAll(/obj\[\d{1,3}]\['count'] = (\d+)/g, bodyHTML)
-        let matchesCost = findAll(/obj\[\d{1,3}]\['cost'] = (\d+)/g, bodyHTML)
-        let matchesName = findAll(/obj\[\d{1,3}]\['name'] = '([А-Яа-яёЁa-zA-Z`_ -]+)'/g, bodyHTML)
-        let matchesPortrait = findAll(/obj\[\d{1,3}]\['lname'] = '([a-z0-9_-]+)'/g, bodyHTML)
-        let matchesVersion = findAll(/obj\[\d{1,3}]\['version'] = '(\d{1,3})'/g, bodyHTML)
-        let matchesRarity = findAll(/obj\[\d{1,3}]\['rarity'] = (\d{1,3})/g, bodyHTML)
-        let matchesRace = findAll(/obj\[\d{1,3}]\['race'] = (\d{1,3})/g, bodyHTML)
+        const str2obj = str => str.replace(/(\w+: )/g, s => '"' + s.substring(0, s.length - 2) + '": ');
 
-        matchesPortrait.forEach((id, index) => {
-            heroCreatures[id[1]] = {
-                'count': matchesCount[index][1],
-                'cost': matchesCost[index][1],
-                'name': matchesName[index][1],
-                'id': matchesId[index][1],
-                'version': matchesVersion[index][1],
-                'rarity': matchesRarity[index][1],
-                'race': matchesRace[index][1],
+        let objs = findAll(/obj\[\d{1,4}] = (\{.*});/g, script.innerText).map(match => {
+            return JSON.parse(str2obj(match[1].replaceAll("'", "\"")))
+        })
+        objs.forEach(obj => {
+            heroCreatures[obj.lname] = {
+                'count': obj.count,
+                'cost': obj.cost,
+                'name': obj.name,
+                'id': obj.monster_id,
+                'version': obj.version,
+                'rarity': obj.rarity,
+                'race': obj.race,
             }
         })
     }
@@ -257,44 +275,6 @@ export default async function leaderEvent() {
                 })
             }
 
-            let creaturesKey = Object.entries(extraData.get("creatures")).map(([k, v]) => {
-                return `${k}~${v}`
-            })
-                .sort((a, b) => b.localeCompare(a))
-                .join("|")
-
-
-            battles = originalBattles.filter(battle => {
-                let battle_key = Object.entries(battle.enemy_creatures).map(([k, v]) => {
-                    return `${k}~${v}`
-                })
-                    .sort((a, b) => b.localeCompare(a))
-                    .join("|")
-
-                return battle_key === creaturesKey
-            })
-            if (battles.length > 0) {
-                return
-            }
-
-            // let relaxed_key = Object.entries(extraData.get("creatures")).map(([k, v]) => {
-            //     return `${k}`
-            // })
-            //     .sort((a, b) => b.localeCompare(a))
-            //     .join("|")
-            // battles = originalBattles.filter(battle => {
-            //     let battle_key = Object.entries(battle.enemy_creatures).map(([k, v]) => {
-            //         return `${k}`
-            //     })
-            //         .sort((a, b) => b.localeCompare(a))
-            //         .join("|")
-            //
-            //     return battle_key === relaxed_key && ("enemy_hero" in battle && extraData.get("enemy_hero") || extraData.get("enemy_hero") === false)
-            // })
-            // if (battles.length > 0) {
-            //     return
-            // }
-
             let targetHits = Math.floor(Object.entries(extraData.get("creatures")).length/2) + 1
 
             battles = originalBattles.filter(battle => {
@@ -313,11 +293,13 @@ export default async function leaderEvent() {
             })
             if (battles.length > 0) {
                 return
+            } else {
+                battles = originalBattles.filter(battle => {
+                    let enemy = extraData.get("enemy")-0
+                    return battle.no === enemy;
+                })
+                return
             }
-
-
-            battles = []
-            return
         }
         battles = await doGet(`getEventLeaderBattles?wave=${getCurrentLevel()}&token=${get("hwm_events_token", "")}`)
         if (battles.length > 0) {
@@ -392,7 +374,7 @@ export default async function leaderEvent() {
             easierRecords = notFavRecords.filter(battle => battle.hasOwnProperty("easier"))
         }
         let allRecords;
-        if (isEvent) {
+        if (isEvent && !location.href.includes("lg_event.php")) {
             allRecords = [...favRecords, ...harderRecords, ...standardRecords, ...easierRecords]
         } else {
             allRecords = favRecords.concat(notFavRecords)
@@ -510,7 +492,7 @@ export default async function leaderEvent() {
     function processRecordHeroCreatures(rowData, creatureAmount, creaturePortrait) {
         let isGood = false;
         if (heroCreatures.hasOwnProperty(creaturePortrait)) {
-            if (creatureAmount - 0 <= heroCreatures[creaturePortrait]['count'] - 0) {
+            if (creatureAmount - 0 <= heroCreatures[creaturePortrait].count) {
                 rowData.push([creaturePortrait, creatureAmount, true])
                 isGood = true
             } else {
@@ -522,73 +504,7 @@ export default async function leaderEvent() {
         return isGood
     }
 
-    function getSpecialCreatureTemplate(creatureData, index) {
-        let build = "attack"
-        if (creatureData.casts.length > 5) {
-            let temp = creatureData.casts.map(spell => magicSpells[spell])
-            build = mode(temp)
-        }
-        return `
-                <div class="special-creature">
-                    <div class="special-creature-info">
-                        ${getNewCreatureIcon(creatureData.portrait, `<img src="https://hwm.events/battles/skills/${build}.png">`)}
-                        <div class="special-creature-info-button" onclick="showSpecialCreatureData('${index}')">
-                            <img src="https://${cdnHost}/i/combat/btn_info.png" alt="creature info" height="50">
-                        </div>
-                    </div>
-                </div>
-                `
-    }
 
-    function showSpecialCreatureData(index) {
-        $(`special-creature-extended-${index}`).classList.toggle("visible")
-    }
-
-    function getSpecialCreatureExtraData(creatureData) {
-        return `
-                <div class="special-creature-stats">
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_attack.png?v=1" alt="attack"></div>
-                        <div class="special-creature-stat-value">${creatureData.attack.toFixed()}</div>
-                    </div>
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_defense.png?v=1" alt="attack"></div>
-                        <div class="special-creature-stat-value">${creatureData.defence.toFixed()}</div>
-                    </div>
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_hit_points.png?v=1" alt="attack"></div>
-                        <div class="special-creature-stat-value">${creatureData.health.toFixed()}</div>
-                    </div>
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_mana.png?v=1" alt="mana"></div>
-                        <div class="special-creature-stat-value">${creatureData.maxmanna.toFixed()}</div>
-                    </div>
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_speed.png?v=1" alt="attack"></div>
-                        <div class="special-creature-stat-value">${creatureData.speed.toFixed()}</div>
-                    </div>
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_initiative.png?v=1" alt="attack"></div>
-                        <div class="special-creature-stat-value">${creatureData.maxinit}</div>
-                    </div>
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_shoots.png?v=1" alt="attack"></div>
-                        <div class="special-creature-stat-value">${creatureData.shots.toFixed()}</div>
-                    </div>
-                    <div>
-                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_damage.png?v=1" alt="attack"></div>
-                        <div class="special-creature-stat-value">${creatureData.mindam.toFixed()}-${creatureData.maxdam.toFixed()}</div>
-                    </div>
-                </div>
-                <b>Навыки</b>: ${creatureData.skills.map(skill => skill.replace(". ", "").replace(".", "")).join(", ")}.<br>
-                <b>Заклинания</b>: ${creatureData.casts.map((cast, index) => {
-            if (creatureData.casts_effects) {
-                return `${cast} (${creatureData.casts_effects[index]})`
-            }
-            return cast
-        }).join(", ")}.
-                        `
-    }
 
     function isAllPresent(rowData) {
         let isAllPresent = true;
@@ -643,6 +559,8 @@ export default async function leaderEvent() {
 
     function getApplyArmyForm(rowData) {
         let formData = new FormData()
+        formData.append('set_id', "7")
+        formData.append('sign', my_sign)
         formData.append('idx', "0")
         rowData.filter(cre => cre[2]).forEach((creData, index) => {
             formData.append(`countv${index + 1}`, creData[1])
@@ -651,4 +569,72 @@ export default async function leaderEvent() {
         return formData
     }
 
+}
+
+export function getSpecialCreatureTemplate(creatureData, index) {
+    let build = "attack"
+    if (creatureData.casts.length > 5) {
+        let temp = creatureData.casts.map(spell => magicSpells[spell])
+        build = mode(temp)
+    }
+    return `
+                <div class="special-creature">
+                    <div class="special-creature-info">
+                        ${getNewCreatureIcon(creatureData.portrait, `<img src="https://hwm.achepta.com/battles/skills/${build}.png">`)}
+                        <div class="special-creature-info-button" onclick="showSpecialCreatureData('${index}')">
+                            <img src="https://${cdnHost}/i/combat/btn_info.png" alt="creature info" height="50">
+                        </div>
+                    </div>
+                </div>
+                `
+}
+
+export function showSpecialCreatureData(index) {
+    $(`special-creature-extended-${index}`).classList.toggle("visible")
+}
+
+export function getSpecialCreatureExtraData(creatureData) {
+    return `
+                <div class="special-creature-stats">
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_attack.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.attack.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_defense.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.defence.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_hit_points.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.health.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_mana.png?v=1" alt="mana"></div>
+                        <div class="special-creature-stat-value">${creatureData.maxmanna.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_speed.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.speed.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_initiative.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.maxinit}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_shoots.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.shots.toFixed()}</div>
+                    </div>
+                    <div>
+                        <div><img class="special-creature-stat-icon" src="https://${cdnHost}/i/icons/attr_damage.png?v=1" alt="attack"></div>
+                        <div class="special-creature-stat-value">${creatureData.mindam.toFixed()}-${creatureData.maxdam.toFixed()}</div>
+                    </div>
+                </div>
+                <b>Навыки</b>: ${creatureData.skills.map(skill => skill.replace(". ", "").replace(".", "")).join(", ")}.<br>
+                <b>Заклинания</b>: ${creatureData.casts.map((cast, index) => {
+        if (creatureData.casts_effects) {
+            return `${cast} (${creatureData.casts_effects[index]})`
+        }
+        return cast
+    }).join(", ")}.
+                        `
 }

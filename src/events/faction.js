@@ -9,13 +9,13 @@ function getAllTexts() {
     texts.addText(new LocalizedText("hide_faction_event_enemies", "Show enemies with max power only", "Показывать противников только с максимальной мощностью", "Показувати супротивників лише з максимальною потужністю"))
     texts.addText(new LocalizedText("mana_warning", "Enemies are stealing mana!", "В армии противника пожиратели маны!", "В армії противника крадії мани!"))
     texts.addText(new LocalizedText("faction_custom_ins", `Enable unit placement saving 
-                        <img src="https://hwm.events/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
+                        <img src="https://hwm.achepta.com/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
                         (fields with different height require different saved placement)
                     `, `Возможность автоматической расстановки 
-                        <img src="https://hwm.events/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
+                        <img src="https://hwm.achepta.com/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
                         (для полей разной высоты нужна своя расстановка)
                     `, `Можливість автоматичного розміщення 
-                        <img src="https://hwm.events/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
+                        <img src="https://hwm.achepta.com/battles/custom_ins.gif" height="400px" onclick='event.stopPropagation()'>
                         (для поля різної висоти потрібне своє розміщення)
                     `))
     texts.addText(new LocalizedText("custom_ins_auto", "Automatically apply saved placement", `Автоматически применять сохраненную расстановку`, "Автоматично застосовувати збережене розміщення"))

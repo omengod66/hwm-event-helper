@@ -15,9 +15,9 @@ function getAllTexts() {
     texts.addText(new LocalizedText("reg_available", "Registration available!", "Доступна регистрация!", "Доступна реєстрація!"))
     texts.addText(new LocalizedText("signup", "Sign up", "Зарегистрироваться", "Зареєструватись"))
     texts.addText(new LocalizedText("home",
-        `The script and instructions are here: <a href="https://hwm.events/event-helper" target="_blank" style="text-wrap: nowrap;">https://hwm.events/event-helper</a> Share with friends!`,
-        `Скрипт и инструкции по установке тут: <a href="https://hwm.events/event-helper" target="_blank" style="text-wrap: nowrap;">https://hwm.events/event-helper</a> Поделись с другом!`,
-        `Скрипт та інструкції з встановлення тут:" <a href="https://hwm.events/event-helper" target="_blank" style="text-wrap: nowrap;">https://hwm.events/event-helper</a> Поділися з друзями!`))
+        `The script and instructions are here: <a href="https://hwm.achepta.com/event-helper" target="_blank" style="text-wrap: nowrap;">https://hwm.achepta.com/event-helper</a> Share with friends!`,
+        `Скрипт и инструкции по установке тут: <a href="https://hwm.achepta.com/event-helper" target="_blank" style="text-wrap: nowrap;">https://hwm.achepta.com/event-helper</a> Поделись с другом!`,
+        `Скрипт та інструкції з встановлення тут:" <a href="https://hwm.achepta.com/event-helper" target="_blank" style="text-wrap: nowrap;">https://hwm.achepta.com/event-helper</a> Поділися з друзями!`))
     texts.addText(new LocalizedText("manifest_notif",
         `&emsp;In the summer, Google will launch Manifest V3, which will limit the use of userscripts in Chromium-based browsers (Chrome, Edge, Opera). 
                     However, according to the official <a style="color: cornflowerblue;" href="https://developer.chrome.com/docs/extensions/reference/api/userScripts#developer_mode_for_extension_users">documentation</a>, the user can enable developer mode to remove restrictions. 

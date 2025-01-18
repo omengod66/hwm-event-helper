@@ -6,7 +6,7 @@ const {eventHelperSettings, setSettings} = require("../settings");
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
-    texts.addText(new LocalizedText("show_event_attempts_left", "Show remaining attempts for players", "Показывать оставшиеся попытки у игроков", "Показувати спроби, які залишилися у гравців"))
+    texts.addText(new LocalizedText("show_event_attempts_left", "Show remaining attempts for players", "Показывать бои и оставшиеся попытки у игроков", "Показувати боі та спроби, які залишилися у гравців"))
     texts.addText(new LocalizedText("show_sort", "Show buttons to sort players", "Показывать кнопки для сортировки игроков", "Показувати кнопки для сортування гравців"))
 
     return texts
@@ -23,20 +23,22 @@ export default async function clanPage() {
 
         if (get("show_event_attempts_left", false)) {
             let clanId = new URLSearchParams(window.location.search).get("id")
-            let heroesAttempts = await doGet(`getTopClanDetailedAttempts?clan_id=${clanId}`)
+            let clanInfo = await doGet(`rating.php?clan=${clanId}`)
 
             let heroes = heroesTable.querySelectorAll("tr")
-            if (heroes.length - 20 < Object.keys(heroesAttempts).length) {
-                heroes.forEach(heroElem => {
-                    let heroId = heroElem.innerHTML.match(/id=(\d{1,8})/)[1]
-                    let heroAttempts = heroesAttempts[heroId]
-                    heroElem.insertAdjacentHTML("beforeend", `
-                        <td class="wbwhite">${
-                        heroAttempts ? heroAttempts : 0
+            heroes.forEach(heroElem => {
+                let heroId = heroElem.innerHTML.match(/id=(\d{1,8})/)[1]
+                let heroInfo = clanInfo.members.find(memberInfo => memberInfo.id == heroId)
+
+                heroElem.insertAdjacentHTML("beforeend", `
+                    <td class="wbwhite">${
+                        heroInfo ? heroInfo.total_battles : 0
                     }</td>
-                    `)
-                })
-            }
+                    <td class="wbwhite">${
+                        heroInfo ? heroInfo.attempts_left : 0
+                    }</td>
+                `)
+            })
         }
         if (get("show_event_attempts_left", false) || get("show_sort", true)) {
             replaceWithSortableTable(heroesTable)
@@ -64,6 +66,9 @@ function replaceWithSortableTable(heroesTable) {
         heroData.description = tds[tdIndex++].innerHTML
         if (tdIndex<tds.length) {
             heroData.score = tds[tdIndex++].innerText.replaceAll(" ", "").match(/(\d{0,3},?\d{0,3},?\d{0,3}\.?\d{0,5})/)[1].replaceAll(",", "") - 0
+        }
+        if (tdIndex === tds.length-2) {
+            heroData.totalBattles = tds[tdIndex++].innerText - 0
         }
         if (tdIndex === tds.length-1) {
             heroData.attemptsLeft = tds[tdIndex].innerText - 0
@@ -100,6 +105,9 @@ function replaceWithSortableTable(heroesTable) {
             result += `<td class="${tdClass}">${hero.description}</td>`
             if (hero.hasOwnProperty('score')) {
                 result += `<td class="${tdClass}" width="30" style="text-align: center;">${hero.score >= threshold ? `<b style="color: blue">${hero.score}</b>` : hero.score}</td>`
+            }
+            if (hero.hasOwnProperty('totalBattles')) {
+                result += `<td class="${tdClass}" width="30" style="text-align: center;">${hero.totalBattles}</td>`
             }
             if (hero.hasOwnProperty('attemptsLeft')) {
                 result += `<td class="${tdClass}" width="30" style="text-align: center;">${hero.attemptsLeft}</td>`

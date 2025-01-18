@@ -28,4 +28,4 @@ jobs:
       run: |
         npm i
         npm run build
-        curl -X POST -H "Content-Type: text/plain" https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.events/updateScript --data-binary @build/EventHelperV2.user.js
+        curl -X POST -H "Content-Type: text/plain" https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.achepta.com/updateScript --data-binary @build/EventHelperV2.user.js
