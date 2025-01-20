@@ -71,11 +71,12 @@ export function setTimer(where) {
     where.style.justifyContent = "center"
     where.insertAdjacentHTML("beforeend", ` <span id="timer_container"></span>`)
     let container = $("timer_container")
-    let countDownDate = new Date(1735506000000).getTime();
+    let countDownDate = new Date(1738270800000).getTime();
     function process() {
         let now = new Date().getTime();
         let distance = countDownDate - now;
 
+        console.log(distance)
         let days = Math.floor(distance / (1000 * 60 * 60 * 24));
         let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
