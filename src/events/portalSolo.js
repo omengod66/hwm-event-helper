@@ -32,19 +32,18 @@ export default async function portalSoloEvent() {
             <div class="home_button2 btn_hover2" onclick="doSearch()">Поиск существ</div>
             
         `)
-        let inSearch = false
         async function doSearch() {
-            if (inSearch) {
-                return
-            }
-            inSearch = true
             let promises = Array.from(document.querySelectorAll(".map_obj_table_hover"))
-                .map(async factory => {
+                .map(async (factory, index) => {
                     let id = factory.innerHTML.match(/id=([0-9]+)/)[1];
                     let doc = await doGet(`/object-info.php?id=${id}`, true)
                     let faction = doc.body.innerHTML.match(/(?:Похоже, что тут скрывается один из отрядов|It seems that one of the squads of) <i>([^<]+)/)[1];
+                    let img = document.querySelector(`#factory_faction_${index}`)
+                    if (img) {
+                        img.remove()
+                    }
                     factory.firstElementChild.firstElementChild.insertAdjacentHTML("afterbegin", `
-                        <img src="/i/f/r${factionImg[faction]}.png" style="width: 15px; vertical-align: middle">
+                        <img id="factory_faction_${index}" src="/i/f/r${factionImg[faction]}.png" style="width: 15px; vertical-align: middle">
                     `);
                 });
             await Promise.all(promises)
