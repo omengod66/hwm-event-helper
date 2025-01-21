@@ -23,7 +23,7 @@ import reapingEvent from "./events/reaping";
 
 
 if (get("EventHelperVersion", "16.0.4") < "16.0.5") {
-    window.open("https://daily.lordswm.com/scripts/code/EventHelper.user.js")
+    window.open("https://daily.lordswm.com/scripts/code/EventHelper.user.js?" + Date.now())
     return
 }
 

@@ -76,7 +76,6 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
     }
     where.insertAdjacentHTML(position, `
                 <div style="margin-top: 10px; display: flex; flex-direction: column;"  id="event_helper_settings_container">
-                    <div style="width: fit-content;margin: auto;">${allTexts.get("home")}</div>
                     <div id="event_helper_settings" class="home_button2 btn_hover2" style="align-self: center; margin: 4px">${allTexts.get("settings")} EventHelper</div>
                     ${(() => {
                         if (!get("eh_manifest_notif_shown", false)) {
@@ -145,6 +144,7 @@ export function eventHelperSettings(where, callback, position = "beforeend") {
 <!--                        <br>-->
 <!--                        <div style="width: 100%; text-align: center"><b>Реклама!</b></div>-->
 <!--                        <p>Крафт ювелирки с откатом 2 пары <a href="/pl_info.php?id=6722246">Kerrigan</a></p>-->
+<div style="width: fit-content;margin: auto;">${allTexts.get("home")}</div>
 <div style="display: flex;"><div style="    align-items: center;
     display: flex;">${allTexts.get("support")} </div>
 <div id="patreon_link" class="home_button2 btn_hover2" style="padding: 2px 4px;

@@ -1,97 +1,54 @@
-import {$, pl_id} from "../utils/commonUtils";
-import {doGet, doPost} from "../utils/networkUtils";
 import {setLeaderboard} from "../leaderboard";
-import {setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, removeLeaderboard, setTimer} from "../utils/eventUtils";
+import {eventHelperSettings, setSettings} from "../settings";
+import {$, allFactions, get} from "../utils/commonUtils";
+import {doGet} from "../utils/networkUtils";
 
 export default async function portalSoloEvent() {
-    let loadStarted = false;
-    let maxPages = 50;
-    let pageCount = 0;
-    let battleCount = 0;
     if (location.href.includes("tj_single.")) {
+        removeLeaderboard()
+        collapseEventDesc()
         setTimer(document.querySelector(".global_container_block_header"))
-        setLeaderboard(Array.from(document.querySelector(".tj_left_div").getElementsByTagName("center")).at(-1))
+        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
+        eventHelperSettings($("tjset_but").parentElement, (container) => {
+            setSettings("hide_portal_event_enemies", "Показывать только сложных противников", container, false)
+            setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)
+        }, "beforebegin")
 
-        mainTJSolo();
-    }
-
-    if (location.href.includes("tj_single_set")) {
-        let megas = {}
-        Array.from(document.querySelectorAll("a"))
-            .filter(a => a.href.includes("name=mega"))
-            .forEach(a => megas[a.href] = "")
-        let all_megas = await doPost("getPortalMegaCreatures", JSON.stringify(megas))
-        let filtered = {}
-        Object.entries(all_megas)
-            .map(entry => [entry[0].split("/").at(-1), entry[1]])
-            .forEach(entry => filtered[entry[0]] = entry[1])
-        Array.from(document.querySelectorAll(".tj_block")).at(-1).insertAdjacentHTML("afterend",
-            `<div class="tj_block" style="width: 100%; margin-bottom: 1em;margin-top:1em;">
-                    <div class="global_table_div_bg"></div>
-                    <div class="tj_inside_div">${Object.entries(filtered)
-                .sort((a, b) => a[1].localeCompare(b[1]))
-                .reduce((prev, [href, text]) => {
-                    return prev + `<div style="font-size: 16px; text-align: center;"><a href="/${href}">${text}</a></div>`
-                }, "")}</div>
-                </div>
-                    `
-        )
-
-    }
-
-    function mainTJSolo() {
-        Array.from(document.querySelectorAll('.tj_inside_div')).at(-1)
-            .insertAdjacentHTML("beforeend", createTJSoloTemplate());
-        $(`statbut`).addEventListener('click', () => {
-            processCollectBattles()
-        })
-    }
-
-    function createTJSoloTemplate() {
-        return `
-                    <div class="wrapperStat">
-                        <div><div id="statbut" class="home_button2 btn_hover2">Посчитать бои с существами</div></div>
-                        <div id="progress" class="progress"></div>
-                    </div>
-                `
-    }
-
-    function processCollectBattles() {
-        if (!loadStarted) {
-            collectBattles();
-            loadStarted = true;
-            document.getElementById("statbut").innerHTML = "Поиск боев...";
+        if (get("hide_portal_event_enemies", false)) {
+            Array.from(document.querySelectorAll(".global_container_block")).filter(e => e.innerHTML.includes("https://dcdn.heroeswm.ru/i/combat/btn_autoalignment.png"))
+                .forEach(e => {
+                    if (!e.innerText.includes("Сложный противник") && !e.innerText.includes("Difficult Enemy")) {
+                        e.remove()
+                    }
+                })
         }
     }
 
-    async function collectBattles() {
-        if (pageCount < maxPages) {
-            let doc = await doGet(`/pl_warlog.php?id=${pl_id}&page=${pageCount}`, true);
-            pageCount++
-            processResponse(doc)
-        }
-    }
-
-    function processResponse(doc) {
-        let arr = Array.from(doc.querySelectorAll('.global_a_hover')).slice(-1)[0].innerHTML.toString().split("\n");
-        arr = arr.slice(2, 42);
-        for (let i = 0; i < arr.length; i++) {
-            let currwarid = arr[i].match(/warid=(\d{10})/)[1] - 0;
-
-            if (/--117--/.test(arr[i])) {
-                if (/<b>/.test(arr[i].split("vs")[1])) {
-                    continue
-                }
-                battleCount++;
-                document.getElementById("progress").innerHTML = "Найдено боев: " + battleCount.toString();
-            }
-            if (currwarid <= 1387305701) {
-                let wins = document.querySelector(".tj_hide_top_div > div > b:nth-child(6)").textContent - 0;
-                document.getElementById("progress").innerHTML = "Найдено боев: " + battleCount.toString() + " Осталось боев:" + ((wins * 7 + 20) - battleCount).toString();
-                document.getElementById("statbut").remove()
+    if (location.href.includes("/map.php")) {
+        let factionImg = {"Рыцарей":1, "Некромантов":2, "Магов":3, "Эльфов":4, "Варваров":5, "Темных эльфов":6, "Демонов":7, "Гномов":8, "Степных варваров":9, "Фараонов":10, "Knights":1, "Necromancers":2, "Wizards":3, "Elves":4, "Barbarians":5, "Dark elves":6, "Demons":7, "Dwarves":8, "Tribals":9, "Pharaoh":10};
+        window.doSearch = doSearch
+        $("hwm_map_objects_and_buttons").insertAdjacentHTML("beforebegin", `
+            <div class="home_button2 btn_hover2" onclick="doSearch()">Поиск существ</div>
+            
+        `)
+        let inSearch = false
+        async function doSearch() {
+            if (inSearch) {
                 return
             }
+            inSearch = true
+            let promises = Array.from(document.querySelectorAll(".map_obj_table_hover"))
+                .map(async factory => {
+                    let id = factory.innerHTML.match(/id=([0-9]+)/)[1];
+                    let doc = await doGet(`/object-info.php?id=${id}`, true)
+                    let faction = doc.body.innerHTML.match(/(?:Похоже, что тут скрывается один из отрядов|It seems that one of the squads of) <i>([^<]+)/)[1];
+                    factory.firstElementChild.firstElementChild.insertAdjacentHTML("afterbegin", `
+                        <img src="/i/f/r${factionImg[faction]}.png" style="width: 15px; vertical-align: middle">
+                    `);
+                });
+            await Promise.all(promises)
         }
-        collectBattles()
     }
+
 }
