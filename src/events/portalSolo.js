@@ -7,7 +7,6 @@ export default async function portalSoloEvent() {
     if (location.href.includes("tj_single.")) {
         removeLeaderboard()
         collapseEventDesc()
-        console.log("here")
         setTimer(document.querySelector(".global_container_block_header"))
         setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
         eventHelperSettings($("tjset_but").parentElement, (container) => {
