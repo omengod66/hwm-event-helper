@@ -16,7 +16,7 @@ export default async function portalSoloEvent() {
         }, "beforebegin")
 
         if (get("hide_portal_event_enemies", false)) {
-            Array.from(document.querySelectorAll(".global_container_block")).filter(e => e.innerHTML.includes("https://dcdn.heroeswm.ru/i/combat/btn_autoalignment.png"))
+            Array.from(document.querySelectorAll(".global_container_block")).filter(e => e.innerHTML.includes("/i/combat/btn_autoalignment.png"))
                 .forEach(e => {
                     if (!e.innerText.includes("Сложный противник") && !e.innerText.includes("Difficult Enemy")) {
                         e.remove()
