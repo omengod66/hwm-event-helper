@@ -23,9 +23,8 @@ jobs:
 
     - name: Build
       env:
-        SUPER_LOGIN: ${{ secrets.BASIC_AUTH_USERNAME }}
-        SUPER_SECRET: ${{ secrets.BASIC_AUTH_PASSWORD }}
+        SUPER_SECRET: ${{ secrets.SUPER_SECRET }}
       run: |
         npm i
         npm run build
-        curl -X POST -H "Content-Type: text/plain" https://${SUPER_LOGIN}:${SUPER_SECRET}@hwm.achepta.com/updateScript --data-binary @build/EventHelperV2.user.js
+        curl -X POST -H "Content-Type: text/plain" https://https://daily.heroeswm.ru/api/script.php?secret=${SUPER_SECRET} --data-binary @build/EventHelperV2.user.js
