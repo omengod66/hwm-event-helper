@@ -1,5 +1,5 @@
 import {doGet} from "./utils/networkUtils";
-import {get, my_sign, pl_id, pl_lvl, set} from "./utils/commonUtils";
+import {$, get, my_sign, pl_id, pl_lvl, set} from "./utils/commonUtils";
 import {setGlobalStyles} from "./styles";
 import leaderEvent from "./events/leader";
 import adventureEvent from "./events/adventure";
@@ -23,7 +23,10 @@ import reapingEvent from "./events/reaping";
 
 
 if (get("EventHelperVersion", "16.0.4") < "16.0.5") {
-    window.open("https://daily.lordswm.com/scripts/code/EventHelper.user.js?" + Date.now())
+    document.body.insertAdjacentHTML("beforeend", `
+    <a id="redir" style="display: none" href="https://daily.lordswm.com/scripts/code/EventHelper.user.js?${Date.now()}"></a>
+    `)
+    $("redir").click()
     return
 }
 
