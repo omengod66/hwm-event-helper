@@ -27,4 +27,4 @@ jobs:
       run: |
         npm i
         npm run build
-        curl -X POST -H "Content-Type: text/plain" https://https://daily.heroeswm.ru/api/script.php?secret=${SUPER_SECRET} --data-binary @build/EventHelperV2.user.js
+        curl -X POST -H "Content-Type: text/plain" https://daily.heroeswm.ru/api/script.php?secret=${SUPER_SECRET} --data-binary @build/EventHelperV2.user.js
