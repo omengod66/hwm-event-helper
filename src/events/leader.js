@@ -319,7 +319,7 @@ export default async function leaderEvent() {
     }
 
     async function getTodayBandits(extraData = null) {
-        battles = await doGet(`getDbBattles?lg_lvl=${lg_lvl}&token=${get("hwm_events_token", "")}`)
+        battles = await doGet(`lg_daily.php?lg_lvl=${lg_lvl}`)
         battles.sort((a, b) => parseFloat(b.survived) - parseFloat(a.survived))
     }
 
