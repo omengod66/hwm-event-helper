@@ -14,10 +14,14 @@ function doRequest(url, method, body, html) {
 
             } else {
 
-            http.open(method, `${HWM_EVENTS_SERVER}/${url}`, true)
+                http.open(method, `${HWM_EVENTS_SERVER}/${url}`, true)
             }
         }
-        http.send(body);
+        if (url.includes(".php")) {
+            http.send(JSON.stringify(body));
+        } else {
+            http.send(body);
+        }
         http.onreadystatechange = function () {
             if (http.readyState === 4) {
                 if (http.status === 200 || http.status === 201) {
@@ -27,7 +31,8 @@ function doRequest(url, method, body, html) {
                     } else {
                         try {
                             response = JSON.parse(http.responseText)
-                        } catch (e) {}
+                        } catch (e) {
+                        }
                     }
                     resolve(response)
                 } else {
