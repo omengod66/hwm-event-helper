@@ -53,20 +53,32 @@ function getAllTexts() {
 let allTexts = getAllTexts()
 
 export async function sendBattle(warid, secret, type, index = null, battle_side = -1) {
+    const isClan = get("only_clan_visibility", false)
     let formData = new FormData()
     formData.append('battle_id', warid)
     formData.append('battle_secret', secret)
     formData.append('battle_side', battle_side)
-    formData.append('is_clan', get("only_clan_visibility", false))
+    formData.append('is_clan', isClan)
+
+    let jsonData = {
+        "battles": [
+            {
+                "battle_id": warid,
+                "battle_secret": secret,
+                "is_clan": isClan,
+                "battle_side": battle_side
+            }
+        ]
+    }
 
     let types = {
-        "0": "uploadDbBattle",
-        "1": "uploadEventLeaderBattle",
-        "2": "uploadFFAEventBattle",
-        "3": "uploadFactionEventBattle",
-        "4": "uploadRoguesEventBattle",
+        "0": ["battle.php", jsonData],
+        "1": ["uploadEventLeaderBattle", formData],
+        "2": ["uploadFFAEventBattle", formData],
+        "3": ["uploadFactionEventBattle", formData],
+        "4": ["uploadRoguesEventBattle", formData],
     }
-    doPost(types[type], formData).then(() => {
+    doPost(types[type][0], types[type][1]).then(() => {
         if (index != null) {
             $(`send_battle_${index}`).outerHTML = allTexts.get("sent")
         }
