@@ -8,19 +8,16 @@ function doRequest(url, method, body, html) {
         if (html) {
             http.overrideMimeType("text/html; charset=windows-1251");
             http.open(method, url, true)
+            http.send(body);
         } else {
             if (url.includes(".php")) {
                 http.open(method, `${DAILY_SERVER}/${url}`, true)
+                http.send(JSON.stringify(body));
 
             } else {
-
                 http.open(method, `${HWM_EVENTS_SERVER}/${url}`, true)
+                http.send(body);
             }
-        }
-        if (url.includes(".php")) {
-            http.send(JSON.stringify(body));
-        } else {
-            http.send(body);
         }
         http.onreadystatechange = function () {
             if (http.readyState === 4) {

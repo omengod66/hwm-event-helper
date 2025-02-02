@@ -221,15 +221,15 @@ export default async function pirateEvent() {
     }
 
     if (location.href.includes("pirate_self_event.")) {
+        removeLeaderboard()
         document.querySelector(".pirate_self_left_block").style.maxWidth = "unset"
         await setLeaderboard(
             Array.from(document.querySelectorAll('table[width="100%"][align="left"]')).slice(-1)[0].previousElementSibling,
             "afterbegin",
             false,
-            true)
+            false)
 
         setTimer(Array.from(document.querySelectorAll(".global_container_block_header")).at(1))
-        setTopBattles()
     }
 
     if (location.href.includes("pirate_self_event_set")) {
