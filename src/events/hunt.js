@@ -18,7 +18,10 @@ function getAllTexts() {
 
 let allTexts = getAllTexts()
 export default function huntEvent() {
-    let filteredClasses = allClasses.filter(clazz => get(`check_faction_${clazz[0]}`, true))
+    let defaultFiltered = Array.from(document.querySelectorAll(".hunt_result_attack > div:nth-child(2) > div > div > div:nth-child(2) img"))
+        .map(img => img.src.split("/").at(-1).split(".")[0].slice(1))
+        .map(str => parseInt(str))
+    let filteredClasses = allClasses.filter(clazz => get(`check_faction_${clazz[0]}`, true) && defaultFiltered.includes(clazz[0]))
     let currentHeroFaction;
     let classCounter = 0;
     let result = ``;
@@ -212,7 +215,7 @@ export default function huntEvent() {
     }
 
     function processHuntResponse(doc) {
-        const creatureIcons = Array.from(doc.querySelectorAll(".hunt_result_attack > div:nth-child(2) > div > div > div:nth-child(3) > div > div .cre_creature"))
+        const creatureIcons = Array.from(doc.querySelectorAll(".hunt_result_attack > div:nth-child(2) > div > div > div:nth-child(5) > div > div .cre_creature"))
             .map(creatureElem => {
                 const amount = creatureElem.querySelector(".cre_amount48")?.innerText ?? ""
                 const portrait = creatureElem.querySelector("img").src.match(/portraits\/(.*)p33/)[1]
