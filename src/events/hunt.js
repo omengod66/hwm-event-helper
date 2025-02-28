@@ -19,8 +19,8 @@ function getAllTexts() {
 let allTexts = getAllTexts()
 export default function huntEvent() {
     let defaultFiltered = Array.from(document.querySelectorAll(".hunt_result_attack > div:nth-child(2) > div > div > div:nth-child(2) img"))
-        .map(img => img.src.split("/").at(-1).split(".")[0].slice(1))
-        .map(str => parseInt(str))
+        .map(img => img.src.split("/").at(-1).split(".")[0])
+        .map(fac => parseInt(fac.slice(1)) % 100)
     let filteredClasses = allClasses.filter(clazz => get(`check_faction_${clazz[0]}`, true) && defaultFiltered.includes(clazz[0]))
     let currentHeroFaction;
     let classCounter = 0;
@@ -195,6 +195,7 @@ export default function huntEvent() {
     }
 
     async function getClassHuntData() {
+        console.log(classCounter, filteredClasses)
         if (classCounter === filteredClasses.length) {
             classCounter = 0
             document.getElementById("statbut").innerHTML = "Done";
