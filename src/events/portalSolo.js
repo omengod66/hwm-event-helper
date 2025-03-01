@@ -25,7 +25,7 @@ export default async function portalSoloEvent() {
         }
     }
 
-    if (location.href.includes("/map.php")) {
+    if (location.href.includes("/map.php") && document.body.innerHTML.includes("tj_single.php")) {
         let factionImg = {"Рыцарей":1, "Некромантов":2, "Магов":3, "Эльфов":4, "Варваров":5, "Темных эльфов":6, "Демонов":7, "Гномов":8, "Степных варваров":9, "Фараонов":10, "Knights":1, "Necromancers":2, "Wizards":3, "Elves":4, "Barbarians":5, "Dark elves":6, "Demons":7, "Dwarves":8, "Tribals":9, "Pharaoh":10};
         window.doSearch = doSearch
         $("hwm_map_objects_and_buttons").insertAdjacentHTML("beforebegin", `
