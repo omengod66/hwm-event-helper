@@ -147,9 +147,15 @@ export default async function leaderEvent() {
             setSettings("lg_show_harder", "Отображать сложные бои", container)
             setSettings("lg_show_standard", "Отображать обычные бои", container)
             setSettings("lg_show_easier", "Отображать облегченные бои", container)
+            setSettings("hide_faction_event_enemies", "Показывать только сложных противников", container, false)
         }, "afterend")
         collapseEventDesc()
         setClickableLevels()
+
+        if (get("hide_faction_event_enemies", false)) {
+            Array.from(document.querySelector("div.result_attack > div:nth-child(1) > div:nth-child(2)").children).slice(5,).forEach(e => e.remove())
+        }
+
         let leaderBoardTarget = Array.from(document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("center")).slice(-1)[0]
         setLeaderboard(leaderBoardTarget, "beforebegin")
 
