@@ -148,7 +148,7 @@ export default function hireEvent() {
                 );
             }
 
-            let date = new Date(1725499234000)
+            let date = new Date(1745409600000)
             const labels = prices.map(() => {
                 let label = formatDate(date)
                 date.setHours(date.getHours() + 1)
@@ -214,7 +214,7 @@ export default function hireEvent() {
         }
 
         async function showPriceChange() {
-            let doc = await doGet(`getRoguesCreaturesPrices`, false)
+            let doc = await doGet(`creaturePriceDynamic.php`, false)
             Array.from(document.querySelector("#ne_set_troops_on_market").querySelectorAll(".hwm_event_set_stack_block"))
                 .filter(elem => elem.innerHTML.includes("cre_creature"))
                 .forEach((elem, index) => {
