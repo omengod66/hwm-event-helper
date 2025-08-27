@@ -37,15 +37,6 @@ function getAllTexts() {
     texts.addText(new LocalizedText("nickname", "nickname", "никнейм", "нікнейм"))
     texts.addText(new LocalizedText("search", "Search", "Поиск", "Пошук"))
     texts.addText(new LocalizedText("hire", "Hire", "Набрать", "Найняти"))
-    texts.addText(new LocalizedText("hwmevents",
-        `Website with examples <a href="https://hwm.achepta.com/ffa" target="_blank">https://hwm.achepta.com/ffa</a> Share with friends!`,
-        `Проходки есть и на сайте <a href="https://hwm.achepta.com/ffa" target="_blank">https://hwm.achepta.com/ffa</a> Поделись с другом!`,
-        `Приклади також є і на сайті <a href="https://hwm.achepta.com/ffa" target="_blank">https://hwm.achepta.com/ffa</a> Поділися з друзями!`))
-
-    texts.addText(new LocalizedText("hwmevents_rogues",
-        `Website with examples <a href="https://hwm.achepta.com/rogues" target="_blank">https://hwm.achepta.com/rogues</a> Share with friends!`,
-        `Проходки есть и на сайте <a href="https://hwm.achepta.com/rogues" target="_blank">https://hwm.achepta.com/rogues</a> Поделись с другом!`,
-        `Приклади також є і на сайті <a href="https://hwm.achepta.com/rogues" target="_blank">https://hwm.achepta.com/rogues</a> Поділися з друзями!`))
 
     return texts
 }
@@ -128,10 +119,8 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                 if (battles.AFS.length === 0 && !lost) {
                     getEventBattles(target, from.replace("Battles", "FailedBattles"), callback, true)
                 } else {
-                    let text = allTexts.get("hwmevents_rogues")
                     let playerBattlesEndpoint = "getRoguesPlayerBattles"
                     if (location.href.includes("adventure_event")) {
-                        text = allTexts.get("hwmevents")
                         playerBattlesEndpoint = "getFFAPlayerBattles"
                     }
                     let currentLevel = getCurrentLevel()
@@ -150,7 +139,7 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
                         })()}'">+1</div>
                     </div>
                     `
-                    where.insertAdjacentHTML("beforeend", `<div style="text-align: center"><b>${text}</b></div>${controls}` + getAFSEventBattlesTemplate(lost, battles))
+                    where.insertAdjacentHTML("beforeend", `${controls}` + getAFSEventBattlesTemplate(lost, battles))
                     $("search_nickname").addEventListener("keypress", (e) => {
                         if (e.key === "Enter") {
                             $("process_search").click()
@@ -218,7 +207,6 @@ export async function getEventBattles(target, from = "getFFAEventBattles", callb
 
     function getFFAEventBattlesTemplate(lost, battles) {
         return `
-                <div style="text-align: center"><b>${allTexts.get("hwmevents")}</b></div>
                 <div class="battle_examples_container">
                     <div style="display: flex; flex-direction: column">
                         <div style="text-align: center;">
