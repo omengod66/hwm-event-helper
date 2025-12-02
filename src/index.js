@@ -20,6 +20,7 @@ import dungeonEvent from "./events/dungeon";
 import roguesLikeEvent from "./events/roguesLike";
 import clanPage from "./events/clan";
 import reapingEvent from "./events/reaping";
+import journeyEvent from "./events/journey";
 
 
 if (get("EventHelperVersion", "16.0.4") < "16.0.5") {
@@ -69,6 +70,7 @@ huntEvent()
 villageEvent()
 dungeonEvent()
 roguesLikeEvent()
+journeyEvent()
 
 customInsertion()
 processHeroPage()
