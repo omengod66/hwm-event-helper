@@ -65,7 +65,19 @@ function replaceWithSortableTable(heroesTable) {
         heroData.cl = tds[tdIndex++].innerText - 0
         heroData.description = tds[tdIndex++].innerHTML
         if (tdIndex<tds.length) {
-            heroData.score = tds[tdIndex++].innerText.replaceAll(" ", "").match(/(\d{0,3},?\d{0,3},?\d{0,3}\.?\d{0,5})/)[1].replaceAll(",", "") - 0
+            let rawScoreText = tds[tdIndex++].innerText
+                .replaceAll(" ", "")
+                .replaceAll(",", "")
+                .trim()
+
+            if (rawScoreText.includes("-")) {
+                // Encode dash-separated numbers using base-1000 packing
+                const parts = rawScoreText.split("-").map(p => parseInt(p, 10) || 0)
+                heroData.score = parts.reduce((acc, val) => acc * 1000 + val, 0)
+            } else {
+                const num = parseFloat(rawScoreText.replace(/[^\d.]/g, ""))
+                heroData.score = isNaN(num) ? 0 : num
+            }
         }
         if (tdIndex === tds.length-2) {
             heroData.totalBattles = tds[tdIndex++].innerText - 0
@@ -104,7 +116,19 @@ function replaceWithSortableTable(heroesTable) {
             result += `<td class="${tdClass}" width="10" align="center">${hero.cl}</td>`
             result += `<td class="${tdClass}">${hero.description}</td>`
             if (hero.hasOwnProperty('score')) {
-                result += `<td class="${tdClass}" width="30" style="text-align: center;">${hero.score >= threshold ? `<b style="color: blue">${hero.score}</b>` : hero.score}</td>`
+                const decodePacked = (val) => {
+                    let v = Math.floor(val)
+                    if (v <= 1000000) return null // not packed
+                    const parts = []
+                    while (v >= 1000) {
+                        parts.unshift(v % 1000)
+                        v = Math.floor(v / 1000)
+                    }
+                    parts.unshift(v)
+                    return parts.join("-")
+                }
+                const display = decodePacked(hero.score) ?? hero.score
+                result += `<td class="${tdClass}" width="30" style="text-align: center; text-wrap: nowrap">${hero.score >= threshold ? `<b style="color: blue">${display}</b>` : display}</td>`
             }
             if (hero.hasOwnProperty('totalBattles')) {
                 result += `<td class="${tdClass}" width="30" style="text-align: center;">${hero.totalBattles}</td>`
