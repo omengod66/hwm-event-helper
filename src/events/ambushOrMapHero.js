@@ -64,7 +64,7 @@ export default async function thiefEvent() {
         if (!location.href.includes("ambush_event")) {
             showCalculator()
         } else {
-            document.querySelector('a[href^="army_info.php?name=fahila"]').insertAdjacentHTML("afterend", `
+            document.querySelector('a[href^="army_info.php?name=tirana"]').insertAdjacentHTML("afterend", `
              <a href="${location.href.includes("lordswm") ? "https://daily.lordswm.com/event/pet" : "https://daily.heroeswm.ru/event/pet"}" target="_blank">Статистика покемонов</a>
             `)
         }
