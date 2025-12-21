@@ -102,7 +102,10 @@ export function removeAndSetLeaderboard() {
     if (centers.length > 0) {
         let center = centers[0]
         setLeaderboard(center.nextElementSibling, "afterend")
-        center.nextElementSibling.remove()
-        center.remove()
+            .then(() => {
+                center.nextElementSibling.remove()
+                center.remove()
+            })
+
     }
 }
