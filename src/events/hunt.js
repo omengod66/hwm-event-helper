@@ -1,4 +1,4 @@
-import {getCurrentLevel, removeLeaderboard, setTimer} from "../utils/eventUtils";
+import {getCurrentLevel, removeAndSetLeaderboard, setTimer} from "../utils/eventUtils";
 import {$, allClasses, allFactions, cdnHost, get, my_sign, pl_id, set} from "../utils/commonUtils";
 import {doGet} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
@@ -57,8 +57,8 @@ export default function huntEvent() {
             })
         }, "afterend")
 
-        removeLeaderboard()
-        let leaderboardContainer = Array.from(document.querySelectorAll("center")).at(-1)
+        removeAndSetLeaderboard()
+        // let leaderboardContainer = Array.from(document.querySelectorAll("center")).at(-1)
         if (get("hide_hunt_event_enemies", false)) {
             let elem = document.querySelector(".event_text_reward").nextElementSibling.nextElementSibling
             let enemyContainer = elem.parentElement
@@ -93,10 +93,10 @@ export default function huntEvent() {
                 </div> `)
                 enemyContainer.parentElement.parentElement.remove()
 
-                let clanTopHTML = leaderboardContainer.outerHTML + leaderboardContainer.nextElementSibling.outerHTML
-                leaderboardContainer.nextElementSibling.remove()
-                leaderboardContainer.outerHTML = `<div id="leaderboard" style="display: flex"><div style="flex: 1 1 0;">${clanTopHTML}</div></div>`
-                leaderboardContainer = $("leaderboard");
+                // let clanTopHTML = leaderboardContainer.outerHTML + leaderboardContainer.nextElementSibling.outerHTML
+                // leaderboardContainer.nextElementSibling.remove()
+                // leaderboardContainer.outerHTML = `<div id="leaderboard" style="display: flex"><div style="flex: 1 1 0;">${clanTopHTML}</div></div>`
+                // leaderboardContainer = $("leaderboard");
 
                 let infoContainer = Array.from(document.querySelectorAll(".global_container_block")).at(-1)
 

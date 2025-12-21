@@ -1,5 +1,5 @@
 import {$, get, pl_id, set} from "../utils/commonUtils";
-import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, removeAndSetLeaderboard, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {setLeaderboard} from "../leaderboard";
 import {doGet} from "../utils/networkUtils";
@@ -23,7 +23,7 @@ let allTexts = getAllTexts()
 
 export default async function thiefEvent() {
     if (/(ambush_single_event|ambush_event|map_hero_event)/.test(location.href)) {
-        removeLeaderboard()
+        removeAndSetLeaderboard()
         if (/map_hero_event/.test(location.href)) {
             if (typeof hwm_mobile_view === "undefined") {
                 let elem = document.querySelector(".event_result_attack")
@@ -60,7 +60,6 @@ export default async function thiefEvent() {
         interceptButtons()
         document.querySelector(".new_event_map").insertAdjacentHTML("afterend", `<div id="battle_examples"></div>`)
         getEventBattles($(`battle_examples`))
-        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).children[0].getElementsByTagName("center")).at(-1))
         if (!location.href.includes("ambush_event")) {
             showCalculator()
         } else {

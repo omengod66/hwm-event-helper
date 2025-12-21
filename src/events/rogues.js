@@ -1,7 +1,7 @@
 import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {$, get, groupBy, groupByKey, set, sortByKey} from "../utils/commonUtils";
-import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, removeAndSetLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {getEventBattles} from "../battles";
 import {doGet} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
@@ -34,8 +34,7 @@ export default function hireEvent() {
     if (location.href.includes("naym_event.")) {
         // addFilteringArea()
         // processFilters()
-        removeLeaderboard()
-        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
+        removeAndSetLeaderboard()
 
         eventHelperSettings(Array.from(document.querySelectorAll(".global_container_block")).at(-1).firstChild, (container) => {
             setSettings("auto_send_rogues_event", allTexts.get("auto_send_rogues_event"), container)

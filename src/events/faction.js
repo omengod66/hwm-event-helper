@@ -2,7 +2,7 @@ import {setLeaderboard} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {get} from "../utils/commonUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
-import {removeLeaderboard, setTimer} from "../utils/eventUtils";
+import {removeAndSetLeaderboard, setTimer} from "../utils/eventUtils";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -44,9 +44,8 @@ export default function factionEvent() {
     }
 
     if (location.href.includes("faction_event")) {
-        removeLeaderboard()
+        removeAndSetLeaderboard()
         setTimer(document.querySelectorAll(".global_container_block_header")[1])
-        setLeaderboard(document.querySelector("#hwm_no_zoom > div > div.frac_event_stat > div > div:nth-child(2) > center"))
         eventHelperSettings(document.querySelector("#fe_skip"), (container) => {
             setSettings("hide_faction_event_enemies", allTexts.get("hide_faction_event_enemies"), container, false)
             setSettings("faction_custom_ins", allTexts.get("faction_custom_ins"), container, true)
