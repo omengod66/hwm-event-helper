@@ -1,6 +1,6 @@
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
 import {setLeaderboard} from "../leaderboard";
-import {removeLeaderboard} from "../utils/eventUtils";
+import {removeAndSetLeaderboard} from "../utils/eventUtils";
 
 
 function getAllTexts() {
@@ -14,8 +14,7 @@ let allTexts = getAllTexts()
 
 export default async function journeyEvent() {
     if (location.href.includes("journey_event.php?castle=1")) {
-        removeLeaderboard()
-        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
+        removeAndSetLeaderboard()
 
     }
 }

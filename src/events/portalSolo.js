@@ -1,15 +1,14 @@
 import {setLeaderboard} from "../leaderboard";
-import {collapseEventDesc, removeLeaderboard, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, removeAndSetLeaderboard, setTimer} from "../utils/eventUtils";
 import {eventHelperSettings, setSettings} from "../settings";
 import {$, allFactions, get} from "../utils/commonUtils";
 import {doGet} from "../utils/networkUtils";
 
 export default async function portalSoloEvent() {
     if (location.href.includes("tj_single.")) {
-        removeLeaderboard()
+        removeAndSetLeaderboard()
         collapseEventDesc()
         setTimer(document.querySelector(".global_container_block_header"))
-        setLeaderboard(Array.from(Array.from(document.querySelectorAll(".global_container_block")).at(-1).getElementsByTagName("center")).at(-1))
         eventHelperSettings($("tjset_but").parentElement, (container) => {
             setSettings("hide_portal_event_enemies", "Показывать только сложных противников.", container, false)
             setSettings("collapse_event_desc", "Всегда сворачивать описания боев", container, false)

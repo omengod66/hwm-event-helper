@@ -11,7 +11,7 @@ import {
     set
 } from "../utils/commonUtils";
 import {eventHelperSettings, setSettings} from "../settings";
-import {collapseEventDesc, getCurrentLevel, removeLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
+import {collapseEventDesc, getCurrentLevel, removeAndSetLeaderboard, setClickableLevels, setTimer} from "../utils/eventUtils";
 import {setLeaderboard} from "../leaderboard";
 import {doGet, doPost} from "../utils/networkUtils";
 import {getNewCreatureIcon} from "../templates";
@@ -34,11 +34,9 @@ export default async function leaderEvent() {
 
     if (/(lg_event)/.test(location.href)) {
         isEvent = true
-        removeLeaderboard()
+        removeAndSetLeaderboard()
         collapseEventDesc()
         setTimer(document.querySelectorAll(".global_container_block_header")[1])
-        let leaderBoardTarget = Array.from(document.querySelectorAll(".frac_event_stat center")).at(-1)
-        setLeaderboard(leaderBoardTarget, "beforebegin")
 
         let enemiesContainer = document.querySelector(".frac_enemy_block").parentElement
         enemiesContainer.style.flexDirection = "column"
@@ -116,7 +114,7 @@ export default async function leaderEvent() {
     }
 
     if (/(leader_rogues|leader_winter)/.test(location.href)) {
-        removeLeaderboard()
+        removeAndSetLeaderboard()
         setTimer(document.querySelector(".global_container_block_header"))
 
         isEvent = true
@@ -156,8 +154,6 @@ export default async function leaderEvent() {
             Array.from(document.querySelector("div.result_attack > div:nth-child(1) > div:nth-child(2)").children).slice(5,).forEach(e => e.remove())
         }
 
-        let leaderBoardTarget = Array.from(document.querySelector('.new_event_map').querySelector('.global_container_block:last-child > div').getElementsByTagName("center")).slice(-1)[0]
-        setLeaderboard(leaderBoardTarget, "beforebegin")
 
         let examplesElem;
         if (typeof hwm_mobile_view !== "undefined" && hwm_mobile_view === true) {

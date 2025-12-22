@@ -1,5 +1,6 @@
 import {$, get} from "./commonUtils";
 import {LocalizedText, LocalizedTextMap} from "./localizationUtils";
+import {setLeaderboard} from "../leaderboard";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -96,11 +97,15 @@ export function setTimer(where) {
     process()
 }
 
-export function removeLeaderboard() {
+export function removeAndSetLeaderboard() {
     let centers = Array.from(document.querySelectorAll("center")).filter(elem => elem.innerText.length < 100 && (elem.innerText.includes("Общий рейтинг") || elem.innerText.includes("General rating")))
     if (centers.length > 0) {
         let center = centers[0]
-        center.nextElementSibling.remove()
-        center.remove()
+        setLeaderboard(center.nextElementSibling, "afterend")
+            .then(() => {
+                center.nextElementSibling.remove()
+                center.remove()
+            })
+
     }
 }

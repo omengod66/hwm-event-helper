@@ -3,7 +3,7 @@ import {setLeaderboard, setTopBattles} from "../leaderboard";
 import {eventHelperSettings, setSettings} from "../settings";
 import {doGet, doPost} from "../utils/networkUtils";
 import {LocalizedText, LocalizedTextMap} from "../utils/localizationUtils";
-import {removeLeaderboard, setTimer} from "../utils/eventUtils";
+import {removeAndSetLeaderboard, setTimer} from "../utils/eventUtils";
 
 function getAllTexts() {
     let texts = new LocalizedTextMap()
@@ -32,9 +32,7 @@ let allTexts = getAllTexts()
 
 export default async function pirateEvent() {
     if (location.href.includes("pirate_event.")) {
-        removeLeaderboard()
-        let leaderBoardTarget = Array.from(document.querySelectorAll("#tableDiv center")).at(-1)
-        setLeaderboard(leaderBoardTarget, "beforebegin")
+        removeAndSetLeaderboard()
         document.querySelector(".pirate_event_blocks").style.width = "100%"
         document.querySelector("#set_mobile_max_width").style.justifyContent = "center"
         document.querySelector(".global_inside_shadow.pirate_event_picture").remove()
@@ -221,7 +219,7 @@ export default async function pirateEvent() {
     }
 
     if (location.href.includes("pirate_self_event.")) {
-        removeLeaderboard()
+        removeAndSetLeaderboard()
         document.querySelector(".pirate_self_left_block").style.maxWidth = "unset"
         await setLeaderboard(
             Array.from(document.querySelectorAll('table[width="100%"][align="left"]')).slice(-1)[0].previousElementSibling,
