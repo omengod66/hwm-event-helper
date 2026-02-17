@@ -109,8 +109,6 @@ export default function huntEvent() {
         //     `<div style="max-width: 240px">Автор скрипта <a href="/pl_info.php?id=7197821"><b>Гроза_ГВД</b></a> будет рад подарку в виде артефакта леса 😊</div>`)
         setTimer(document.querySelector(".global_container_block_header"))
 
-        setLeaderboard(leaderboardContainer)
-
         mainHuntEvent();
         getCurrentFaction();
 
