@@ -35,16 +35,13 @@ async function setup() {
     if (!pl_lvl) {
         let doc = await doGet(`/pl_info.php?id=${pl_id}`, true);
         set("hero_combat_lvl", doc.body.innerText.match(/(Боевой уровень|Combat level): (\d{1,2})/)[2] - 0)
-        location.reload()
     }
     if (!my_sign) {
         let doc = await doGet(`/shop.php`, true)
         set("my_sign", doc.body.innerHTML.match(/sign=([a-z0-9]+)/)[1])
-        location.reload()
     }
-    if (location.href.includes("inventory")) {
+    if (location.href.includes("/shop.php")) {
         set("my_sign", window.sign)
-        set("hero_combat_lvl", window.pl_level)
     }
 }
 setup()
