@@ -37,11 +37,11 @@ async function setup() {
         set("hero_combat_lvl", doc.body.innerText.match(/(Боевой уровень|Combat level): (\d{1,2})/)[2] - 0)
     }
     if (!my_sign) {
-        let doc = await doGet(`/shop.php`, true)
-        set("my_sign", doc.body.innerHTML.match(/sign=([a-z0-9]+)/)[1])
+        let doc = await doGet(`/map.php`, true)
+        set("my_sign", doc.body.innerHTML.match(/PL_JS_SIGN = '([a-z0-9]+)'/)[1])
     }
-    if (location.href.includes("/shop.php")) {
-        set("my_sign", window.sign)
+    if (location.href.includes("/map.php")) {
+        set("my_sign", window.PL_JS_SIGN)
     }
 }
 setup()
