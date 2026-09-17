@@ -38,7 +38,7 @@ async function setup() {
     }
     if (!my_sign) {
         let doc = await doGet(`/map.php`, true)
-        set("my_sign", doc.body.innerHTML.match(/PL_JS_SIGN = '([a-z0-9]+)'/)[1])
+        set("my_sign", doc.head.innerHTML.match(/PL_JS_SIGN = '([a-z0-9]+)'/)[1])
     }
     if (location.href.includes("/map.php")) {
         set("my_sign", window.PL_JS_SIGN)
